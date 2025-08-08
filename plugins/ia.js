@@ -1,9 +1,8 @@
 const axios = require('axios');
-const baileys = require('@whiskeysockets/baileys');
 const fs = require('fs');
 const path = require('path');
 
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Imagen dramática y electrizante
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Imagen dramática
 
 const contextInfo = {
     externalAdReply: {
@@ -11,7 +10,7 @@ const contextInfo = {
         body: "¡Estoy temblando, pero responderé con todo mi corazón!",
         mediaType: 1,
         previewType: 0,
-        mediaUrl: null,
+        mediaUrl: "https://zenitsu.bot",
         sourceUrl: "https://zenitsu.bot",
         thumbnailUrl
     }
@@ -29,7 +28,7 @@ async function handler(conn, { message, args }) {
 
     if (!query) {
         return conn.sendMessage(jid, {
-            text: '😱 *¡¿Cómo que no escribiste nada?!*\n\n> ¡No puedo leer tu mente, baka! 😤',
+            text: '😱 ¡¿Cómo que no escribiste nada?!\n\n> ¡No puedo leer tu mente, baka! 😤',
             contextInfo
         }, { quoted: message });
     }
@@ -85,25 +84,27 @@ async function handler(conn, { message, args }) {
         conversationHistory[userId].push({ role: 'assistant', content: replyText });
         fs.writeFileSync(historyPath, JSON.stringify(conversationHistory, null, 2));
 
-        const caption = `
+        const messageText = `
 ╭─「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝙏𝘼 」─╮
-│ 🧠 *Pregunta:* ${query}
-│ 🎭 *Estilo:* Zenitsu-Bot
-│ 🪷 *Creador:* Carlos
+│ 🧠 Pregunta: ${query}
+│ 🎭 Estilo: Zenitsu-Bot
+│ 🪷 Creador: Carlos
 ╰────────────────────╯
 
 ${replyText}
+
+😳 Zenitsu está exhausto... ¡pero lo logró! ⚡
 `.trim();
 
         await conn.sendMessage(jid, {
-            text: caption,
+            text: messageText,
             contextInfo
         }, { quoted: message });
 
     } catch (err) {
-        console.error('❌ Error al invocar a Zenitsu-Bot:', err.message);
+        console.error('⚠️ Error al invocar a Zenitsu-Bot:', err.message);
         await conn.sendMessage(jid, {
-            text: `💥 *¡Todo se está derrumbando! ¡Carlos, sálvame!*\n> ${err.message}`,
+            text: `❌ ¡Algo salió mal!\n\n> Zenitsu se tropezó intentando responder...\n🛠️ ${err.message}`,
             contextInfo
         }, { quoted: message });
     }
