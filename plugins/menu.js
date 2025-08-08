@@ -58,7 +58,7 @@ async function handler(conn, { message }) {
         '🧧 STICKER': ['pinterest', 'tenor', 'cosplay'],
         '🛠 RPG': ['guar'],
         '🎈 CONVERTIDORES': ['rm'],
-               '🔧 HERRAMIENTA': ['debugadmin', 'logs', 'update'],
+        '🔧 HERRAMIENTA': ['debugadmin', 'logs', 'update'],
         '🪄 RANDOM': ['waifu', 'aisuki'],
         '👑 OWNER': ['ds']
     };
@@ -94,7 +94,6 @@ ${dynamicMenu}╰─━━━━━━༺🌙༻━━━━━━─╯
         const menuMessage = {
             image: { url: 'https://qu.ax/MvYPM.jpg' },
             caption: menuCaption
-            // Miniatura eliminada completamente
         };
 
         await sendMessage(conn, message.key.remoteJid, menuMessage, { quoted: message });
