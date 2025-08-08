@@ -1,101 +1,115 @@
-else if (comando === '.ia') {
-  const query = args.slice(1).join(' ');
-  if (!query) {
-    return message.reply('😱 ¡¿Cómo que no escribiste nada?! ¡No puedo leer tu mente, baka! 😤');
-  }
+const axios = require('axios');
+const baileys = require('@whiskeysockets/baileys');
+const fs = require('fs');
+const path = require('path');
 
-  message.channel.sendTyping();
+const thumbnailUrl = 'https://qu.ax/zenitsu.jpg'; // Imagen dramática y electrizante
 
-  const fs = require('fs');
-  const path = './zenitsuMemory.json';
+const contextInfo = {
+    externalAdReply: {
+        title: "⚡ Zenitsu-Bot",
+        body: "¡Estoy temblando, pero responderé con todo mi corazón!",
+        mediaType: 1,
+        previewType: 0,
+        mediaUrl: null,
+        sourceUrl: "https://zenitsu.bot",
+        thumbnailUrl
+    }
+};
 
-  if (!fs.existsSync(path)) {
-    fs.writeFileSync(path, JSON.stringify({}));
-  }
+const historyPath = './zenitsuMemory.json';
 
-  let conversationHistory = JSON.parse(fs.readFileSync(path, 'utf8'));
-  const userId = message.author.id;
+if (!fs.existsSync(historyPath)) {
+    fs.writeFileSync(historyPath, JSON.stringify({}));
+}
 
-  if (!conversationHistory[userId]) {
-    conversationHistory[userId] = [
-      {
-        role: 'system',
-        content: `Actúa como Zenitsu-Bot, un bot de Discord con personalidad exagerada, dramática y emocional. Grita, se queja, pero siempre responde con cariño y humor. Su creador es Carlos, a quien respeta como a un maestro del trueno.`
-      }
-    ];
-  }
+async function handler(conn, { message, args }) {
+    const query = args.join(' ');
+    const jid = message.key.remoteJid;
 
-  conversationHistory[userId].push({ role: 'user', content: query });
+    if (!query) {
+        return conn.sendMessage(jid, {
+            text: '😱 *¡¿Cómo que no escribiste nada?!*\n\n> ¡No puedo leer tu mente, baka! 😤',
+            contextInfo
+        }, { quoted: message });
+    }
 
-  const conversationText = conversationHistory[userId]
-    .map(msg =>
-      msg.role === 'system' ? `⚙️ Sistema: ${msg.content}\n\n`
-        : msg.role === 'user' ? `👤 Usuario: ${msg.content}\n\n`
-          : `⚡ Zenitsu-Bot: ${msg.content}\n\n`
-    ).join('');
+    await conn.sendMessage(jid, {
+        text: '⚡ *Estoy temblando... pero invocando la respuesta...*',
+        contextInfo
+    }, { quoted: message });
 
-  try {
-    const https = require('https');
-    const data = JSON.stringify({
-      contents: [{ parts: [{ text: conversationText }] }]
-    });
+    let conversationHistory = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
+    const userId = message.key.participant || message.key.remoteJid;
 
-    const options = {
-      hostname: 'generativelanguage.googleapis.com',
-      path: '/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBrYQZ3s5IVrp-on-ewJON8Gj6ZoD_NWWI',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(data)
-      }
-    };
+    if (!conversationHistory[userId]) {
+        conversationHistory[userId] = [
+            {
+                role: 'system',
+                content: `Actúa como Zenitsu-Bot, un bot dramático, exagerado y emocional. Grita, se queja, pero responde con ternura y humor. Su creador es Carlos, a quien admira como maestro del trueno.`
+            }
+        ];
+    }
 
-    const req = https.request(options, (res) => {
-      let responseData = '';
+    conversationHistory[userId].push({ role: 'user', content: query });
 
-      res.on('data', (chunk) => {
-        responseData += chunk;
-      });
+    const conversationText = conversationHistory[userId]
+        .map(msg =>
+            msg.role === 'system' ? `⚙️ Sistema: ${msg.content}\n\n`
+                : msg.role === 'user' ? `👤 Usuario: ${msg.content}\n\n`
+                    : `⚡ Zenitsu-Bot: ${msg.content}\n\n`
+        ).join('');
 
-      res.on('end', () => {
-        try {
-          const responseJson = JSON.parse(responseData);
-          const replyText = responseJson?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-          if (replyText) {
-            conversationHistory[userId].push({ role: 'assistant', content: replyText });
-            fs.writeFileSync(path, JSON.stringify(conversationHistory, null, 2));
-
-            message.reply({
-              embeds: [{
-                color: 0xffcc00,
-                title: '⚡ ¡Zenitsu-Bot ha hablado!',
-                description: replyText,
-                thumbnail: {
-                  url: 'https://qu.ax/zenitsu.jpg' // Imagen con aura dramática
-                },
-                footer: {
-                  text: '💛 Zenitsu está temblando... pero responde igual'
+    try {
+        const response = await axios.post(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBrYQZ3s5IVrp-on-ewJON8Gj6ZoD_NWWI',
+            {
+                contents: [{ parts: [{ text: conversationText }] }]
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-              }]
-            });
-          } else {
-            message.reply("😵 ¡Nooo! ¡La IA no dijo nada! ¡Estoy en pánico total!");
-          }
-        } catch (error) {
-          message.reply(`💥 ¡Error al procesar la respuesta! ¡Esto es demasiado para mí! 😭\n> ${error.message}`);
+            }
+        );
+
+        const replyText = response?.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!replyText) {
+            return conn.sendMessage(jid, {
+                text: '😵 *¡La IA no dijo nada! ¡Estoy en pánico total!*',
+                contextInfo
+            }, { quoted: message });
         }
-      });
-    });
 
-    req.on('error', (error) => {
-      message.reply(`🔌 ¡No me pude conectar con la IA! ¡Estoy electrocutado de frustración! ⚡😫\n> ${error.message}`);
-    });
+        conversationHistory[userId].push({ role: 'assistant', content: replyText });
+        fs.writeFileSync(historyPath, JSON.stringify(conversationHistory, null, 2));
 
-    req.write(data);
-    req.end();
+        const caption = `
+╭─「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝙏𝘼 」─╮
+│ 🧠 *Pregunta:* ${query}
+│ 🎭 *Estilo:* Zenitsu-Bot
+│ 🪷 *Creador:* Carlos
+╰────────────────────╯
 
-  } catch (error) {
-    message.reply(`🔥 ¡Todo se está derrumbando! ¡Carlos, sálvame! 😱\n> ${error.message}`);
-  }
-                                              }
+${replyText}
+`.trim();
+
+        await conn.sendMessage(jid, {
+            text: caption,
+            contextInfo
+        }, { quoted: message });
+
+    } catch (err) {
+        console.error('❌ Error al invocar a Zenitsu-Bot:', err.message);
+        await conn.sendMessage(jid, {
+            text: `💥 *¡Todo se está derrumbando! ¡Carlos, sálvame!*\n> ${err.message}`,
+            contextInfo
+        }, { quoted: message });
+    }
+}
+
+module.exports = {
+    command: 'ia',
+    handler,
+};
