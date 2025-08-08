@@ -4,48 +4,61 @@ const path = require('path');
 
 module.exports = {
     command: 'update',
-    handler: async (conn, { message, args }) => {
+    handler: async (conn, { message }) => {
         const from = message.key.remoteJid;
         const sender = message.key.participant || from;
 
         if (sender !== ownerid) {
             return await conn.sendMessage(from, {
-                text: '*😤 ¡Alto ahí!*\n\n> Solo el *gran maestro* puede actualizar el bot. Zenitsu está demasiado nervioso para tocar el código...',
-            });
+                text: '*😤 ¡Alto ahí!*\n\n> Solo el *gran maestro Carlos* puede invocar el ritual de actualización.\nZenitsu tiembla solo de pensarlo...',
+            }, { quoted: message });
         }
 
         await conn.sendMessage(from, {
             text: '*🔄 Zenitsu está iniciando la actualización...*\n\n> ¡Espero no romper nada! 😰',
-        });
+        }, { quoted: message });
 
         const botDirectory = path.join(__dirname, '..');
 
         exec('git pull origin main', { cwd: botDirectory }, async (error, stdout, stderr) => {
             if (error) {
                 return await conn.sendMessage(from, {
-                    text: `*❌ Error al actualizar:*\n\n> ${error.message}`,
-                });
+                    text: `*❌ ¡Error fatal!*\n\n> Zenitsu se tropezó con el código...\n🛠️ ${error.message}`,
+                }, { quoted: message });
             }
 
             if (stderr) {
-                return await conn.sendMessage(from, {
+                await conn.sendMessage(from, {
                     text: `*⚠️ Advertencia durante la actualización:*\n\n> ${stderr}`,
-                });
+                }, { quoted: message });
             }
 
+            const changes = stdout
+                .split('\n')
+                .filter(line => line.includes('.js') || line.includes('.json') || line.includes('.md'))
+                .map(line => `📁 ${line.trim()}`)
+                .join('\n') || '🤷‍♂️ No se detectaron archivos modificados directamente.';
+
             const formatted = `
-╭─「 ⚙️ 𝘼𝘾𝙏𝙐𝘼𝙇𝙄𝙕𝘼𝘾𝙄𝙊𝙉 」─╮
+╭─「 ⚙️ 𝙐𝙋𝘿𝘼𝙏𝙀 𝙍𝙄𝙏𝙐𝘼𝙇 」─╮
 │ ✅ *Actualización completada con éxito*
-│ 📤 *Resultado:*
+│ 🧙 *Invocador:* Carlos (Maestro del trueno)
+│ 📅 *Fecha:* ${new Date().toLocaleString()}
+│ 📂 *Directorio:* \`${botDirectory}\`
+│ 📤 *Archivos modificados:*
+│ ${changes}
+│ 📜 *Log completo:*
 │ \`\`\`
 ${stdout.trim()}
 \`\`\`
-╰──────────────────────╯
+╰────────────────────────────╯
+
+😳 Zenitsu sobrevivió al ritual... ¡por ahora! ⚡
 `.trim();
 
             return await conn.sendMessage(from, {
                 text: formatted,
-            });
+            }, { quoted: message });
         });
     },
 };
