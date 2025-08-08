@@ -12,6 +12,38 @@ const sendMessage = async (conn, to, message, options = {}, additionalOptions = 
 async function handler(conn, { message }) {
     const botPrefix = '.';
 
+    const comandosConDescripcion = {
+        ia: '🧠 Invoca la inteligencia artificial para conversar o crear.',
+        anime: '🎌 Busca información o imágenes de tus animes favoritos.',
+        ds: '📊 Muestra estadísticas internas del bot.',
+        guar: '🛡️ Activa el modo guardián o sub bot.',
+        play: '🎶 Descarga música desde YouTube.',
+        play2: '🎧 Alternativa para descargar música.',
+        get: '📥 Descarga archivos desde enlaces directos.',
+        tiktok: '🎵 Descarga videos de TikTok sin marca de agua.',
+        trm: '🎮 Juego de adivinanza con palabras ocultas.',
+        welcome: '👋 Configura mensajes de bienvenida en grupos.',
+        kick: '🥾 Expulsa a un usuario del grupo.',
+        promote: '🔺 Asciende a alguien como administrador.',
+        demote: '🔻 Revoca permisos de administrador.',
+        debugadmin: '🛠️ Activa o desactiva funciones de depuración.',
+        update: '🔄 Actualiza el bot o sus módulos.',
+        logs: '📜 Muestra registros recientes del sistema.',
+        nsfw: '🔥 Comandos para contenido +18 (solo admins).',
+        p: '💋 Accede a imágenes subidas de tono.',
+        google: '🔍 Realiza búsquedas en Google.',
+        bingsearch: '🧭 Explora resultados con Bing.',
+        playstore: '📱 Busca apps en Play Store.',
+        clima: '🌦️ Consulta el clima actual en tu ciudad.',
+        pinterest: '🖼️ Busca imágenes inspiradoras en Pinterest.',
+        tenor: '🎭 Encuentra GIFs animados para cualquier emoción.',
+        cosplay: '🧝‍♀️ Imágenes de cosplay artístico.',
+        rm: '🌀 Convierte stickers en imágenes o viceversa.',
+        acuarela: '🎨 Genera logos con estilo de acuarela.',
+        waifu: '💖 Invoca una waifu aleatoria.',
+        aisuki: '🌸 Frases románticas generadas por IA.'
+    };
+
     const categorias = {
         'ℹ️ INFOBOT': ['ia', 'anime', 'ds'],
         '✨ SER SUB BOT': ['guar'],
@@ -38,7 +70,8 @@ async function handler(conn, { message }) {
         if (comandos.length > 0) {
             dynamicMenu += `\n${titulo}:\n`;
             for (const cmd of comandos) {
-                dynamicMenu += `   ⚡ ${botPrefix}${cmd}\n`;
+                const desc = comandosConDescripcion[cmd] || '✨ Comando sin descripción aún.';
+                dynamicMenu += `   ⚡ ${botPrefix}${cmd} → ${desc}\n`;
             }
         }
     }
@@ -69,7 +102,7 @@ ${dynamicMenu}╰─━━━━━━༺🌙༻━━━━━━─╯
                     body: 'Menú de técnicas electrizantes',
                     sourceUrl: 'https://zenitsu.bot/menu',
                     mediaType: 1,
-                    renderLargerThumbnail: false // Miniatura desactivada
+                    renderLargerThumbnail: false
                 }
             }
         };
