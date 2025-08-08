@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const thumbnailUrl = 'https://qu.ax/summerbeach.jpg'; // Miniatura tropical y soleada
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura tropical y soleada
 
 const contextInfo = {
     externalAdReply: {
