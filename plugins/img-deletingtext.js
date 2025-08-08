@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const thumbnailUrl = 'https://qu.ax/7YQvU.jpg'; // Miniatura con atmósfera glitch
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura con atmósfera glitch
 
 const contextInfo = {
     externalAdReply: {
