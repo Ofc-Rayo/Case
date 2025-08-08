@@ -12,17 +12,38 @@ const sendMessage = async (conn, to, message, options = {}, additionalOptions = 
 async function handler(conn, { message }) {
     const botPrefix = '.';
 
-    const currentFile = path.basename(__filename);
-    const fs = require('fs');
-    const files = fs.readdirSync(__dirname)
-        .filter(file => file !== currentFile && file.endsWith('.js'))
-        .map(file => file.replace('.js', ''));
+    const categorias = {
+        'ℹ️ INFOBOT': ['ia', 'anime', 'ds'],
+        '✨ SER SUB BOT': ['guar'],
+        '🚀 DESCARGAS': ['play', 'play2', 'get', 'tiktok'],
+        '👾 JUEGOS': ['trm'],
+        '✨️ NEW - RPG GACHA': ['guar'],
+        '🟢 REGISTRO': ['welcome'],
+        '⚙️ GRUPO': ['kick', 'promote', 'demote'],
+        '🕹 ENABLE/DISABLE': ['debugadmin', 'update', 'logs'],
+        '🥵 COMANDO +18': ['nsfw', 'p'],
+        '🔍 BUSCADORES': ['google', 'bingsearch', 'playstore', 'clima'],
+        '🧧 STICKER': ['pinterest', 'tenor', 'cosplay'],
+        '🛠 RPG': ['guar'],
+        '🎈 CONVERTIDORES': ['rm'],
+        '🎀 LOGOS': ['acuarela'],
+        '🔧 HERRAMIENTA': ['debugadmin', 'logs', 'update'],
+        '🪄 RANDOW': ['waifu', 'aisuki'],
+        '🎙 EFECTO NOTA DE VOZ': [],
+        '👑 OWNER': ['ds']
+    };
 
-    const totalPlugins = files.length;
     let dynamicMenu = '';
-    for (const file of files) {
-        dynamicMenu += `   ⚡ ${botPrefix}${file}\n`;
+    for (const [titulo, comandos] of Object.entries(categorias)) {
+        if (comandos.length > 0) {
+            dynamicMenu += `\n${titulo}:\n`;
+            for (const cmd of comandos) {
+                dynamicMenu += `   ⚡ ${botPrefix}${cmd}\n`;
+            }
+        }
     }
+
+    const totalPlugins = Object.values(categorias).reduce((acc, cmds) => acc + cmds.length, 0);
 
     const menuCaption = `
 ╭─━━━━━━༺💛༻━━━━━━─╮
@@ -41,7 +62,17 @@ ${dynamicMenu}╰─━━━━━━༺🌙༻━━━━━━─╯
     try {
         const menuMessage = {
             image: { url: 'https://qu.ax/MvYPM.jpg' },
-            caption: menuCaption
+            caption: menuCaption,
+            contextInfo: {
+                externalAdReply: {
+                    title: '⚡ Zenitsu Bot',
+                    body: 'Menú de técnicas electrizantes',
+                    thumbnailUrl: 'https://qu.ax/MvYPM.jpg',
+                    sourceUrl: 'https://zenitsu.bot/menu',
+                    mediaType: 1,
+                    renderLargerThumbnail: true
+                }
+            }
         };
 
         await sendMessage(conn, message.key.remoteJid, menuMessage, { quoted: message });
