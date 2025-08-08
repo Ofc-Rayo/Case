@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const thumbnailUrl = 'https://qu.ax/LightFX.jpg'; // Miniatura con aura luminosa
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura con aura luminosa
 
 const contextInfo = {
     externalAdReply: {
