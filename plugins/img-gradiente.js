@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const thumbnailUrl = 'https://qu.ax/gradienttext.jpg'; // Miniatura con fondo degradado vibrante
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura con fondo degradado vibrante
 
 const contextInfo = {
     externalAdReply: {
