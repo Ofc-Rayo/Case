@@ -3,7 +3,7 @@ const baileys = require('@whiskeysockets/baileys');
 const fs = require('fs');
 const path = require('path');
 
-const thumbnailUrl = 'https://qu.ax/zenitsu.jpg'; // Imagen dramática y electrizante
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Imagen dramática y electrizante
 
 const contextInfo = {
     externalAdReply: {
