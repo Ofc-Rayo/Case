@@ -58,10 +58,8 @@ async function handler(conn, { message }) {
         '🧧 STICKER': ['pinterest', 'tenor', 'cosplay'],
         '🛠 RPG': ['guar'],
         '🎈 CONVERTIDORES': ['rm'],
-        '🎀 LOGOS': ['acuarela'],
-        '🔧 HERRAMIENTA': ['debugadmin', 'logs', 'update'],
-        '🪄 RANDOW': ['waifu', 'aisuki'],
-        '🎙 EFECTO NOTA DE VOZ': [],
+               '🔧 HERRAMIENTA': ['debugadmin', 'logs', 'update'],
+        '🪄 RANDOM': ['waifu', 'aisuki'],
         '👑 OWNER': ['ds']
     };
 
@@ -95,16 +93,8 @@ ${dynamicMenu}╰─━━━━━━༺🌙༻━━━━━━─╯
     try {
         const menuMessage = {
             image: { url: 'https://qu.ax/MvYPM.jpg' },
-            caption: menuCaption,
-            contextInfo: {
-                externalAdReply: {
-                    title: '⚡ Zenitsu Bot',
-                    body: 'Menú de técnicas electrizantes',
-                    sourceUrl: 'https://zenitsu.bot/menu',
-                    mediaType: 1,
-                    renderLargerThumbnail: false
-                }
-            }
+            caption: menuCaption
+            // Miniatura eliminada completamente
         };
 
         await sendMessage(conn, message.key.remoteJid, menuMessage, { quoted: message });
