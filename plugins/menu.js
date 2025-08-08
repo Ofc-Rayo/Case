@@ -67,10 +67,9 @@ ${dynamicMenu}╰─━━━━━━༺🌙༻━━━━━━─╯
                 externalAdReply: {
                     title: '⚡ Zenitsu Bot',
                     body: 'Menú de técnicas electrizantes',
-                    thumbnailUrl: 'https://qu.ax/MvYPM.jpg',
                     sourceUrl: 'https://zenitsu.bot/menu',
                     mediaType: 1,
-                    renderLargerThumbnail: true
+                    renderLargerThumbnail: false // Miniatura desactivada
                 }
             }
         };
