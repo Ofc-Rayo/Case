@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const thumbnailUrl = 'https://qu.ax/galaxywall.jpg'; // Miniatura cósmica y envolvente
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura cósmica y envolvente
 
 const contextInfo = {
     externalAdReply: {
