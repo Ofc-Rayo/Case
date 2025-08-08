@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const thumbnailUrl = 'https://qu.ax/freecreate.jpg'; // Miniatura abstracta y expresiva
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura abstracta y expresiva
 
 const contextInfo = {
     externalAdReply: {
