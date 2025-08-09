@@ -15,14 +15,13 @@ async function handler(conn, { message }) {
     const admins = participants.filter(p => p.admin).map(p => p.id);
     const botId = conn.user.id.split(':')[0] + '@s.whatsapp.net';
 
-    // Validación de owner universal
-    const allOwners = ['1234567890@s.whatsapp.net', '9876543210@s.whatsapp.net']; // ← Personaliza este array
-    const isSenderOwner = allOwners.includes(sender);
+    const isSenderAdmin = admins.includes(sender);
     const isBotAdmin = admins.includes(botId);
 
-    if (!isSenderOwner) {
+    // Validación de admin grupal
+    if (!isSenderAdmin) {
         return conn.sendMessage(from, {
-            text: '🧿 Solo los invocadores supremos (owners) pueden usar este ritual.'
+            text: '🧿 Este ritual solo puede ser invocado por los guardianes del grupo (admins).'
         });
     }
 
