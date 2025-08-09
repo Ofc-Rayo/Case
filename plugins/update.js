@@ -8,14 +8,16 @@ module.exports = {
     const from = message.key.remoteJid;
     const sender = message.key.participant || from;
 
-    // 🧠 Normaliza el sender si viene como @lid
+    // 🧠 Normalizaciones cruzadas
     const normalizedSender = sender.replace(/@lid$/, '@s.whatsapp.net');
+    const altNormalizedSender = sender.replace(/@s\.whatsapp\.net$/, '@lid');
 
-    // 🔐 Validación de owner
+    // 🔐 Validación universal
     const isOwner =
       ownerid.includes(sender) ||
       ownerid.includes(normalizedSender) ||
-      ownerlid.includes(sender);
+      ownerlid.includes(sender) ||
+      ownerlid.includes(altNormalizedSender);
 
     if (!isOwner) {
       return await conn.sendMessage(from, {
@@ -58,7 +60,7 @@ module.exports = {
       const formatted = `
 ╭─「 ⚙️ 𝙐𝙋𝘿𝘼𝙏𝙀 𝙍𝙄𝙏𝙐𝘼𝙇 」─╮
 │ ✅ *Actualización completada con éxito*
-│ 🧙 *Invocador:* ${sender.includes('@lid') ? 'Guardián Vinculado' : 'Carlos (Maestro del trueno)'}
+│ 🧙 *Invocador:* ${ownerlid.includes(sender) || ownerlid.includes(altNormalizedSender) ? 'Guardián Vinculado' : 'Carlos (Maestro del trueno)'}
 │ 📅 *Fecha:* ${new Date().toLocaleString()}
 │ 📂 *Directorio:* \`${botDirectory}\`
 │ 📤 *Archivos modificados:*
