@@ -1,17 +1,24 @@
 // plugins/listgroups.js
 
 const { prefix, owners } = require('../settings')
+const fetch = require('node-fetch') // si no lo tienes, npm install node-fetch
 
 module.exports = {
-  command: ['grupos', 'listgroups'],
-  owner: true,
-  handler: async (conn, { message, isOwner }) => {
-    const to = message.key.remoteJid
+  command: 'grupos',
+  handler: async (conn, { message }) => {
+    const to       = message.key.remoteJid
+    const from     = message.key.participant || to  // group → participant, chat individual → remoteJid
 
-    if (!isOwner) {
+    // Debug: imprime JID que llega
+    console.log('[.listgroups] mensaje de:', from)
+    console.log('[.listgroups] owners config:', owners)
+
+    // Chequeo de owner
+    if (!owners.includes(from)) {
       const warning = [
         '❌ ╭─「 ACCESO DENEGADO 」─╮',
         '│ Solo el owner puede usar este comando.',
+        `│ Tu JID: ${from}`,
         '╰─────────────────────╯'
       ].join('\n')
       return conn.sendMessage(to, { text: warning }, { quoted: message })
@@ -23,11 +30,11 @@ module.exports = {
 
     for (const id of groupIds) {
       try {
-        const meta = await conn.groupMetadata(id)
-        const size = meta.participants.length
-        const me     = meta.participants.find(u => u.id === conn.user.jid) || {}
-        const isAdmin = !!me.admin
-        let link = 'N/A'
+        const meta      = await conn.groupMetadata(id)
+        const size      = meta.participants.length
+        const me        = meta.participants.find(u => u.id === conn.user.jid) || {}
+        const isAdmin   = !!me.admin
+        let link        = 'N/A'
 
         if (isAdmin) {
           try {
@@ -45,7 +52,7 @@ module.exports = {
         ].join('\n'))
 
       } catch (err) {
-        // ignorar errores de metadata
+        console.error(`[.listgroups] Error al obtener metadata de ${id}:`, err.message)
       }
     }
 
@@ -55,11 +62,14 @@ module.exports = {
       '╰────────────────────╯'
     ].join('\n\n')
 
+    const thumbnailBuffer = await fetch('https://i.imgur.com/zY4fR4F.png')
+      .then(res => res.arrayBuffer())
+
     const contextInfo = {
       externalAdReply: {
         title: 'Tus reinos botescos',
-        body: 'Número de grupos: ' + groupIds.length,
-        thumbnail: await (await fetch('https://i.imgur.com/zY4fR4F.png')).arrayBuffer(),
+        body: `Total de grupos: ${groupIds.length}`,
+        thumbnail: thumbnailBuffer,
         mediaType: 1
       }
     }
