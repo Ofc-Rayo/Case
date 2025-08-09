@@ -13,21 +13,13 @@ async function handler(conn, { message }) {
     const groupMetadata = await conn.groupMetadata(from);
     const participants = groupMetadata.participants;
     const admins = participants.filter(p => p.admin).map(p => p.id);
-    const botId = conn.user.id.split(':')[0] + '@s.whatsapp.net';
 
     const isSenderAdmin = admins.includes(sender);
-    const isBotAdmin = admins.includes(botId);
 
     // Validación de admin grupal
     if (!isSenderAdmin) {
         return conn.sendMessage(from, {
             text: '🧿 Este ritual solo puede ser invocado por los guardianes del grupo (admins).'
-        });
-    }
-
-    if (!isBotAdmin) {
-        return conn.sendMessage(from, {
-            text: '⚠️ El bot no tiene poder suficiente para invocar el ritual. Hazlo administrador.'
         });
     }
 
