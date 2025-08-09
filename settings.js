@@ -4,9 +4,14 @@ const chalk = require('chalk');
 
 global.owner = "5355699866";
 global.botname = "Zenitsu-Bot";
-global.ownerid = "5355699866@s.whatsapp.net";
 global.place = 'America/Managua';
 global.prefix = [`.`];
+
+// ✅ Lista de owners autorizados
+global.ownerid = [
+  "5355699866@s.whatsapp.net", // Carlos
+  "261271484104740@lid"        // Otro ID autorizado
+];
 
 module.exports = {
   owner: global.owner,
