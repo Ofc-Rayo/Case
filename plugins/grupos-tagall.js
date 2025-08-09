@@ -12,10 +12,18 @@ async function handler(conn, { message }) {
 
     const groupMetadata = await conn.groupMetadata(from);
     const participants = groupMetadata.participants;
-    const admins = participants.filter(p => p.admin).map(p => p.id);
 
-    const isSenderAdmin = admins.includes(sender);
-    const botId = conn.user.id; // ← Corrección: usar ID completo
+    // Normalizador universal de JIDs (soporta lid, c.us, s.whatsapp.net, etc.)
+    const normalize = jid => {
+        if (!jid) return '';
+        return jid.replace(/^lid:/, '').split('@')[0];
+    };
+
+    const admins = participants.filter(p => p.admin).map(p => normalize(p.id));
+    const senderId = normalize(sender);
+    const botId = normalize(conn.user.id);
+
+    const isSenderAdmin = admins.includes(senderId);
     const isBotAdmin = admins.includes(botId);
 
     // Validación de admin grupal
@@ -27,11 +35,11 @@ async function handler(conn, { message }) {
 
     // Construcción de menciones
     const mentions = participants.map(p => p.id);
-    const nombres = mentions.map(jid => `@${jid.split('@')[0]}`).join('\n');
+    const nombres = mentions.map(jid => `@${normalize(jid)}`).join('\n');
 
     const ceremonialMessage = `
 ╭─「 🔔 𝙍𝙄𝙏𝙐𝘼𝙇 𝘿𝙀 𝙇𝘼 𝙇𝙇𝘼𝙈𝘼𝘿𝘼 」─╮
-│ 🧭 Invocado por: @${sender.split('@')[0]}
+│ 🧭 Invocado por: @${senderId}
 │ 👥 Miembros convocados:
 │ 
 ${nombres}
@@ -53,9 +61,9 @@ ${nombres}
         });
     }
 
-    // Logging ritual opcional para depuración
+    // Logging ritual para depuración
     console.log('🔍 Bot ID:', botId);
-    console.log('🔍 Sender ID:', sender);
+    console.log('🔍 Sender ID:', senderId);
     console.log('🔍 Admins:', admins);
 }
 
