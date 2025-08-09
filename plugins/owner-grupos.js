@@ -16,7 +16,7 @@ function getGroupIds(conn) {
 }
 
 module.exports = {
-  command: ['grupos', 'listgroups'],
+  command: 'grupos',
   handler: async (conn, { message }) => {
     const to   = message.key.remoteJid
     const from = message.key.participant || to
