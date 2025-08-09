@@ -1,5 +1,5 @@
 const { exec } = require('child_process');
-const { ownerid } = require('../settings');
+const { ownerid, ownerlid } = require('../settings');
 const path = require('path');
 
 module.exports = {
@@ -8,9 +8,18 @@ module.exports = {
     const from = message.key.remoteJid;
     const sender = message.key.participant || from;
 
-    if (sender !== ownerid) {
+    // 🧠 Normaliza el sender si viene como @lid
+    const normalizedSender = sender.replace(/@lid$/, '@s.whatsapp.net');
+
+    // 🔐 Validación de owner
+    const isOwner =
+      ownerid.includes(sender) ||
+      ownerid.includes(normalizedSender) ||
+      ownerlid.includes(sender);
+
+    if (!isOwner) {
       return await conn.sendMessage(from, {
-        text: '*😤 ¡Alto ahí!*\n\n> Solo el *gran maestro Carlos* puede invocar el ritual de actualización.\nZenitsu tiembla solo de pensarlo...',
+        text: '*😤 ¡Alto ahí!*\n\n> Solo el *gran maestro Carlos* o los *guardianes autorizados* pueden invocar el ritual de actualización.\nZenitsu tiembla solo de pensarlo...',
       }, { quoted: message });
     }
 
@@ -27,13 +36,7 @@ module.exports = {
         }, { quoted: message });
       }
 
-      // 🔍 Filtrar stderr si es solo ruido de git
-      const ignoredPatterns = [
-        'From https://', 
-        'FETCH_HEAD', 
-        'branch'
-      ];
-
+      const ignoredPatterns = ['From https://', 'FETCH_HEAD', 'branch'];
       const cleanStderr = stderr
         .split('\n')
         .filter(line => !ignoredPatterns.some(p => line.includes(p)))
@@ -55,7 +58,7 @@ module.exports = {
       const formatted = `
 ╭─「 ⚙️ 𝙐𝙋𝘿𝘼𝙏𝙀 𝙍𝙄𝙏𝙐𝘼𝙇 」─╮
 │ ✅ *Actualización completada con éxito*
-│ 🧙 *Invocador:* Carlos (Maestro del trueno)
+│ 🧙 *Invocador:* ${sender.includes('@lid') ? 'Guardián Vinculado' : 'Carlos (Maestro del trueno)'}
 │ 📅 *Fecha:* ${new Date().toLocaleString()}
 │ 📂 *Directorio:* \`${botDirectory}\`
 │ 📤 *Archivos modificados:*
