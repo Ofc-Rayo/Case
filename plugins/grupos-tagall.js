@@ -15,6 +15,8 @@ async function handler(conn, { message }) {
     const admins = participants.filter(p => p.admin).map(p => p.id);
 
     const isSenderAdmin = admins.includes(sender);
+    const botId = conn.user.id.split(':')[0] + '@s.whatsapp.net';
+    const isBotAdmin = admins.includes(botId);
 
     // Validación de admin grupal
     if (!isSenderAdmin) {
@@ -35,13 +37,20 @@ async function handler(conn, { message }) {
 ${nombres}
 │ 
 │ 🌌 Que todos escuchen el llamado...
-╰────────────────────────────╯
-`.trim();
+╰────────────────trim();
 
+    // Enviar mensaje con o sin menciones según el poder del bot
     await conn.sendMessage(from, {
         text: ceremonialMessage,
-        mentions
+        ...(isBotAdmin ? { mentions } : {})
     }, { quoted: message });
+
+    // Aviso ritual si el bot no es admin
+    if (!isBotAdmin) {
+        await conn.sendMessage(from, {
+            text: '⚠️ El ritual fue invocado, pero el bot no posee poder total (no es admin). Algunos espíritus podrían no sentir el llamado completo.'
+        });
+    }
 }
 
 module.exports = {
