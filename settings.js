@@ -5,14 +5,21 @@ const chalk = require('chalk');
 global.owner = "5355699866";
 global.botname = "Zenitsu-Bot";
 global.place = 'America/Managua';
-global.prefix = [`.`];
+global.prefix = ['.'];
 
-// ✅ Lista de owners autorizados (formato mixto)
-global.ownerid = 
-  "5355699866@s.whatsapp.net";
+// IDs tal como los definiste
+global.ownerid  = ["5355699866@s.whatsapp.net"];
+global.ownerlid = ["261271484104740@lid"];
 
-// 🌐 Lista específica de owners con @lid
-global.ownerlid = "261271484104740@lid";
+// 🚀 Genera un array unificado que incluya todas las formas
+global.allOwners = Array.from(new Set([
+  // los definidos originalmente
+  ...global.ownerid,
+  ...global.ownerlid,
+  // más sus normalizaciones cruzadas
+  ...global.ownerid.map(id => id.replace(/@s\.whatsapp\.net$/, '@lid')),
+  ...global.ownerlid.map(id => id.replace(/@lid$/, '@s.whatsapp.net')),
+]));
 
 module.exports = {
   owner: global.owner,
@@ -20,5 +27,6 @@ module.exports = {
   place: global.place,
   prefix: global.prefix,
   ownerid: global.ownerid,
-  ownerlid: global.ownerlid
+  ownerlid: global.ownerlid,
+  allOwners: global.allOwners
 };
