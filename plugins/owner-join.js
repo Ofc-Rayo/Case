@@ -3,7 +3,7 @@ const { allOwners, botname } = require('../settings')
 
 module.exports = {
   command: 'join',
-  handler: async (conn, { message, text }) => {
+  handler: async (conn, { message, args }) => {
     const from   = message.key.remoteJid
     const sender = message.key.participant || from
 
@@ -19,16 +19,17 @@ module.exports = {
       }, { quoted: message })
     }
 
-    // 📥 Uso correcto
-    if (!text) {
+    // ↪️ Reconstruye el texto de invitación a partir de args
+    const inviteLink = args.join(' ').trim()
+    if (!inviteLink) {
       return conn.sendMessage(from, {
         text: `*📥 Uso:* .join <enlace de invitación>\n\n> Invoca el portal ritual para transportar a Zenitsu a tu santuario.`
       }, { quoted: message })
     }
 
-    // 🔍 Extrae el código de invitación del link
-    const inviteLink = text.trim()
-    const inviteCode = inviteLink.split('/').pop()
+    // Extrae el código y elimina cualquier query string
+    let inviteCode = inviteLink.split('/').pop()
+    inviteCode = inviteCode.split('?')[0]
 
     console.log(`🔥 [DEBUG] inviteLink: ${inviteLink}`)
     console.log(`🔥 [DEBUG] inviteCode: ${inviteCode}`)
@@ -45,10 +46,10 @@ module.exports = {
 
       // ✅ Confirmación al invocador
       await conn.sendMessage(from, {
-        text: `*✅ ¡Portal abierto!* \nZenitsu ha llegado al grupo ${groupJid}`
+        text: `*✅ ¡Portal abierto!* \n> Zenitsu ha llegado al grupo:\n${groupJid}`
       }, { quoted: message })
 
-      // 👋 Saludo al nuevo grupo
+      // 👋 Saludo teatral al nuevo grupo
       await conn.sendMessage(groupJid, {
         text: `*👋 Ha llegado Zenitsu, el maestro del trueno se une al santuario.*`
       })
