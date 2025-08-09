@@ -1,22 +1,6 @@
 // plugins/listgroups.js
 
-console.log('[listgroups] Plugin cargado')
-
-let settings  
-try {
-  settings = require('../settings')
-  console.log('[listgroups] settings cargado:', Object.keys(settings))
-} catch (err) {
-  console.error('[listgroups] Error al cargar settings:', err)
-  settings = {}
-}
-
-// Usa tu arreglo unificado de owners
-const owners = Array.isArray(settings.allOwners)
-  ? settings.allOwners
-  : []
-
-console.log('[listgroups] allOwners:', owners)
+const { prefix, allOwners } = require('../settings')
 
 module.exports = {
   command: 'grupos',
@@ -24,9 +8,8 @@ module.exports = {
     const to   = message.key.remoteJid
     const from = message.key.participant || to
 
-    console.log('[listgroups] Invocado por', from)
-
-    if (!owners.includes(from)) {
+    // Chequeo de owner
+    if (!allOwners.includes(from)) {
       const warning = [
         '❌ ╭─「 ACCESO DENEGADO 」─╮',
         `│ Tu JID: ${from}`,
@@ -36,9 +19,55 @@ module.exports = {
       return conn.sendMessage(to, { text: warning }, { quoted: message })
     }
 
-    // Por ahora confirmamos el permiso
-    return conn.sendMessage(to, {
-      text: '✅ Permiso de owner validado. Aquí se liberará la lista de grupos…'
-    }, { quoted: message })
+    // Recolección de grupos
+    const groupIds = [...conn.chats.keys()].filter(id => id.endsWith('@g.us'))
+    const lines = await Promise.all(groupIds.map(async id => {
+      try {
+        const meta    = await conn.groupMetadata(id)
+        const size    = meta.participants.length
+        const me      = meta.participants.find(u => u.id === conn.user.jid) || {}
+        const isAdmin = !!me.admin
+        let link      = 'N/A'
+
+        if (isAdmin) {
+          try {
+            const code = await conn.groupInviteCode(id)
+            link = 'https://chat.whatsapp.com/' + code
+          } catch {}
+        }
+
+        return [
+          '╭─「 ' + meta.subject + ' 」─╮',
+          `│ 🌐 Miembros: ${size}`,
+          `│ 🤖 Admin: ${isAdmin ? 'Sí' : 'No'}`,
+          `│ 🔗 Link: ${link}`,
+          '╰─────────────────╯'
+        ].join('\n')
+      } catch {
+        return null
+      }
+    })).then(arr => arr.filter(Boolean))
+
+    // Composición del mensaje
+    const finalText = [
+      '📋 ╭─「 LISTA DE GRUPOS 」─╮',
+      ...lines,
+      '╰────────────────────╯'
+    ].join('\n\n')
+
+    // Contexto visual
+    const thumbnail = await fetch('https://i.imgur.com/zY4fR4F.png')
+      .then(res => res.arrayBuffer())
+
+    const contextInfo = {
+      externalAdReply: {
+        title: 'Tus reinos botescos',
+        body:   `Total de grupos: ${groupIds.length}`,
+        thumbnail,
+        mediaType: 1
+      }
+    }
+
+    return conn.sendMessage(to, { text: finalText, contextInfo }, { quoted: message })
   }
 }
