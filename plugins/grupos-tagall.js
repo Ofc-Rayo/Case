@@ -10,28 +10,28 @@ async function handler(conn, { message }) {
     })
   }
 
-  // 2) Metadata y lista de admins reales
+  // 2) Recuperar metadata y participantes
   const meta         = await conn.groupMetadata(from)
   const participants = meta.participants
 
-  // Extrae el número base de un JID (soporta lid:, @s.whatsapp.net, @c.us, etc.)
-  const getBase = jid => jid?.replace(/^lid:/, '').split?.('@')[0] || ''
+  // Extrae el número base de un JID
+  const getBase = jid => jid.replace(/^lid:/, '').split('@')[0]
 
-  // Detecta admins (admin o superadmin)
+  // 3) Filtrar solo admins del grupo
   const adminsBase = participants
-    .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
+    .filter(p => p.isAdmin || p.isSuperAdmin)
     .map(p => getBase(p.jid || p.id))
 
   const senderBase = getBase(senderJid)
 
-  // 3) Solo admins pueden invocar
+  // 4) Validar invocador
   if (!adminsBase.includes(senderBase)) {
     return conn.sendMessage(from, {
-      text: '🧿 Este ritual solo puede ser invocado por los guardianes del grupo (admins).'
+      text: '🧿 Este ritual solo puede invocarlo un guardián del grupo (admin).'
     })
   }
 
-  // 4) Construye menciones y nombres
+  // 5) Construir la ceremonia
   const mentions = participants.map(p => p.jid || p.id)
   const nombres  = mentions.map(j => `@${getBase(j)}`).join('\n')
 
@@ -46,7 +46,7 @@ ${nombres}
 ╰────────────────────────────╯
   `.trim()
 
-  // 5) Lanza el mensaje con menciones sin más validaciones
+  // 6) Enviar sin más validaciones
   await conn.sendMessage(from, {
     text: ceremonialMessage,
     mentions
