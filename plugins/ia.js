@@ -95,7 +95,7 @@ async function handler(conn, { message, args }) {
 
     // Formato ritualístico de la respuesta
     const messageText = `
-╭─「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝙏𝘼 」─╮
+╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝙏𝘼 」╮
 │ 🧠 Pregunta: ${query}
 │ 🎭 Estilo: Zenitsu-Bot
 │ 🪷 Creador: Carlos
