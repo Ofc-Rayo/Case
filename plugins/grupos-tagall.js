@@ -1,44 +1,39 @@
 async function handler(conn, { message }) {
-  const from = message.key.remoteJid;
-  const isGroup = from.endsWith('@g.us');
-  const sender = message.key.participant || from;
+  const from      = message.key.remoteJid
+  const isGroup   = from?.endsWith?.('@g.us')
+  const senderJid = message.key.participant || from
 
+  // 1) Solo en grupos
   if (!isGroup) {
     return conn.sendMessage(from, {
       text: '🌌 Este ritual solo puede invocarse en grupos.'
-    });
+    })
   }
 
-  const groupMetadata = await conn.groupMetadata(from);
-  const participants = groupMetadata.participants;
+  // 2) Metadata y lista de admins reales
+  const meta         = await conn.groupMetadata(from)
+  const participants = meta.participants
 
-  // DEBUG: mira la estructura real de cada participante
-  console.log('🔍 PARTICIPANTS RAW:', JSON.stringify(participants, null, 2));
+  // Extrae el número base de un JID (soporta lid:, @s.whatsapp.net, @c.us, etc.)
+  const getBase = jid => jid?.replace(/^lid:/, '').split?.('@')[0] || ''
 
-  // Normalizador universal de JIDs
-  const getNumber = jid => jid.replace(/^lid:/, '').split('@')[0];
+  // Detecta admins (admin o superadmin)
+  const adminsBase = participants
+    .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
+    .map(p => getBase(p.jid || p.id))
 
-  // Extraer solo admins (incluye superadmins)
-  const adminsRaw = participants
-    .filter(p => p.isAdmin === true || p.isSuperAdmin === true)
-    .map(p => p.jid);
+  const senderBase = getBase(senderJid)
 
-  const adminsBase = adminsRaw.map(getNumber);
-  const senderBase = getNumber(sender);
-  const botBase = getNumber(conn.user.jid || conn.user.id);
-
-  const isSenderAdmin = adminsBase.includes(senderBase);
-  const isBotAdmin     = adminsBase.includes(botBase);
-
-  if (!isSenderAdmin) {
+  // 3) Solo admins pueden invocar
+  if (!adminsBase.includes(senderBase)) {
     return conn.sendMessage(from, {
-      text: '🧿 Este ritual sólo lo pueden invocar los guardianes del grupo (admins).'
-    });
+      text: '🧿 Este ritual solo puede ser invocado por los guardianes del grupo (admins).'
+    })
   }
 
-  // Construir menciones
-  const mentions = participants.map(p => p.jid);
-  const nombres  = mentions.map(j => `@${getNumber(j)}`).join('\n');
+  // 4) Construye menciones y nombres
+  const mentions = participants.map(p => p.jid || p.id)
+  const nombres  = mentions.map(j => `@${getBase(j)}`).join('\n')
 
   const ceremonialMessage = `
 ╭─「 🔔 𝙍𝙄𝙏𝙐𝘼𝙇 𝘿𝙀 𝙇𝘼 𝙇𝙇𝘼𝙈𝘼𝘿𝘼 」─╮
@@ -49,27 +44,16 @@ ${nombres}
 │ 
 │ 🌌 Que todos escuchen el llamado...
 ╰────────────────────────────╯
-  `.trim();
+  `.trim()
 
-  // Enviar con o sin mentions
+  // 5) Lanza el mensaje con menciones sin más validaciones
   await conn.sendMessage(from, {
     text: ceremonialMessage,
-    ...(isBotAdmin ? { mentions } : {})
-  }, { quoted: message });
-
-  if (!isBotAdmin) {
-    await conn.sendMessage(from, {
-      text: '⚠️ El ritual fue invocado, pero el bot no posee poder total (no es admin).'
-    });
-  }
-
-  // Logs finales
-  console.log('🔍 Sender Base ID:', senderBase);
-  console.log('🔍 Bot   Base ID:', botBase);
-  console.log('🔍 Admins Base:', adminsBase);
+    mentions
+  }, { quoted: message })
 }
 
 module.exports = {
   command: 'tagall',
   handler,
-};
+}
