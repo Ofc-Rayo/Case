@@ -2,17 +2,21 @@
 
 console.log('[listgroups] Plugin cargado')
 
-let settings
+let settings  
 try {
   settings = require('../settings')
-  console.log('[listgroups] settings cargado:', settings)
+  console.log('[listgroups] settings cargado:', Object.keys(settings))
 } catch (err) {
   console.error('[listgroups] Error al cargar settings:', err)
-  settings = {}  // Fallback
+  settings = {}
 }
 
-const owners = Array.isArray(settings.owners) ? settings.owners : []
-console.log('[listgroups] owners array:', owners)
+// Usa tu arreglo unificado de owners
+const owners = Array.isArray(settings.allOwners)
+  ? settings.allOwners
+  : []
+
+console.log('[listgroups] allOwners:', owners)
 
 module.exports = {
   command: 'grupos',
@@ -23,18 +27,18 @@ module.exports = {
     console.log('[listgroups] Invocado por', from)
 
     if (!owners.includes(from)) {
-      return conn.sendMessage(to, {
-        text: [
-          '❌ ╭─「 ACCESO DENEGADO 」─╮',
-          `│ Tu JID: ${from}`,
-          '│ Solo el owner puede usar este comando.',
-          '╰─────────────────────╯'
-        ].join('\n')
-      }, { quoted: message })
+      const warning = [
+        '❌ ╭─「 ACCESO DENEGADO 」─╮',
+        `│ Tu JID: ${from}`,
+        '│ Solo el owner puede usar este comando.',
+        '╰─────────────────────╯'
+      ].join('\n')
+      return conn.sendMessage(to, { text: warning }, { quoted: message })
     }
 
+    // Por ahora confirmamos el permiso
     return conn.sendMessage(to, {
-      text: '✅ Chequeo de owner exitoso. Preparando lista de grupos…'
+      text: '✅ Permiso de owner validado. Aquí se liberará la lista de grupos…'
     }, { quoted: message })
   }
 }
