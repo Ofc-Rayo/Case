@@ -1,14 +1,27 @@
 // plugins/listgroups.js
 
-const { prefix, allOwners } = require('../settings')
+const { allOwners } = require('../settings')
+
+// Helper para obtener IDs de grupos, pase lo que pase
+function getGroupIds(conn) {
+  // caso 1: conn.chats es un Map
+  if (conn.chats instanceof Map) {
+    return Array.from(conn.chats.keys())
+      .filter(id => id.endsWith('@g.us'))
+  }
+  // caso 2: conn.store.chats es un objeto
+  const storeChats = conn.store?.chats || conn.chats || {}
+  return Object.keys(storeChats)
+    .filter(id => id.endsWith('@g.us'))
+}
 
 module.exports = {
-  command: 'grupos',
+  command: ['grupos', 'listgroups'],
   handler: async (conn, { message }) => {
     const to   = message.key.remoteJid
     const from = message.key.participant || to
 
-    // Chequeo de owner
+    // 1. Verificar owner
     if (!allOwners.includes(from)) {
       const warning = [
         '❌ ╭─「 ACCESO DENEGADO 」─╮',
@@ -19,8 +32,15 @@ module.exports = {
       return conn.sendMessage(to, { text: warning }, { quoted: message })
     }
 
-    // Recolección de grupos
-    const groupIds = [...conn.chats.keys()].filter(id => id.endsWith('@g.us'))
+    // 2. Obtener grupos
+    const groupIds = getGroupIds(conn)
+    if (groupIds.length === 0) {
+      return conn.sendMessage(to, {
+        text: 'ℹ️ No he encontrado ningún grupo en mis chats.'
+      }, { quoted: message })
+    }
+
+    // 3. Recolectar metadata
     const lines = await Promise.all(groupIds.map(async id => {
       try {
         const meta    = await conn.groupMetadata(id)
@@ -48,14 +68,14 @@ module.exports = {
       }
     })).then(arr => arr.filter(Boolean))
 
-    // Composición del mensaje
+    // 4. Componer y enviar mensaje
     const finalText = [
       '📋 ╭─「 LISTA DE GRUPOS 」─╮',
       ...lines,
       '╰────────────────────╯'
     ].join('\n\n')
 
-    // Contexto visual
+    // Contexto visual (asegúrate de tener fetch global o instalar node-fetch)
     const thumbnail = await fetch('https://i.imgur.com/zY4fR4F.png')
       .then(res => res.arrayBuffer())
 
