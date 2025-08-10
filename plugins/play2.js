@@ -55,7 +55,7 @@ async function handler(conn, { message, args }) {
 }
 
 async function getVideoDownloadUrl(videoUrl) {
-    const apiUrl = `https://api.nyxs.pw/dl/yt-direct?url=${encodeURIComponent(videoUrl)}`;
+    const apiUrl = `https://api.stellarwa.xyz/dow/ytmp4?url=${encodeURIComponent(videoUrl)}&apikey=stellar-w879erKu`;
 
     try {
         const response = await axios.get(apiUrl);
