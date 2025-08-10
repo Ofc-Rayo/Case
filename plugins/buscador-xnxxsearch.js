@@ -1,45 +1,67 @@
 const axios = require('axios');
 
 async function handler(conn, { message, args }) {
-    const query = args.join(' ');
-    if (!query) {
-        return conn.sendMessage(message.key.remoteJid, {
-            text: '*🔞 ¡Zenitsu necesita saber qué buscar!* 😳\n\n> Ejemplo: `xnxx bokep` 💦',
-        });
+  const query = args.join(' ');
+  if (!query) {
+    return conn.sendMessage(message.key.remoteJid, {
+      text: '*😰 ¡Zenitsu necesita saber qué video buscar!*\n\n> Ejemplo: `xnxx bokep` 🔞',
+    });
+  }
+
+  try {
+    // Buscar videos
+    const searchRes = await axios.get(`https://api.vreden.my.id/api/xnxxsearch?query=${encodeURIComponent(query)}`);
+    if (!searchRes.data || searchRes.data.status !== 200 || !Array.isArray(searchRes.data.result) || searchRes.data.result.length === 0) {
+      return conn.sendMessage(message.key.remoteJid, {
+        text: '*🔍 Zenitsu no encontró resultados...*\n\n> Intenta con otro término, por favor.',
+      });
     }
 
-    try {
-        const searchUrl = `https://api.vreden.my.id/api/xnxxsearch?query=${encodeURIComponent(query)}`;
-        const searchResponse = await axios.get(searchUrl);
+    // Tomar solo los primeros 3 resultados
+    const top3 = searchRes.data.result.slice(0, 3);
 
-        if (searchResponse.data && searchResponse.data.result && searchResponse.data.result.length > 0) {
-            const results = searchResponse.data.result.slice(0, 10);
-
-            let listText = '╭─「 🔞 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙍𝙀𝙎𝙐𝙇𝙏𝘼𝘿𝙊𝙎 」─╮\n';
-            results.forEach((vid, i) => {
-                const infoParts = vid.info.trim().split('\n').join(' ').split(' - ');
-                const viewsAndLikes = infoParts[0]?.trim() || 'N/A';
-                const duration = infoParts[1]?.trim() || 'N/A';
-
-                listText += `\n${i + 1}. 🎬 *${vid.title}*\n   ⏳ Duración: ${duration}\n   👀 Vistas: ${viewsAndLikes}\n   🔗 ${vid.link}\n`;
-            });
-            listText += '\n╰────────────────────╯';
-
-            await conn.sendMessage(message.key.remoteJid, { text: listText });
-        } else {
-            await conn.sendMessage(message.key.remoteJid, {
-                text: '*🔍 Zenitsu no encontró resultados...*\n\n> Intenta con otro término, por favor.',
-            });
+    for (const video of top3) {
+      try {
+        // Descargar video
+        const dlRes = await axios.get(`https://api.vreden.my.id/api/xnxxdl?query=${encodeURIComponent(video.link)}`);
+        if (!dlRes.data || dlRes.data.status !== 200 || !dlRes.data.result || !dlRes.data.result.result) {
+          await conn.sendMessage(message.key.remoteJid, {
+            text: `❌ No se pudo descargar el video: ${video.title}`,
+          });
+          continue;
         }
-    } catch (err) {
-        console.error(err);
+
+        const videoData = dlRes.data.result.result;
+
+        // Elegir calidad alta si existe, si no la baja
+        const videoUrl = videoData.files.high || videoData.files.low;
+
+        if (!videoUrl) {
+          await conn.sendMessage(message.key.remoteJid, {
+            text: `❌ No se encontró URL válida para el video: ${video.title}`,
+          });
+          continue;
+        }
+
+        // Enviar video con caption
         await conn.sendMessage(message.key.remoteJid, {
-            text: '*❌ ¡Algo salió mal!*\n\n> Zenitsu se tropezó buscando... vuelve a intentarlo más tarde.',
+          video: { url: videoUrl },
+          caption: `🎬 *${videoData.title}*\n⏳ Duración: ${videoData.duration}s\n🔗 ${videoData.URL}`,
+        }, { quoted: message });
+      } catch (e) {
+        await conn.sendMessage(message.key.remoteJid, {
+          text: `⚠️ Error descargando video: ${video.title}`,
         });
+      }
     }
+  } catch (err) {
+    await conn.sendMessage(message.key.remoteJid, {
+      text: '*❌ Algo salió mal en la búsqueda o descarga.*\n\n> Intenta de nuevo más tarde.',
+    });
+  }
 }
 
 module.exports = {
-    command: 'xnxx',
-    handler,
+  command: 'xnxx',
+  handler,
 };
