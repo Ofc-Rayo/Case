@@ -2,12 +2,12 @@ const COOLDOWN_MS = 15000;
 const cooldowns = new Map();
 
 const escenas = [
-  'https://i.imgur.com/yourImage1.png',
-  'https://i.imgur.com/yourImage2.png',
-  'https://i.imgur.com/yourImage3.png'
+  'https://qu.ax/MvYPM.jpg',
+  'https://qu.ax/MvYPM.jpg',
+  'https://qu.ax/MvYPM.jpg'
 ];
 
-export const teatro = {
+const teatro = {
   command: ['teatro'],
   tags: ['ritual'],
   help: ['teatro'],
@@ -17,30 +17,26 @@ export const teatro = {
     const now = Date.now();
     const isOwner = global.owner?.includes(userId);
 
-    // ⏳ Cooldown ritual
     if (!isOwner && cooldowns.has(userId) && now - cooldowns.get(userId) < COOLDOWN_MS) {
       return conn.sendMessage(m.chat, {
-        text: `⏳ *El telón aún respira...*  
-        Espera unos segundos antes de invocar otra escena.`,
+        text: `⏳ *El telón aún respira...* Espera unos segundos.`,
         contextInfo: {
           externalAdReply: {
             title: 'Teatro en pausa',
             body: 'El alma del escenario se prepara',
-            thumbnailUrl: 'https://i.imgur.com/3z1ZQZL.png'
+            thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
           }
         }
       });
     }
 
     cooldowns.set(userId, now);
-
     const escenaElegida = escenas[Math.floor(Math.random() * escenas.length)];
 
     try {
       await conn.sendMessage(m.chat, {
         image: { url: escenaElegida },
-        caption: `🎭 *Acto I: El telón se abre*  
-        La escena respira, los suspiros se elevan...`,
+        caption: `🎭 *Acto I: El telón se abre* La escena respira...`,
         contextInfo: {
           externalAdReply: {
             title: 'Teatro Ritual',
@@ -49,15 +45,9 @@ export const teatro = {
           }
         }
       });
-
-      console.log(`[🎭 Teatro] ${userId} invocó escena a las ${new Date().toLocaleTimeString()}`);
-
     } catch (error) {
-      console.warn(`[⚠️ Teatro] Error al cargar imagen para ${userId}: ${error.message}`);
-
       await conn.sendMessage(m.chat, {
-        text: `⚠️ *El telón no se abrió...*  
-        El escenario se ha saturado. Intenta más tarde.`,
+        text: `⚠️ *El telón no se abrió...* Intenta más tarde.`,
         contextInfo: {
           externalAdReply: {
             title: 'Error 429',
@@ -69,3 +59,5 @@ export const teatro = {
     }
   }
 };
+
+export default teatro;
