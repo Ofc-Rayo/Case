@@ -6,32 +6,34 @@ async function handler(conn, { message, args }) {
     const query = args.join(' ');
     if (!query) {
         return conn.sendMessage(message.key.remoteJid, {
-            text: '*🔞 ¡Zenitsu necesita saber qué buscar!* 😳\n\n> Ejemplo: `xnxxsearch rusas` 💦',
+            text: '*🔞 ¡Zenitsu necesita saber qué buscar!* 😳\n\n> Ejemplo: `xnxx bokep` 💦',
         });
     }
 
     try {
-        const searchResponse = await axios.get(`https://delirius-apiofc.vercel.app/search/xnxxsearch?query=${encodeURIComponent(query)}`);
-        
+        const searchUrl = `https://api.vreden.my.id/api/xnxxsearch?query=${encodeURIComponent(query)}`;
+        const searchResponse = await axios.get(searchUrl);
+
         if (searchResponse.data && searchResponse.data.result && searchResponse.data.result.length > 0) {
             const firstResult = searchResponse.data.result[0];
+
+            const infoParts = firstResult.info.trim().split('\n').join(' ').split(' - ');
+            const viewsAndLikes = infoParts[0]?.trim() || 'N/A';
+            const duration = infoParts[1]?.trim() || 'N/A';
 
             const messageText = `
 ╭─「 🔞 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙓𝙉𝙓𝙓 」─╮
 │ 🎬 *Título:* ${firstResult.title}
-│ ⏳ *Duración:* ${firstResult.duration}
+│ ⏳ *Duración:* ${duration}
+│ 👀 *Vistas:* ${viewsAndLikes}
 │ 🔗 *Link:* ${firstResult.link}
-│ 👀 *Vistas:* ${firstResult.views || 'N/A'}
 │ 🔽 *Descargando video...*
 ╰────────────────────╯
 
 *😳 Zenitsu está sudando...* ⚡
 `.trim();
 
-            await conn.sendMessage(message.key.remoteJid, {
-                image: { url: firstResult.thumb },
-                caption: messageText
-            });
+            await conn.sendMessage(message.key.remoteJid, { text: messageText });
 
             const videoDownloadUrl = await getVideoDownloadUrl(firstResult.link);
 
@@ -54,7 +56,7 @@ async function handler(conn, { message, args }) {
 }
 
 async function getVideoDownloadUrl(videoUrl) {
-    const apiUrl = `https://delirius-apiofc.vercel.app/download/xnxxdl?url=${encodeURIComponent(videoUrl)}`;
+    const apiUrl = `https://api.vreden.my.id/api/xnxxdl?url=${encodeURIComponent(videoUrl)}`;
 
     try {
         const response = await axios.get(apiUrl);
@@ -103,6 +105,6 @@ async function sendVideoAsFile(conn, message, videoUrl, videoTitle) {
 }
 
 module.exports = {
-    command: 'xnxxsearch',
+    command: 'xnxx',
     handler,
 };
