@@ -67,6 +67,6 @@ const handler = async (conn, { message }) => {
 };
 
 module.exports = {
-  command: 'zenitsurompehuevos',
+  command: 'rompehuevos',
   handler
 };
