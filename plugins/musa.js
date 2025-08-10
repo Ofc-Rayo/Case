@@ -79,7 +79,6 @@ async function handler(conn, { message, args }) {
     await conn.sendMessage(jid, {
       image: { url: imageUrl },
       caption,
-      // Opcional: contextualización visual (puede variar según versión de Baileys)
       contextInfo: {
         externalAdReply: {
           title: `Musa: ${category}`,
@@ -88,7 +87,7 @@ async function handler(conn, { message, args }) {
           previewType: 'PHOTO',
           thumbnailUrl: imageUrl,
           sourceUrl: imageUrl,
-          renderLargerThumbnail: true
+          renderLargerThumbnail: false // ✅ Miniatura pequeña activada
         }
       }
     });
