@@ -5,8 +5,8 @@ const path = require('path')
 // 🎭 Miniaturas evocadoras
 const thumbnails = [
   'https://qu.ax/MvYPM.jpg', // Zenitsu temblando
-  'https://qu.ax/MvYPM.jpg', // Zenitsu llorando
-  'https://qu.ax/MvYPM.jpg' // Zenitsu en modo trueno
+  ''https://qu.ax/MvYPM.jpg', // Zenitsu llorando
+  ''https://qu.ax/MvYPM.jpg' // Zenitsu en modo trueno
 ]
 const thumbnailUrl = thumbnails[Math.floor(Math.random() * thumbnails.length)]
 
@@ -31,25 +31,16 @@ const contextInfo = {
   }
 }
 
-const historyPath = path.resolve('./zenitsuMemory.json')
+const historyPath = path.join(__dirname, 'zenitsuMemory.json')
 if (!fs.existsSync(historyPath)) {
   fs.writeFileSync(historyPath, JSON.stringify({}), 'utf8')
 }
 
 async function handler(conn, { message, args }) {
   const query = args.join(' ').trim()
-  const jid = message.key.remoteJid
-
-  if (!query) {
-    return conn.sendMessage(
-      jid,
-      {
-        text: '😱 ¡¿Cómo que no escribiste nada?!\n\n> ¡Noutf8')
-}
-
-async function handler(conn, { message, args }) {
-  const query = args.join(' ').trim()
-  const jid = message.key.remoteJid
+  const jid = message.key?.remoteJid
+  const rawJid = message.key?.participant || jid
+  const userId = rawJid?.split('@')[0]
 
   if (!query) {
     return conn.sendMessage(
@@ -73,8 +64,6 @@ async function handler(conn, { message, args }) {
 
   const rawHistory = fs.readFileSync(historyPath, 'utf8')
   const conversationHistory = JSON.parse(rawHistory || '{}')
-  const rawJid = message.key.participant || message.key.remoteJid
-  const userId = rawJid.split('@')[0]
 
   if (!conversationHistory[userId]) {
     conversationHistory[userId] = [
@@ -94,9 +83,12 @@ Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatra
   conversationHistory[userId].push({ role: 'user', content: query })
 
   const apiUrl = `https://api.vreden.my.id/api/mora?query=${encodeURIComponent(query)}&username=${encodeURIComponent(userId)}`
+  console.log(`🔍 Invocando API con: ${apiUrl}`)
 
   try {
     const response = await axios.get(apiUrl)
+    console.log('📨 Respuesta cruda:', response.data)
+
     let replyText = response.data?.result
 
     if (!replyText) {
@@ -110,7 +102,6 @@ Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatra
       )
     }
 
-    // Reacción especial si mencionan a Carlos
     if (/carlos/i.test(query)) {
       replyText += '\n\n🙏 ¡Carlos-sama! ¡Gracias por no abandonarme en esta tormenta emocional!'
     }
@@ -125,7 +116,7 @@ Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatra
 🌩️ *¡Invocación del Rayo!* 🌩️
 Zenitsu-Bot ha sido llamado por el trueno de Carlos...
 
-╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝙏𝘼 」╮
+╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝘁𝘼 」╮
 │ 🧠 Pregunta: ${query}
 │ 🎭 Estilo: Zenitsu-Bot
 │ 🪷 Creador: Carlos
@@ -145,7 +136,7 @@ ${logEntry}
       { quoted: message }
     )
   } catch (err) {
-    console.error('⚠️ Error al invocar a Zenitsu-Bot:', err.message)
+    console.error('⚠️ Error completo:', err)
     await conn.sendMessage(
       jid,
       {
