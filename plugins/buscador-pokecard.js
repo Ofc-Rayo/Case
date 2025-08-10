@@ -1,4 +1,4 @@
-const thumbnailUrl = 'https://delirius-apiofc.vercel.app/search/pokecard?text=caterpie';
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
 
 const contextInfo = {
   externalAdReply: {
