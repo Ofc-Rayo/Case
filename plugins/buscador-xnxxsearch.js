@@ -15,7 +15,7 @@ async function handler(conn, { message, args }) {
         if (searchResponse.data && searchResponse.data.result && searchResponse.data.result.length > 0) {
             const results = searchResponse.data.result.slice(0, 10);
 
-            let listText = '╭─「 🔞 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝘽𝙐𝙎𝘾𝘼𝘿𝙊𝙍 」─╮\n';
+            let listText = '╭─「 🔞 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙍𝙀𝙎𝙐𝙇𝙏𝘼𝘿𝙊𝙎 」─╮\n';
             results.forEach((vid, i) => {
                 const infoParts = vid.info.trim().split('\n').join(' ').split(' - ');
                 const viewsAndLikes = infoParts[0]?.trim() || 'N/A';
