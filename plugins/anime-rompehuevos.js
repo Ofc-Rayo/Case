@@ -2,10 +2,11 @@
   ⚡ Módulo:     zenitsu-rompehuevos.js
   🎭 Protagonista: Zenitsu Agatsuma
   🧠 Autor:      Carlos
-  🛠 Proyecto:   Shizuka-AI
+  🛠 Proyecto:   Zenitsu-Bot 
+  🔗 GitHub:     https://github.com/Kone457
 ───────────────────────────────────────*/
 
-const thumbnailUrl = 'https://qu.ax/QuwNu.jpg'; // Miniatura de Zenitsu
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
 
 const contextInfo = {
   externalAdReply: {
@@ -13,15 +14,15 @@ const contextInfo = {
     body: "¡Golpe testicular con precisión anime!",
     mediaType: 1,
     previewType: 0,
-    mediaUrl: "https://github.com/Kone457/Shizuka-AI",
-    sourceUrl: "https://github.com/Kone457/Shizuka-AI",
+    mediaUrl: "https://github.com/Kone457",
+    sourceUrl: "Zenitsu-Bot",
     thumbnailUrl
   }
 };
 
-const handler = async (conn, { message }) => {
-  const autor = message.key.participant || message.key.remoteJid;
-  const mencionado = message.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
+const handler = async (m, { conn }) => {
+  const autor = m.sender;
+  const mencionado = m.mentionedJid?.[0];
   const objetivo = mencionado || autor;
   const nombre = `@${objetivo.split('@')[0]}`;
 
@@ -48,24 +49,24 @@ const handler = async (conn, { message }) => {
   const gifUrl = gifs[Math.floor(Math.random() * gifs.length)];
   const frase = frases[Math.floor(Math.random() * frases.length)];
 
-  // Mensaje inicial
-  await conn.sendMessage(message.key.remoteJid, {
+  // Primer mensaje: solo texto
+  await conn.sendMessage(m.chat, {
     text: `🥚💥 ${nombre}, Zenitsu está temblando... pero va con todo ⚡`,
     mentions: [objetivo],
     contextInfo
-  }, { quoted: message });
+  });
 
-  // Mensaje con video + frase
-  await conn.sendMessage(message.key.remoteJid, {
+  // Segundo mensaje: GIF + frase
+  await conn.sendMessage(m.chat, {
     video: { url: gifUrl },
     gifPlayback: true,
     caption: frase,
     mentions: [objetivo],
     contextInfo
-  }, { quoted: message });
+  });
 };
 
-module.exports = {
-  command: 'rompehuevos',
-  handler
-};
+handler.command = ['rompehuevos'];
+handler.register = true;
+
+export default handler;
