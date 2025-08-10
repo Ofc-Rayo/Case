@@ -41,7 +41,7 @@ async function handler(conn, { message, args }) {
     const messageText = `
 ╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝙏𝘼 」╮
 │ 😱 ¡No me mires! ¡Estoy muy avergonzado!
-│ 🎭 Estilo: Zenitsu-Bot
+│ 👑 Creador : *Carlos* 
 ╰────────────────────╯
 
 😳 ¡Aquí tienes... espero que no te arrepientas de esto! ⚡
