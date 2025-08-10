@@ -13,10 +13,6 @@ const contextInfo = {
   }
 }
 
-async function.ax/MvYPM.jpg'
-  }
-}
-
 async function handler(conn, { message, args }) {
   const jid    = message.key.remoteJid
   const quoted = message
@@ -44,18 +40,25 @@ async function handler(conn, { message, args }) {
 
   try {
     const apiUrl = `https://api.vreden.my.id/api/fbdl?url=${encodeURIComponent(url)}`
-
-    // 1. Registro de la petición
     console.log('🔮 Enviando petición a:', apiUrl)
 
-    const res = await axios.get(apiUrl)
+    const res = await axios.get(apiUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': 'application/json'
+      }
+    })
 
-    // 2. Registro de la respuesta completa
     console.log('📜 Respuesta completa:', JSON.stringify(res.data, null, 2))
 
     const data = res.data?.data
-    if (!data || !data.status || (!data.hd_url && !data.sd_url)) {
-      throw new Error('Respuesta inesperada de la API')
+
+    // Validación ritual (!data || data.status === false) {
+      const msg = data?.message?.toLowerCase().includes('privasi')
+        ? 'El video está restringido por privacidad.'
+        : 'No se pudo acceder al contenido.'
+
+      throw new Error(msg)
     }
 
     const videoUrl   = data.hd_url || data.sd_url
@@ -64,7 +67,6 @@ async function handler(conn, { message, args }) {
     const durasi     = data.durasi  || 'Desconocida'
     const thumbUrl   = data.thumbnail
 
-    // Descarga de miniatura
     const thumbBuffer = await fetch(thumbUrl).then(r => r.buffer())
 
     const caption = `
@@ -95,21 +97,16 @@ async function handler(conn, { message, args }) {
     )
 
   } catch (err) {
-    // 3. Inspección detallada del error
     console.error('🔥 Error completo:', err)
-    if (err.response) {
-      console.error('📦 err.response.status:', err.response.status)
-      console.error('📦 err.response.data:', err.response.data)
-    }
 
     await conn.sendMessage(
       jid,
       {
         text: `
-🚫 *Algo salió mal al invocar el video.*
+🚫 *Invocación bloqueada por fuerzas ocultas...*
 
-> ${err.message.includes('Respuesta inesperada')
-           ? 'La API devolvió un formato inesperado. Mira los logs.'
+> ${err.message.includes('privacidad')
+           ? 'El video está restringido por privacidad. No se puede invocar.'
            : 'Verifica el enlace o intenta más tarde.'}
 `,
         contextInfo
