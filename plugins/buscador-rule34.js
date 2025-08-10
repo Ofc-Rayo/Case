@@ -37,7 +37,7 @@ async function handler(conn, { message, args }) {
       }, { quoted });
     }
 
-    const imagesToSend = images.slice(0, 10); // Obtiene las primeras 10 imágenes
+    const imagesToSend = images.slice(0, 5); // Obtiene las primeras 10 imágenes
 
     for (const imageUrl of imagesToSend) {
       const caption = `
