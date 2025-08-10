@@ -1,23 +1,34 @@
 const axios = require('axios');
-const fetch = require('node-fetch');
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura evocadora, puedes cambiarla por otra más acorde al reel
+
+const contextInfo = {
+  externalAdReply: {
+    title: '🎥 Instagram Ritual',
+    body: 'Reels que cruzan el umbral del éter...',
+    mediaType: 1,
+    previewType: 0,
+    mediaUrl: null,
+    sourceUrl: 'https://instagram.com',
+    thumbnailUrl
+  }
+};
 
 async function handler(conn, { message, args }) {
   const jid = message.key.remoteJid;
-  const replyTo = message.key;
+  const quoted = message;
   const url = args[0];
 
   if (!url || !url.includes('instagram.com')) {
     return conn.sendMessage(jid, {
-      text: '*📸 Zenitsu necesita un enlace válido de Instagram.*\n\n> Ejemplo: `ig https://www.instagram.com/reel/...`',
-      quoted: message
-    });
+      text: '*📸 ¿Dónde está el portal?*\n\n> Ingresa un enlace válido de Instagram para invocar el reel.',
+      contextInfo
+    }, { quoted });
   }
 
-  const traceId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
   await conn.sendMessage(jid, {
-    text: `🔮 *Invocando el reel...*\n> id: ${traceId}`,
-    quoted: message
-  });
+    text: '⌛ *Invocando el ritual desde Instagram...*',
+    contextInfo
+  }, { quoted });
 
   try {
     const api = `https://apis-starlights-team.koyeb.app/starlight/instagram-dl?url=${encodeURIComponent(url)}`;
@@ -25,48 +36,42 @@ async function handler(conn, { message, args }) {
     const data = res.data?.data?.[0];
 
     if (!data || data.type !== 'video' || !data.dl_url) {
-      throw new Error('No se pudo obtener el video.');
+      return conn.sendMessage(jid, {
+        text: '📭 *No se pudo abrir el portal del reel.*\n\n> Verifica el enlace o intenta más tarde.',
+        contextInfo
+      }, { quoted });
     }
 
-    const videoUrl = data.dl_url;
-    const thumbUrl = 'https://qu.ax/MvYPM.jpg'; // Puedes cambiarla por una dinámica si lo deseas
-    const thumbBuffer = await fetch(thumbUrl).then(res => res.buffer());
+    const caption = `
+╭─「 🎥 𝙄𝙉𝙎𝙏𝘼𝙂𝙍𝘼𝙈 - 𝙍𝙄𝙏𝙐𝘼𝙇 」─╮
+│ 🔗 *Enlace:* ${url}
+│ 📡 *Fuente:* Instagram API
+╰────────────────────╯
+*✨ Reel invocado con éxito...*
+`.trim();
 
     await conn.sendMessage(jid, {
-      video: { url: videoUrl },
-      caption: `🎥 *Reel invocado con éxito*\n🧩 Rastreo: ${traceId}\n🧙‍♂️ Fuente: Instagram`,
-      quoted: message,
-      jpegThumbnail: thumbBuffer,
-      contextInfo: {
-        externalAdReply: {
-          title: 'Reel ritual',
-          body: 'Zenitsu ha cruzado el portal de Instagram',
-          mediaType: 1,
-          previewType: 'VIDEO',
-          thumbnailUrl: thumbUrl,
-          sourceUrl: url,
-          renderLargerThumbnail: true
-        }
-      }
+      video: { url: data.dl_url },
+      caption,
+      contextInfo,
+      quoted
     });
+
+    await conn.sendMessage(jid, {
+      text: '✅ *Reel enviado.* ¿Deseas invocar otro o explorar más portales?',
+      contextInfo
+    }, { quoted });
 
   } catch (err) {
-    console.error(`[instadl][${traceId}]`, err?.message || err);
+    console.error('[instadl] Error:', err.message);
     await conn.sendMessage(jid, {
-      text: '*⚠️ El portal de Instagram se cerró...*\n\n> Intenta nuevamente más tarde o verifica el enlace.',
-      quoted: message,
-      contextInfo: {
-        externalAdReply: {
-          title: 'Error de invocación',
-          body: 'Zenitsu no pudo cruzar el umbral',
-          thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
-        }
-      }
-    });
+      text: '🚫 *Ups... algo falló al intentar invocar el reel.*\n\n> Intenta más tarde o revisa el enlace.',
+      contextInfo
+    }, { quoted });
   }
 }
 
 module.exports = {
-  command: 'ig',
+  command: 'instadl',
   handler
 };
