@@ -60,8 +60,16 @@ async function handler(conn, { message, args }) {
       );
     }
     
-    // Obtener el nombre del usuario
-    const userName = (await conn.getName(targetJid)) || 'Usuario';
+    // Obtener el nombre del usuario de la @mención si existe, o usar un nombre por defecto
+    let userName = 'Usuario';
+    if (message.message?.extendedTextMessage?.text) {
+      const parts = message.message.extendedTextMessage.text.split(' ');
+      if (parts.length > 1) {
+        // Asume que la mención es el primer argumento después del comando
+        userName = parts[1].replace(/[@]/g, ''); 
+      }
+    }
+    
     const rank = Math.floor(Math.random() * 100) + 1; // Genera un rango aleatorio entre 1 y 100
 
     // Construir la URL de la API
