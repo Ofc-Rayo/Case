@@ -71,7 +71,7 @@ Zenitsu canalizó la energía... ¡y la imagen ha nacido! ⚡
             if (!imageUrl) throw new Error('Starlight no devolvió una imagen válida.');
 
             const caption = `
-╭─「 🖼️ 𝙄𝙈𝘼𝙂𝙀𝙉 - 𝙍𝙀𝙎𝙋𝘼𝙇𝘿𝙊 」─╮
+╭─「 🖼️ 𝙄𝙈𝘼𝙂𝙀𝙉 - 𝙂𝙀𝙉𝙀𝙍𝘼𝘿𝘼 」─╮
 │ 🧠 *Prompt:* ${prompt}
 │ 🪄 *Modelo:* Starlight txt-to-image
 │ 🌐 *Fuente:* starlights-team.koyeb.app
