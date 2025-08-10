@@ -1,59 +1,52 @@
-// plugins/teatro.js
-const ESCENAS = [
-  {
-    personajes: ['Ariadna', 'El Guardián'],
-    diálogo: [
-      '— ¿Por qué me sigues en sueños?',
-      '— Porque tu alma aún no ha despertado.',
-      '— Entonces... ¿esto es real?',
-      '— Todo lo que arde en tu pecho lo es.'
-    ],
-    imagen: 'https://i.imgur.com/Teatro1.jpg'
-  },
-  {
-    personajes: ['Luz', 'El Eco'],
-    diálogo: [
-      '— ¿Me escuchas cuando grito en silencio?',
-      '— Soy el eco de tu sombra, siempre estoy.',
-      '— ¿Y si dejo de buscar?',
-      '— Entonces te encontraré.'
-    ],
-    imagen: 'https://i.imgur.com/Teatro2.jpg'
-  }
-];
+const COOLDOWN_MS = 15000; // 15 segundos de respiro teatral
+const cooldowns = new Map();
 
-async function handler(conn, { message }) {
-  const jid = message.key.remoteJid;
-  const traceId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+async function teatroHandler(conn, m) {
+  const userId = m.sender;
+  const now = Date.now();
+
+  // 🕰️ Verificamos si el usuario está en cooldown
+  if (cooldowns.has(userId) && now - cooldowns.get(userId) < COOLDOWN_MS) {
+    return conn.sendMessage(m.chat, {
+      text: `⏳ *El telón aún respira...*  
+      Espera unos segundos antes de invocar otra escena.`,
+      contextInfo: { externalAdReply: { title: 'Teatro en pausa', body: 'El alma del escenario se prepara', thumbnailUrl: 'https://i.imgur.com/3z1ZQZL.png' } }
+    });
+  }
+
+  cooldowns.set(userId, now); // 🎬 Activamos cooldown
 
   try {
-    const escena = ESCENAS[Math.floor(Math.random() * ESCENAS.length)];
-    const diálogo = escena.diálogo.map(linea => `_${linea}_`).join('\n');
-    const título = `🎭 *Escena teatral: ${escena.personajes.join(' vs ')}*`;
+    // 🎨 Imagen principal del acto
+    const imageUrl = 'https://i.imgur.com/yourImage.png';
 
-    await conn.sendMessage(jid, {
-      image: { url: escena.imagen },
-      caption: `${título}\n\n${diálogo}\n\n🔮 id: ${traceId}`,
+    await conn.sendMessage(m.chat, {
+      image: { url: imageUrl },
+      caption: `🎭 *Acto I: El telón se abre*  
+      La escena respira, los suspiros se elevan...`,
       contextInfo: {
         externalAdReply: {
-          title: 'Teatro ritual',
-          body: `Actores: ${escena.personajes.join(', ')}`,
-          mediaType: 1,
-          previewType: 'PHOTO',
-          thumbnailUrl: escena.imagen,
-          sourceUrl: escena.imagen,
-          renderLargerThumbnail: false
+          title: 'Teatro Ritual',
+          body: 'Cada imagen es un suspiro del alma',
+          thumbnailUrl: imageUrl
         }
       }
     });
-  } catch (err) {
-    await conn.sendMessage(jid, {
-      text: `⚠️ *El telón no se abrió...*\n> Error: ${err.message}\n> id: ${traceId}`
+
+  } catch (error) {
+    // 🧤 Fallback visual si falla la imagen
+    console.error('Error al cargar imagen:', error);
+
+    await conn.sendMessage(m.chat, {
+      text: `⚠️ *El telón no se abrió...*  
+      El escenario se ha saturado. Intenta más tarde.`,
+      contextInfo: {
+        externalAdReply: {
+          title: 'Error 429',
+          body: 'Demasiadas invocaciones. El teatro necesita respirar.',
+          thumbnailUrl: 'https://i.imgur.com/3z1ZQZL.png'
+        }
+      }
     });
   }
 }
-
-module.exports = {
-  command: 'teatro',
-  handler
-};
