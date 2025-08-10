@@ -9,7 +9,11 @@ const contextInfo = {
     mediaType: 1,
     previewType: 0,
     sourceUrl: 'https://facebook.com',
-    thumbnailUrl: 'https://qu.ax/MvYPM.jpg' // miniatura genérica, puedes cambiarla
+    thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
+  }
+}
+
+async function.ax/MvYPM.jpg'
   }
 }
 
@@ -18,19 +22,17 @@ async function handler(conn, { message, args }) {
   const quoted = message
   const url    = args[0]
 
-  // 1. Validación del enlace
   if (!url || !url.includes('facebook.com')) {
     return conn.sendMessage(
       jid,
       {
-        text: '*🎥 Invocación fallida*\n\n> Proporciona un enlace válido de Facebook para descargar el video.',
+        text: '*🎥 Invocación fallida*\n\n> Proporciona un enlace válido de Facebook.',
         contextInfo
       },
       { quoted }
     )
   }
 
-  // 2. Mensaje ritual de inicio
   await conn.sendMessage(
     jid,
     {
@@ -41,27 +43,30 @@ async function handler(conn, { message, args }) {
   )
 
   try {
-    // 3. Llamada a la nueva API vreden.my.id
     const apiUrl = `https://api.vreden.my.id/api/fbdl?url=${encodeURIComponent(url)}`
-    const res    = await axios.get(apiUrl)
-    const data   = res.data?.data
 
-    // 4. Validación estricta de la respuesta
+    // 1. Registro de la petición
+    console.log('🔮 Enviando petición a:', apiUrl)
+
+    const res = await axios.get(apiUrl)
+
+    // 2. Registro de la respuesta completa
+    console.log('📜 Respuesta completa:', JSON.stringify(res.data, null, 2))
+
+    const data = res.data?.data
     if (!data || !data.status || (!data.hd_url && !data.sd_url)) {
       throw new Error('Respuesta inesperada de la API')
     }
 
-    // 5. Selección de calidad
     const videoUrl   = data.hd_url || data.sd_url
     const resolution = data.hd_url ? 'HD' : 'SD'
-    const thumbUrl   = data.thumbnail
     const title      = data.title   || 'Facebook Video'
     const durasi     = data.durasi  || 'Desconocida'
+    const thumbUrl   = data.thumbnail
 
-    // 6. Descarga de la miniatura
+    // Descarga de miniatura
     const thumbBuffer = await fetch(thumbUrl).then(r => r.buffer())
 
-    // 7. Pie de caja ritual
     const caption = `
 ╭─「 🎬 𝙁𝘼𝘾𝙀𝘽𝙊𝙊𝙆 - 𝙍𝙄𝙏𝙐𝘼𝙇 」─╮
 │ 🔗 Enlace: ${url}
@@ -72,7 +77,6 @@ async function handler(conn, { message, args }) {
 *✨ Portal abierto con éxito…*
 `.trim()
 
-    // 8. Envío del video con miniatura y reply al comando
     await conn.sendMessage(
       jid,
       {
@@ -84,27 +88,29 @@ async function handler(conn, { message, args }) {
       { quoted }
     )
 
-    // 9. Confirmación final
     await conn.sendMessage(
       jid,
-      {
-        text: '✅ *Video invocado.* ¿Deseas descargar otra joya de Facebook?',
-        contextInfo
-      },
+      { text: '✅ *Video invocado.* ¿Otro enlace?', contextInfo },
       { quoted }
     )
 
   } catch (err) {
-    console.error('[fb] Error:', err.response?.data || err.message)
+    // 3. Inspección detallada del error
+    console.error('🔥 Error completo:', err)
+    if (err.response) {
+      console.error('📦 err.response.status:', err.response.status)
+      console.error('📦 err.response.data:', err.response.data)
+    }
+
     await conn.sendMessage(
       jid,
       {
         text: `
-🚫 *Algo salió mal al invocar el video de Facebook.*
+🚫 *Algo salió mal al invocar el video.*
 
-> ${err.message.includes('Respuesta inesperada') 
-         ? 'La API devolvió un formato inesperado. Revisa los logs.' 
-         : 'Verifica el enlace o intenta más tarde.'}
+> ${err.message.includes('Respuesta inesperada')
+           ? 'La API devolvió un formato inesperado. Mira los logs.'
+           : 'Verifica el enlace o intenta más tarde.'}
 `,
         contextInfo
       },
