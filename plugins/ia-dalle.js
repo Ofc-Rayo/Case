@@ -29,6 +29,6 @@ async function handler(conn, { message, args }) {
 }
 
 module.exports = {
-  command: 'dalle',
+  command: 'dalle2',
   handler,
 };
