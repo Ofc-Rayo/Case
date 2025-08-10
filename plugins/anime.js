@@ -23,7 +23,7 @@ async function handler(conn, { message }) {
       const caption = `
 ╭─「 🌸 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝘼𝙉𝙄𝙈𝙀 」─╮
 │ ⚡ *Estado:* Imagen encontrada
-│ 🖼️ *Fuente:* Eliasar Anime API
+│ 👑 Creador : *Carlos* 
 ╰────────────────────────────╯
 *😳 ¡Zenitsu se ha desmayado de la emoción!*
 `.trim();
