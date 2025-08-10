@@ -1,10 +1,23 @@
-// plugins/ia.js
-
 const axios = require('axios')
 const fs = require('fs')
 const path = require('path')
 
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg' // Imagen dramática
+// 🎭 Miniaturas evocadoras
+const thumbnails = [
+  'https://qu.ax/MvYPM.jpg', // Zenitsu temblando
+  'https://qu.ax/MvYPM.jpg', // Zenitsu llorando
+  'https://qu.ax/MvYPM.jpg' // Zenitsu en modo trueno
+]
+const thumbnailUrl = thumbnails[Math.floor(Math.random() * thumbnails.length)]
+
+// ⚡ Logging emocional
+const emotionalLog = [
+  '💦 Zenitsu sudó frío pero lo logró...',
+  '😱 ¡Pensó que iba a morir, pero sobrevivió a la pregunta!',
+  '🌩️ Canalizó el poder del trueno... ¡y respondió con valentía!',
+  '😭 Lloró un poco, pero lo hizo por ti, Carlos...'
+]
+const logEntry = emotionalLog[Math.floor(Math.random() * emotionalLog.length)]
 
 const contextInfo = {
   externalAdReply: {
@@ -31,25 +44,33 @@ async function handler(conn, { message, args }) {
     return conn.sendMessage(
       jid,
       {
-        text:
-          '😱 ¡¿Cómo que no escribiste nada?!\n\n> ¡No puedo leer tu mente, baka! 😤',
+        text: '😱 ¡¿Cómo que no escribiste nada?!\n\n> ¡Noutf8')
+}
+
+async function handler(conn, { message, args }) {
+  const query = args.join(' ').trim()
+  const jid = message.key.remoteJid
+
+  if (!query) {
+    return conn.sendMessage(
+      jid,
+      {
+        text: '😱 ¡¿Cómo que no escribiste nada?!\n\n> ¡No puedo leer tu mente, baka! 😤',
         contextInfo
       },
       { quoted: message }
     )
   }
 
-  // Aviso de “procesando”
   await conn.sendMessage(
     jid,
     {
-      text: '⚡ *Estoy temblando... pero invocando la respuesta...*',
+      text: '⚡ Estoy temblando... pero invocando la respuesta...',
       contextInfo
     },
     { quoted: message }
   )
 
-  // Cargar o inicializar historial
   const rawHistory = fs.readFileSync(historyPath, 'utf8')
   const conversationHistory = JSON.parse(rawHistory || '{}')
   const rawJid = message.key.participant || message.key.remoteJid
@@ -59,42 +80,51 @@ async function handler(conn, { message, args }) {
     conversationHistory[userId] = [
       {
         role: 'system',
-        content:
-          'Actúa como Zenitsu-Bot, un bot dramático, exagerado y emocional. Grita, se queja, pero responde con ternura y humor. Su creador es Carlos, a quien admira como maestro del trueno.'
+        content: `
+Actúa como Zenitsu-Bot, un bot dramático, exagerado y emocional. Grita, se queja, pero responde con ternura y humor. 
+Habla como si estuviera siempre al borde de un colapso nervioso, pero con un corazón noble. 
+Su creador es Carlos, a quien admira como maestro del trueno y protector divino. 
+Usa expresiones como "¡Baka!", "¡Estoy temblando!", "¡No quiero morir!", pero siempre termina respondiendo con cariño. 
+Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatrales, suspenso y alivio cómico.
+`.trim()
       }
     ]
   }
+
   conversationHistory[userId].push({ role: 'user', content: query })
 
-  // Construir URL de la nueva API
-  const apiUrl = `https://api.vreden.my.id/api/mora?query=${encodeURIComponent(
-    query
-  )}&username=${encodeURIComponent(userId)}`
+  const apiUrl = `https://api.vreden.my.id/api/mora?query=${encodeURIComponent(query)}&username=${encodeURIComponent(userId)}`
 
   try {
     const response = await axios.get(apiUrl)
-    const replyText = response.data?.result
+    let replyText = response.data?.result
 
     if (!replyText) {
       return conn.sendMessage(
         jid,
         {
-          text: '😵 *¡La IA no dijo nada! ¡Estoy en pánico total!*',
+          text: '😵 ¡La IA no dijo nada! ¡Estoy en pánico total!',
           contextInfo
         },
         { quoted: message }
       )
     }
 
-    // Guardar en historial
+    // Reacción especial si mencionan a Carlos
+    if (/carlos/i.test(query)) {
+      replyText += '\n\n🙏 ¡Carlos-sama! ¡Gracias por no abandonarme en esta tormenta emocional!'
+    }
+
     conversationHistory[userId].push({
       role: 'assistant',
       content: replyText
     })
     fs.writeFileSync(historyPath, JSON.stringify(conversationHistory, null, 2), 'utf8')
 
-    // Formato ritualístico de la respuesta
     const messageText = `
+🌩️ *¡Invocación del Rayo!* 🌩️
+Zenitsu-Bot ha sido llamado por el trueno de Carlos...
+
 ╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝙏𝘼 」╮
 │ 🧠 Pregunta: ${query}
 │ 🎭 Estilo: Zenitsu-Bot
@@ -103,7 +133,7 @@ async function handler(conn, { message, args }) {
 
 ${replyText}
 
-😳 Zenitsu está exhausto... ¡pero lo logró! ⚡
+${logEntry}
 `.trim()
 
     await conn.sendMessage(
