@@ -24,24 +24,33 @@ const ESCENAS = [
 
 async function handler(conn, { message }) {
   const jid = message.key.remoteJid;
-  const escena = ESCENAS[Math.floor(Math.random() * ESCENAS.length)];
-  const texto = escena.diálogo.map(linea => `_${linea}_`).join('\n');
+  const traceId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
-  await conn.sendMessage(jid, {
-    image: { url: escena.imagen },
-    caption: `🎭 *Escena teatral: ${escena.personajes.join(' vs ')}*\n\n${texto}`,
-    contextInfo: {
-      externalAdReply: {
-        title: 'Teatro ritual',
-        body: 'Diálogo emocional',
-        mediaType: 1,
-        previewType: 'PHOTO',
-        thumbnailUrl: escena.imagen,
-        sourceUrl: escena.imagen,
-        renderLargerThumbnail: false
+  try {
+    const escena = ESCENAS[Math.floor(Math.random() * ESCENAS.length)];
+    const diálogo = escena.diálogo.map(linea => `_${linea}_`).join('\n');
+    const título = `🎭 *Escena teatral: ${escena.personajes.join(' vs ')}*`;
+
+    await conn.sendMessage(jid, {
+      image: { url: escena.imagen },
+      caption: `${título}\n\n${diálogo}\n\n🔮 id: ${traceId}`,
+      contextInfo: {
+        externalAdReply: {
+          title: 'Teatro ritual',
+          body: `Actores: ${escena.personajes.join(', ')}`,
+          mediaType: 1,
+          previewType: 'PHOTO',
+          thumbnailUrl: escena.imagen,
+          sourceUrl: escena.imagen,
+          renderLargerThumbnail: false
+        }
       }
-    }
-  });
+    });
+  } catch (err) {
+    await conn.sendMessage(jid, {
+      text: `⚠️ *El telón no se abrió...*\n> Error: ${err.message}\n> id: ${traceId}`
+    });
+  }
 }
 
 module.exports = {
