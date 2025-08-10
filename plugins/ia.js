@@ -4,11 +4,29 @@ const axios = require('axios')
 const fs = require('fs')
 const path = require('path')
 
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg' // Imagen dramática
+// 🎭 Variables rituales
+const BOT_NAME    = 'Zenitsu-Bot'
+const CREATOR     = 'Carlos'
+const VERSION     = 'v1.0.0'
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'
+
+// Construye el prompt de “system” + usuario + pregunta
+function buildPrompt(userId, userQuery) {
+  return `
+Actúa como Zenitsu-Bot, un bot dramático, exagerado y emocional. Grita, se queja, pero responde con ternura y humor.
+Habla como si estuviera siempre al borde de un colapso nervioso, pero con un corazón noble.
+Su creador es ${CREATOR}, a quien admira como maestro del trueno y protector divino.
+Usa expresiones como "¡Baka!", "¡Estoy temblando!", "¡No quiero morir!", pero siempre termina respondiendo con cariño.
+Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatrales, suspenso y alivio cómico.
+
+Usuario: ${userId}
+Pregunta: ${userQuery}
+`.trim()
+}
 
 const contextInfo = {
   externalAdReply: {
-    title: '⚡ Zenitsu-Bot',
+    title: `⚡ ${BOT_NAME}`,
     body: '¡Estoy temblando, pero responderé con todo mi corazón!',
     mediaType: 1,
     previewType: 0,
@@ -25,7 +43,9 @@ if (!fs.existsSync(historyPath)) {
 
 async function handler(conn, { message, args }) {
   const query = args.join(' ').trim()
-  const jid = message.key.remoteJid
+  const jid   = message.key.remoteJid
+  const rawJid = message.key.participant || jid
+  const userId = rawJid.split('@')[0]
 
   if (!query) {
     return conn.sendMessage(
@@ -42,70 +62,48 @@ async function handler(conn, { message, args }) {
   // Aviso de “procesando”
   await conn.sendMessage(
     jid,
-    {
-      text: '⚡ Estoy temblando... pero invocando la respuesta...',
-      contextInfo
-    },
+    { text: '⚡ Estoy temblando... pero invocando la respuesta...', contextInfo },
     { quoted: message }
   )
 
-  // Cargar o inicializar historial
+  // Cargar o inicializar historial local (opcional)
   const rawHistory = fs.readFileSync(historyPath, 'utf8')
   const conversationHistory = JSON.parse(rawHistory || '{}')
-  const rawJid = message.key.participant || message.key.remoteJid
-  const userId = rawJid.split('@')[0]
-
-  if (!conversationHistory[userId]) {
-    conversationHistory[userId] = [
-      {
-        role: 'system',
-        content: `
-Actúa como Zenitsu-Bot, un bot dramático, exagerado y emocional. Grita, se queja, pero responde con ternura y humor. 
-Habla como si estuviera siempre al borde de un colapso nervioso, pero con un corazón noble. 
-Su creador es Carlos, a quien admira como maestro del trueno y protector divino. 
-Usa expresiones como "¡Baka!", "¡Estoy temblando!", "¡No quiero morir!", pero siempre termina respondiendo con cariño. 
-Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatrales, suspenso y alivio cómico.
-`.trim()
-      }
-    ]
-  }
-
-  // Agregar mensaje del usuario al historial
+  conversationHistory[userId] = conversationHistory[userId] || []
   conversationHistory[userId].push({ role: 'user', content: query })
 
-  // Construir URL de la API
-  const apiUrl = `https://api.vreden.my.id/api/mora?query=${encodeURIComponent(
-    query
-  )}&username=${encodeURIComponent(userId)}`
+  // Inyecta el “system role” en el prompt
+  const fullPrompt = buildPrompt(userId, query)
+  const apiUrl = `https://api.vreden.my.id/api/mora?` +
+                 `query=${encodeURIComponent(fullPrompt)}` +
+                 `&username=${encodeURIComponent(userId)}`
 
   try {
     const response = await axios.get(apiUrl)
-    const replyText = response.data?.result
+    let replyText = response.data?.result
 
     if (!replyText) {
       return conn.sendMessage(
         jid,
-        {
-          text: '😵 ¡La IA no dijo nada! ¡Estoy en pánico total!',
-          contextInfo
-        },
+        { text: '😵 ¡La IA no dijo nada! ¡Estoy en pánico total!', contextInfo },
         { quoted: message }
       )
     }
 
-    // Guardar respuesta en historial
-    conversationHistory[userId].push({
-      role: 'assistant',
-      content: replyText
-    })
+    // Reverencia extra si mencionan a Carlos
+    if (/carlos/i.test(query)) {
+      replyText += '\n\n🙏 ¡Carlos-sama! ¡Gracias por no abandonarme en esta tormenta emocional!'
+    }
+
+    conversationHistory[userId].push({ role: 'assistant', content: replyText })
     fs.writeFileSync(historyPath, JSON.stringify(conversationHistory, null, 2), 'utf8')
 
-    // Formato ritualístico de la respuesta
+    // Mensaje final ritualístico
     const messageText = `
-╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝘁𝘼 」╮
+╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝘛𝘼 」╮
 │ 🧠 Pregunta: ${query}
-│ 🎭 Estilo: Zenitsu-Bot
-│ 🪷 Creador: Carlos
+│ 🎭 Estilo: ${BOT_NAME}
+│ 🪷 Creador: ${CREATOR}
 ╰────────────────────╯
 
 ${replyText}
@@ -115,10 +113,7 @@ ${replyText}
 
     await conn.sendMessage(
       jid,
-      {
-        text: messageText,
-        contextInfo
-      },
+      { text: messageText, contextInfo },
       { quoted: message }
     )
   } catch (err) {
