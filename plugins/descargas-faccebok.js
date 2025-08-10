@@ -9,96 +9,77 @@ const contextInfo = {
     previewType: 0,
     mediaUrl: null,
     sourceUrl: 'https://facebook.com',
-    thumbnailUrl: 'https://qu.ax/MvYPM.jpg' // miniatura evocadora por defecto
+    thumbnailUrl: 'https://qu.ax/MvYPM.jpg' // miniatura por defecto
   }
 };
 
 async function handler(conn, { message, args }) {
-  const jid = message.key.remoteJid;
+  const jid    = message.key.remoteJid;
   const quoted = message;
-  const url = args[0];
+  const url    = args[0];
 
-  // Validación del enlace
+  // 1. Validación del enlace
   if (!url || !url.includes('facebook.com')) {
-    return conn.sendMessage(
-      jid,
-      {
-        text: '*🎥 ¿Dónde está el portal de Facebook?*\n\n> Proporciona un enlace válido de Facebook para invocar el video.',
-        contextInfo
-      },
-      { quoted }
-    );
+    return conn.sendMessage(jid, {
+      text: '*🎥 Invocación fallida*\n\n> Proporciona un enlace válido de Facebook para descargar el video.',
+      contextInfo
+    }, { quoted });
   }
 
-  // Mensaje ritual de invocación
-  await conn.sendMessage(
-    jid,
-    {
-      text: '⌛ *Invocando el ritual desde Facebook...*',
-      contextInfo
-    },
-    { quoted }
-  );
+  // 2. Mensaje ritual de inicio
+  await conn.sendMessage(jid, {
+    text: '⌛ *Abriendo el portal de Facebook...*',
+    contextInfo
+  }, { quoted });
 
   try {
-    // Llamada a la API
-    const apiUrl = `https://api.dorratz.com/fbvideo?url=${encodeURIComponent(url)}`;
-    const res = await axios.get(apiUrl);
-    const videos = Array.isArray(res.data) ? res.data : [];
+    // 3. Llamada a la API v3/fb2
+    const apiUrl = `https://api.dorratz.com/v3/fb2?url=${encodeURIComponent(url)}`;
+    const { data } = await axios.get(apiUrl);
 
-    if (!videos.length) {
-      throw new Error('Respuesta vacía de la API');
-    }
+    // 4. Selección de calidad preferente
+    const videoUrl     = data.hd || data.sd;
+    const resolution   = data.hd ? 'HD' : 'SD';
+    const thumbUrl     = data.thumbnail;
+    const title        = data.title || 'Facebook Video';
+    const durationSec  = Math.floor((data.duration_ms || 0) / 1000);
+    const minutes      = String(Math.floor(durationSec / 60)).padStart(2, '0');
+    const seconds      = String(durationSec % 60).padStart(2, '0');
 
-    // Elegir resolución para renderizar (shouldRender=true) o la primera
-    const choice = videos.find(v => v.shouldRender) || videos[0];
-    const videoUrl = choice.url;
-    const thumbUrl = choice.thumbnail;
+    // 5. Descarga de miniatura
+    const thumbBuffer = await fetch(thumbUrl).then(res => res.buffer());
 
-    // Descargar buffer de la miniatura
-    const thumbBuffer = await fetch(thumbUrl).then(r => r.buffer());
-
-    // Pie de caja ritual
+    // 6. Pie de caja ritual
     const caption = `
 ╭─「 🎬 𝙁𝘼𝘾𝙀𝘽𝙊𝙊𝙆 - 𝙍𝙄𝙏𝙐𝘼𝙇 」─╮
 │ 🔗 Enlace: ${url}
-│ 📺 Resolución: ${choice.resolution}
+│ 🏷️ Título: ${title}
+│ 📺 Calidad: ${resolution}
+│ ⏱️ Duración: ${minutes}:${seconds}
 ╰────────────────────────╯
-*✨ Video invocado con éxito...*
+*✨ Portal abierto con éxito…*
 `.trim();
 
-    // Envío del video con miniatura y reply
-    await conn.sendMessage(
-      jid,
-      {
-        video: { url: videoUrl },
-        caption,
-        jpegThumbnail: thumbBuffer,
-        contextInfo
-      },
-      { quoted }
-    );
+    // 7. Envío del video como reply, con miniatura
+    await conn.sendMessage(jid, {
+      video:         { url: videoUrl },
+      caption,
+      jpegThumbnail: thumbBuffer,
+      contextInfo
+    }, { quoted });
 
-    // Confirmación final
-    await conn.sendMessage(
-      jid,
-      {
-        text: '✅ *Video enviado.* ¿Deseas invocar otro o explorar más portales?',
-        contextInfo
-      },
-      { quoted }
-    );
+    // 8. Confirmación final
+    await conn.sendMessage(jid, {
+      text: '✅ *Video invocado.* ¿Deseas descargar otra joya de Facebook?',
+      contextInfo
+    }, { quoted });
 
   } catch (err) {
-    console.error('[fbvideo] Error:', err.message);
-    await conn.sendMessage(
-      jid,
-      {
-        text: '🚫 *Ups... algo falló al invocar el video de Facebook.*\n\n> Intenta más tarde o verifica el enlace.',
-        contextInfo
-      },
-      { quoted }
-    );
+    console.error('[fb] Error:', err.message);
+    await conn.sendMessage(jid, {
+      text: '🚫 *Algo salió mal al invocar el video de Facebook.*\n\n> Verifica el enlace o intenta más tarde.',
+      contextInfo
+    }, { quoted });
   }
 }
 
