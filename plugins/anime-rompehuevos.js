@@ -71,6 +71,6 @@ const handler = async (m, { conn }) => {
   });
 };
 
-handler.command = 'rompehuevos';
+handler.command = ['rompehuevos'];
 
 export default handler;
