@@ -16,7 +16,7 @@ async function handler(conn, { message }) {
           mediaType: 1,
           previewType: 0,
           sourceUrl: 'https://eliasar-yt-api.vercel.app',
-          thumbnailUrl: animeImage
+          thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
         }
       };
 
@@ -37,7 +37,16 @@ async function handler(conn, { message }) {
     } else {
       await conn.sendMessage(jid, {
         text: '*😭 Zenitsu no pudo encontrar una imagen de anime...*\n\n> 🌫️ La energía espiritual se desvaneció.',
-        contextInfo
+        contextInfo: {
+          externalAdReply: {
+            title: '🌩️ Zenitsu Bot - Anime Ritual',
+            body: 'Sin conexión con el plano espiritual...',
+            mediaType: 1,
+            previewType: 0,
+            sourceUrl: 'https://eliasar-yt-api.vercel.app',
+            thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
+          }
+        }
       }, { quoted });
     }
 
@@ -45,7 +54,16 @@ async function handler(conn, { message }) {
     console.error('💥 Error al obtener la imagen de anime:', err.message);
     await conn.sendMessage(jid, {
       text: '*⚠️ ¡Error inesperado!*\n\n> 😵 Zenitsu tropezó entre los cables del destino...',
-      contextInfo
+      contextInfo: {
+        externalAdReply: {
+          title: '🌩️ Zenitsu Bot - Anime Ritual',
+          body: 'Error en la conexión espiritual...',
+          mediaType: 1,
+          previewType: 0,
+          sourceUrl: 'https://eliasar-yt-api.vercel.app',
+          thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
+        }
+      }
     }, { quoted });
   }
 }
