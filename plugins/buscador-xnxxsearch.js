@@ -1,6 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 
 async function handler(conn, { message, args }) {
     const query = args.join(' ');
@@ -15,33 +13,19 @@ async function handler(conn, { message, args }) {
         const searchResponse = await axios.get(searchUrl);
 
         if (searchResponse.data && searchResponse.data.result && searchResponse.data.result.length > 0) {
-            const firstResult = searchResponse.data.result[0];
+            const results = searchResponse.data.result.slice(0, 10);
 
-            const infoParts = firstResult.info.trim().split('\n').join(' ').split(' - ');
-            const viewsAndLikes = infoParts[0]?.trim() || 'N/A';
-            const duration = infoParts[1]?.trim() || 'N/A';
+            let listText = '╭─「 🔞 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝘽𝙐𝙎𝘾𝘼𝘿𝙊𝙍 」─╮\n';
+            results.forEach((vid, i) => {
+                const infoParts = vid.info.trim().split('\n').join(' ').split(' - ');
+                const viewsAndLikes = infoParts[0]?.trim() || 'N/A';
+                const duration = infoParts[1]?.trim() || 'N/A';
 
-            const messageText = `
-╭─「 🔞 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙓𝙉𝙓𝙓 」─╮
-│ 🎬 *Título:* ${firstResult.title}
-│ ⏳ *Duración:* ${duration}
-│ 👀 *Vistas:* ${viewsAndLikes}
-│ 🔗 *Link:* ${firstResult.link}
-│ 🔽 *Descargando video...*
-╰────────────────────╯
+                listText += `\n${i + 1}. 🎬 *${vid.title}*\n   ⏳ Duración: ${duration}\n   👀 Vistas: ${viewsAndLikes}\n   🔗 ${vid.link}\n`;
+            });
+            listText += '\n╰────────────────────╯';
 
-*😳 Zenitsu está sudando...* ⚡
-`.trim();
-
-            await conn.sendMessage(message.key.remoteJid, { text: messageText });
-
-            const videoDownloadUrl = await getVideoDownloadUrl(firstResult.link);
-
-            if (videoDownloadUrl) {
-                await sendVideoAsFile(conn, message, videoDownloadUrl, firstResult.title);
-            } else {
-                throw new Error('No se pudo obtener el video.');
-            }
+            await conn.sendMessage(message.key.remoteJid, { text: listText });
         } else {
             await conn.sendMessage(message.key.remoteJid, {
                 text: '*🔍 Zenitsu no encontró resultados...*\n\n> Intenta con otro término, por favor.',
@@ -50,56 +34,7 @@ async function handler(conn, { message, args }) {
     } catch (err) {
         console.error(err);
         await conn.sendMessage(message.key.remoteJid, {
-            text: '*❌ ¡Algo salió mal!*\n\n> Zenitsu se tropezó intentando descargar el video... vuelve a intentarlo más tarde.',
-        });
-    }
-}
-
-async function getVideoDownloadUrl(videoUrl) {
-    const apiUrl = `https://api.vreden.my.id/api/xnxxdl?url=${encodeURIComponent(videoUrl)}`;
-
-    try {
-        const response = await axios.get(apiUrl);
-        if (response.data && response.data.result && response.data.result.files) {
-            return response.data.result.files.high || response.data.result.files.low;
-        }
-    } catch (err) {
-        console.error("Error al obtener la URL de descarga del video:", err);
-    }
-
-    return null;
-}
-
-async function sendVideoAsFile(conn, message, videoUrl, videoTitle) {
-    const sanitizedTitle = videoTitle.replace(/[<>:"/\\|?*\x00-\x1F]/g, '');
-    const videoPath = path.resolve(__dirname, `${Date.now()}_${sanitizedTitle}.mp4`);
-
-    try {
-        const writer = fs.createWriteStream(videoPath);
-        const videoStream = await axios({
-            url: videoUrl,
-            method: 'GET',
-            responseType: 'stream',
-        });
-
-        videoStream.data.pipe(writer);
-
-        await new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
-
-        await conn.sendMessage(message.key.remoteJid, {
-            document: { url: videoPath },
-            mimetype: 'video/mp4',
-            fileName: `${sanitizedTitle}.mp4`
-        });
-
-        fs.unlinkSync(videoPath);
-    } catch (err) {
-        console.error(err);
-        await conn.sendMessage(message.key.remoteJid, {
-            text: '*⚠️ Zenitsu no pudo enviar el archivo...*\n\n> Intenta nuevamente, por favor.',
+            text: '*❌ ¡Algo salió mal!*\n\n> Zenitsu se tropezó buscando... vuelve a intentarlo más tarde.',
         });
     }
 }
