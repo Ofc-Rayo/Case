@@ -6,7 +6,7 @@
   🔗 GitHub:     https://github.com/Kone457
 ───────────────────────────────────────*/
 
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura oficial de Zenitsu-Bot
 
 const contextInfo = {
   externalAdReply: {
@@ -20,9 +20,9 @@ const contextInfo = {
   }
 };
 
-const handler = async (m, { conn }) => {
-  const autor = m.sender;
-  const mencionado = m.mentionedJid?.[0];
+const handler = async (conn, { message }) => {
+  const autor = message.key.participant || message.key.remoteJid;
+  const mencionado = message.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
   const objetivo = mencionado || autor;
   const nombre = `@${objetivo.split('@')[0]}`;
 
@@ -49,28 +49,24 @@ const handler = async (m, { conn }) => {
   const gifUrl = gifs[Math.floor(Math.random() * gifs.length)];
   const frase = frases[Math.floor(Math.random() * frases.length)];
 
-  // 🧪 Logging inicial para validar ejecución
-  await conn.sendMessage(m.chat, {
-    react: { text: '⚡', key: m.key }
-  });
-
-  // Primer mensaje: solo texto
-  await conn.sendMessage(m.chat, {
+  // Primer mensaje: texto ritual
+  await conn.sendMessage(message.key.remoteJid, {
     text: `🥚💥 ${nombre}, Zenitsu está temblando... pero va con todo ⚡`,
     mentions: [objetivo],
     contextInfo
-  });
+  }, { quoted: message });
 
-  // Segundo mensaje: GIF + frase
-  await conn.sendMessage(m.chat, {
+  // Segundo mensaje: video + frase
+  await conn.sendMessage(message.key.remoteJid, {
     video: { url: gifUrl },
     gifPlayback: true,
     caption: frase,
     mentions: [objetivo],
     contextInfo
-  });
+  }, { quoted: message });
 };
 
-handler.command = ['rompehuevos'];
-
-export default handler;
+module.exports = {
+  command: 'rompehuevos',
+  handler
+};
