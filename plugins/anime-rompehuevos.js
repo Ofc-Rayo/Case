@@ -15,7 +15,7 @@ const contextInfo = {
     mediaType: 1,
     previewType: 0,
     mediaUrl: "https://github.com/Kone457",
-    sourceUrl: "Zenitsu-Bot",
+    sourceUrl: "https://github.com/Kone457",
     thumbnailUrl
   }
 };
@@ -49,6 +49,11 @@ const handler = async (m, { conn }) => {
   const gifUrl = gifs[Math.floor(Math.random() * gifs.length)];
   const frase = frases[Math.floor(Math.random() * frases.length)];
 
+  // 🧪 Logging inicial para validar ejecución
+  await conn.sendMessage(m.chat, {
+    react: { text: '⚡', key: m.key }
+  });
+
   // Primer mensaje: solo texto
   await conn.sendMessage(m.chat, {
     text: `🥚💥 ${nombre}, Zenitsu está temblando... pero va con todo ⚡`,
@@ -66,7 +71,7 @@ const handler = async (m, { conn }) => {
   });
 };
 
-handler.command = ['rompehuevos'];
+handler.command = 'rompehuevos';
 handler.register = true;
 
 export default handler;
