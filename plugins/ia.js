@@ -2,22 +2,8 @@ const axios = require('axios')
 const fs = require('fs')
 const path = require('path')
 
-// 🎭 Miniaturas evocadoras
-const thumbnails = [
-  'https://qu.ax/MvYPM.jpg', // Zenitsu temblando
-  ''https://qu.ax/MvYPM.jpg', // Zenitsu llorando
-  ''https://qu.ax/MvYPM.jpg' // Zenitsu en modo trueno
-]
-const thumbnailUrl = thumbnails[Math.floor(Math.random() * thumbnails.length)]
-
-// ⚡ Logging emocional
-const emotionalLog = [
-  '💦 Zenitsu sudó frío pero lo logró...',
-  '😱 ¡Pensó que iba a morir, pero sobrevivió a la pregunta!',
-  '🌩️ Canalizó el poder del trueno... ¡y respondió con valentía!',
-  '😭 Lloró un poco, pero lo hizo por ti, Carlos...'
-]
-const logEntry = emotionalLog[Math.floor(Math.random() * emotionalLog.length)]
+// 🎭 Miniatura evocadora
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'
 
 const contextInfo = {
   externalAdReply: {
@@ -31,16 +17,16 @@ const contextInfo = {
   }
 }
 
-const historyPath = path.join(__dirname, 'zenitsuMemory.json')
+const historyPath = path.resolve('./zenitsuMemory.json')
 if (!fs.existsSync(historyPath)) {
   fs.writeFileSync(historyPath, JSON.stringify({}), 'utf8')
 }
 
 async function handler(conn, { message, args }) {
   const query = args.join(' ').trim()
-  const jid = message.key?.remoteJid
-  const rawJid = message.key?.participant || jid
-  const userId = rawJid?.split('@')[0]
+  const jid = message.key.remoteJid
+  const rawJid = message.key.participant || jid
+  const userId = rawJid.split('@')[0]
 
   if (!query) {
     return conn.sendMessage(
@@ -62,6 +48,7 @@ async function handler(conn, { message, args }) {
     { quoted: message }
   )
 
+  // Cargar o inicializar historial
   const rawHistory = fs.readFileSync(historyPath, 'utf8')
   const conversationHistory = JSON.parse(rawHistory || '{}')
 
@@ -87,8 +74,6 @@ Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatra
 
   try {
     const response = await axios.get(apiUrl)
-    console.log('📨 Respuesta cruda:', response.data)
-
     let replyText = response.data?.result
 
     if (!replyText) {
@@ -106,16 +91,24 @@ Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatra
       replyText += '\n\n🙏 ¡Carlos-sama! ¡Gracias por no abandonarme en esta tormenta emocional!'
     }
 
+    // Guardar en historial
     conversationHistory[userId].push({
       role: 'assistant',
       content: replyText
     })
     fs.writeFileSync(historyPath, JSON.stringify(conversationHistory, null, 2), 'utf8')
 
-    const messageText = `
-🌩️ *¡Invocación del Rayo!* 🌩️
-Zenitsu-Bot ha sido llamado por el trueno de Carlos...
+    // Final emocional random
+    const emotionalFinales = [
+      '😭 ¡Pero lo logré!',
+      '😳 ¡Estoy vivo!',
+      '💦 ¡Sudé como nunca!',
+      '⚡ ¡Gracias, Carlos-sama!',
+      '😱 ¡Pensé que iba a morir!'
+    ]
+    const finale = emotionalFinales[Math.floor(Math.random() * emotionalFinales.length)]
 
+    const messageText = `
 ╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝘁𝘼 」╮
 │ 🧠 Pregunta: ${query}
 │ 🎭 Estilo: Zenitsu-Bot
@@ -124,7 +117,7 @@ Zenitsu-Bot ha sido llamado por el trueno de Carlos...
 
 ${replyText}
 
-${logEntry}
+${finale}
 `.trim()
 
     await conn.sendMessage(
@@ -136,7 +129,7 @@ ${logEntry}
       { quoted: message }
     )
   } catch (err) {
-    console.error('⚠️ Error completo:', err)
+    console.error('⚠️ Error al invocar a Zenitsu-Bot:', err.message)
     await conn.sendMessage(
       jid,
       {
