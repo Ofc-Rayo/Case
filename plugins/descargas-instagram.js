@@ -72,6 +72,6 @@ async function handler(conn, { message, args }) {
 }
 
 module.exports = {
-  command: 'instadl',
+  command: 'ig',
   handler
 };
