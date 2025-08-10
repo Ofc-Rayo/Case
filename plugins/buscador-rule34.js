@@ -1,6 +1,6 @@
 const axios = require('axios'); // Asegúrate de tener axios instalado: npm install axios
 
-const thumbnailUrl = 'https://delirius-apiofc.vercel.app/search/rule34?query=waifu';
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
 
 const contextInfo = {
   externalAdReply: {
