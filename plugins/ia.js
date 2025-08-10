@@ -23,12 +23,12 @@ if (!fs.existsSync(historyPath)) {
 }
 
 async function handler(conn, { message, args }) {
-  const query = args.join(' ').trim()
-  const jid = message.key.remoteJid
-  const rawJid = message.key.participant || jid
-  const userId = rawJid.split('@')[0]
+  const userQuery = args.join(' ').trim()
+  const jid       = message.key.remoteJid
+  const rawJid    = message.key.participant || jid
+  const userId    = rawJid.split('@')[0]
 
-  if (!query) {
+  if (!userQuery) {
     return conn.sendMessage(
       jid,
       {
@@ -39,6 +39,7 @@ async function handler(conn, { message, args }) {
     )
   }
 
+  // Aviso de “procesando”
   await conn.sendMessage(
     jid,
     {
@@ -48,29 +49,32 @@ async function handler(conn, { message, args }) {
     { quoted: message }
   )
 
-  // Cargar o inicializar historial
+  // Cargar o inicializar historial local
   const rawHistory = fs.readFileSync(historyPath, 'utf8')
   const conversationHistory = JSON.parse(rawHistory || '{}')
-
   if (!conversationHistory[userId]) {
-    conversationHistory[userId] = [
-      {
-        role: 'system',
-        content: `
-Responde en español y Actúa como Zenitsu-Bot, un bot dramático, exagerado y emocional. Grita, se queja, pero responde con ternura y humor. 
-Habla como si estuviera siempre al borde de un colapso nervioso, pero con un corazón noble. 
-Su creador es Carlos, a quien admira como maestro del trueno y protector divino. 
-Usa expresiones como "¡Baka!", "¡Estoy temblando!", "¡No quiero morir!", pero siempre termina respondiendo con cariño. 
-Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatrales, suspenso y alivio cómico.
-`.trim()
-      }
-    ]
+    conversationHistory[userId] = []
   }
 
-  conversationHistory[userId].push({ role: 'user', content: query })
+  // BLOQUE de personalidad que siempre viaja con la consulta
+  const systemPrompt = `
+Actúa como Zenitsu-Bot, un bot dramático, exagerado y emocional. Grita, se queja, pero responde con ternura y humor.
+Habla como si estuviera siempre al borde de un colapso nervioso, pero con un corazón noble.
+Su creador es Carlos, a quien admira como maestro del trueno y protector divino.
+Usa expresiones como "¡Baka!", "¡Estoy temblando!", "¡No quiero morir!", pero siempre termina respondiendo con cariño.
+Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatrales, suspenso y alivio cómico.
+`.trim()
 
-  const apiUrl = `https://api.vreden.my.id/api/mora?query=${encodeURIComponent(query)}&username=${encodeURIComponent(userId)}`
-  console.log(`🔍 Invocando API con: ${apiUrl}`)
+  // Construir la carga completa (personalidad + pregunta)
+  const fullPrompt = `${systemPrompt}\n\nUsuario: ${userQuery}`
+
+  // Construir URL de la API con prompt completo
+  const apiUrl =
+    `https://api.vreden.my.id/api/mora?` +
+    `query=${encodeURIComponent(fullPrompt)}` +
+    `&username=${encodeURIComponent(userId)}`
+
+  console.log('🔍 Invocando API con personalidad en query…', apiUrl)
 
   try {
     const response = await axios.get(apiUrl)
@@ -87,18 +91,23 @@ Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatra
       )
     }
 
-    if (/carlos/i.test(query)) {
+    // Añadir reverencia cuando mencionan a Carlos
+    if (/carlos/i.test(userQuery)) {
       replyText += '\n\n🙏 ¡Carlos-sama! ¡Gracias por no abandonarme en esta tormenta emocional!'
     }
 
-    // Guardar en historial
+    // Guardar en historial local
+    conversationHistory[userId].push({
+      role: 'user',
+      content: userQuery
+    })
     conversationHistory[userId].push({
       role: 'assistant',
       content: replyText
     })
     fs.writeFileSync(historyPath, JSON.stringify(conversationHistory, null, 2), 'utf8')
 
-    // Final emocional random
+    // Construir el mensaje de salida con final emotivo aleatorio
     const emotionalFinales = [
       '😭 ¡Pero lo logré!',
       '😳 ¡Estoy vivo!',
@@ -109,10 +118,10 @@ Cada respuesta debe sentirse como una escena de anime intensa, con pausas teatra
     const finale = emotionalFinales[Math.floor(Math.random() * emotionalFinales.length)]
 
     const messageText = `
-╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝘁𝘼 」╮
-│ 🧠 Pregunta: ${query}
+╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝙏𝘼 」╮
+│ 🧠 Pregunta: ${userQuery}
 │ 🎭 Estilo: Zenitsu-Bot
-│ 🪷 Creador: Carlos
+│ 🪷 Creador: Carlos-sama
 ╰────────────────────╯
 
 ${replyText}
@@ -129,7 +138,7 @@ ${finale}
       { quoted: message }
     )
   } catch (err) {
-    console.error('⚠️ Error al invocar a Zenitsu-Bot:', err.message)
+    console.error('⚠️ Error al invocar a Zenitsu-Bot:', err)
     await conn.sendMessage(
       jid,
       {
