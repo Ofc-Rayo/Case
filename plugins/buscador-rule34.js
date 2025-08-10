@@ -43,7 +43,7 @@ async function handler(conn, { message, args }) {
       const caption = `
 ╭─「 🔞 𝗥𝗨𝗟𝗘𝟯𝟰 - 𝗦𝗨𝗠𝗠𝗢𝗡 」─╮
 │ 🔍 *Búsqueda:* ${query}
-│ 🌐 *Fuente:* Delirius PokéAPI
+│ 🌐 *Fuente:* Delirius 
 ╰────────────────────────╯
 *✨ Imagen invocada...*
 `.trim();
