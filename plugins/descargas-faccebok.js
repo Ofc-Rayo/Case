@@ -1,95 +1,89 @@
-// plugins/fb.js
 const axios = require('axios');
-const fetch = require('node-fetch');
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura ritual, puedes cambiarla por otra más dramática
 
-const THUMB_DEFAULT = 'https://qu.ax/MvYPM.jpg';
-
-const responderError = async (conn, m, tipo, mensaje) => {
-  await conn.sendMessage(m.chat, {
-    text: `💥 *Ruptura en el flujo:*\n\n${mensaje}\n\n≡ 🧩 *Tipo:* ${tipo}`,
-    contextInfo: {
-      externalAdReply: {
-        title: '⚠️ Zenitsu Bot - Error',
-        body: 'Algo interrumpió la respiración...',
-        thumbnailUrl: THUMB_DEFAULT,
-        sourceUrl: 'https://facebook.com'
-      }
-    }
-  }, { quoted: m });
+const contextInfo = {
+  externalAdReply: {
+    title: '🎬 Facebook Ritual',
+    body: 'Videos que cruzan el umbral del trueno...',
+    mediaType: 1,
+    previewType: 0,
+    mediaUrl: null,
+    sourceUrl: 'https://facebook.com',
+    thumbnailUrl
+  }
 };
 
-let handler = async (m, { conn, args, usedPrefix, command }) => {
-  const url = args?.[0];
-  if (!url || !url.includes("facebook.com")) {
-    return conn.sendMessage(m.chat, {
-      text: `🧠 *Respiración interrumpida...*\n\nIngresa un enlace válido de Facebook.\n\n📌 Ejemplo:\n${usedPrefix}${command} https://www.facebook.com/share/v/12DoEUCoFji/`,
-      contextInfo: {
-        externalAdReply: {
-          title: 'Zenitsu Bot - Validación',
-          body: 'Solo enlaces del dominio Facebook son aceptados.',
-          thumbnailUrl: THUMB_DEFAULT,
-          sourceUrl: 'https://facebook.com'
-        }
-      }
-    }, { quoted: m });
+async function handler(conn, { message, args }) {
+  const jid = message.key.remoteJid;
+  const quoted = message;
+  const url = args[0];
+
+  if (!url || !url.includes('facebook.com')) {
+    return conn.sendMessage(jid, {
+      text: '*📘 ¿Dónde está el portal?*\n\n> Ingresa un enlace válido de Facebook para invocar el video.',
+      contextInfo
+    }, { quoted });
   }
 
-  await m.react("⚡");
+  await conn.sendMessage(jid, {
+    text: '⚡ *Zenitsu está cargando la respiración...*',
+    contextInfo
+  }, { quoted });
 
   try {
-    const apiUrl = `https://api.dorratz.com/fbvideo?url=${encodeURIComponent(url)}`;
-    console.log(`🔮 Zenitsu invoca: ${apiUrl}`);
-
-    const res = await axios.get(apiUrl);
+    const api = `https://api.dorratz.com/fbvideo?url=${encodeURIComponent(url)}`;
+    const res = await axios.get(api);
     const videos = res.data;
 
     if (!Array.isArray(videos) || videos.length === 0) {
-      await m.react("❌");
-      return responderError(conn, m, "Sin resultados", "No se encontró contenido descargable en el enlace.");
+      return conn.sendMessage(jid, {
+        text: '📭 *No se pudo abrir el portal del video.*\n\n> Verifica el enlace o intenta más tarde.',
+        contextInfo
+      }, { quoted });
     }
 
     const videoData = videos.find(v => v.resolution.includes('720p')) || videos[0];
     const videoUrl = videoData.url;
-    const thumbUrl = videoData.thumbnail || THUMB_DEFAULT;
     const calidad = videoData.resolution;
 
     if (!videoUrl) {
-      await m.react("❌");
-      return responderError(conn, m, "Enlace inválido", "La API no devolvió un video válido.");
+      return conn.sendMessage(jid, {
+        text: '🚫 *La API no devolvió un enlace válido.*\n\n> Intenta con otro video.',
+        contextInfo
+      }, { quoted });
     }
 
-    const thumbBuffer = await fetch(thumbUrl).then(r => r.buffer());
-
     const caption = `
-╭─〔 ⚡ 𝙁𝘼𝘾𝙀𝘽𝙊𝙊𝙆 - 𝙍𝙀𝙎𝙋𝙄𝙍𝘼𝘾𝙄𝙊𝙉 𝙁𝙄𝙉𝘼𝙇 ⚡ 〕─╮
-│ 🎬 *Calidad:* ${calidad}
-│ 🌐 *Fuente:* Facebook
+╭─「 🎬 𝙁𝘼𝘾𝙀𝘽𝙊𝙊𝙆 - 𝙍𝙄𝙏𝙐𝘼𝙇 」─╮
 │ 🔗 *Enlace:* ${url}
-╰────────────────────────────╯
-*Zenitsu ha cortado el enlace con precisión.*
+│ 📺 *Calidad:* ${calidad}
+│ 🌐 *Fuente:* Facebook API
+╰────────────────────────╯
+*⚡ Video invocado con éxito...*
 `.trim();
 
-    await conn.sendMessage(m.chat, {
+    await conn.sendMessage(jid, {
       video: { url: videoUrl },
       caption,
-      jpegThumbnail: thumbBuffer,
-      contextInfo: {
-        externalAdReply: {
-          title: '⚡ Zenitsu Bot - Descarga completada',
-          body: 'Respiración del trueno: Sexta forma',
-          thumbnailUrl: thumbUrl,
-          sourceUrl: url
-        }
-      }
-    }, { quoted: m });
+      contextInfo,
+      quoted
+    });
 
-    await m.react("✅");
+    await conn.sendMessage(jid, {
+      text: '✅ *Video enviado.* ¿Deseas invocar otro portal?',
+      contextInfo
+    }, { quoted });
 
   } catch (err) {
-    console.error("🔥 Zenitsu falló:", err);
-    await responderError(conn, m, "Excepción", err.message);
+    console.error('[fb] Error:', err.message);
+    await conn.sendMessage(jid, {
+      text: '🚫 *Ups... algo falló al intentar invocar el video.*\n\n> Intenta más tarde o revisa el enlace.',
+      contextInfo
+    }, { quoted });
   }
-};
+}
 
-handler.command = 'fb';
-module.exports = handler;
+module.exports = {
+  command: 'fb',
+  handler
+};
