@@ -1,3 +1,4 @@
+
 const fs = require('fs');
 const path = require('path');
 const { users, comads } = require('../main.js');
@@ -26,6 +27,7 @@ const tags = {
 const sendMessage = async (conn, to, message, options = {}, additionalOptions = {}) => {
   try {
     await conn.sendMessage(to, message, additionalOptions);
+    console.log('✅ Menú enviado correctamente.');
   } catch (error) {
     console.error('⚠️ Zenitsu se tropezó al enviar el mensaje:', error);
   }
@@ -40,14 +42,19 @@ async function handler(conn, { message }) {
   const categorias = {};
 
   for (const file of pluginFiles) {
+    console.log(`🔍 Cargando plugin: ${file}`);
     try {
       const pluginPath = path.join(__dirname, file);
       const plugin = require(pluginPath);
 
+      if (!plugin || typeof plugin !== 'object') throw new Error('Plugin inválido o vacío');
+
       const nombre = plugin.command || file.replace('.js', '');
-      const tag = plugin.tag || 'misc';
+      const tag = plugin.tag && tags[plugin.tag] ? plugin.tag : 'misc';
       const categoria = tags[tag] || '📦 Misceláneos';
       const descripcion = plugin.description || '✨ Comando sin descripción aún.';
+
+      console.log(`✅ Plugin: ${nombre} | 🗂 Categoría: ${categoria} | 📝 ${descripcion}`);
 
       if (!categorias[categoria]) categorias[categoria] = [];
       categorias[categoria].push({ nombre, descripcion });
@@ -87,6 +94,7 @@ ${dynamicMenu}
       caption: menuCaption
     };
 
+    console.log('📤 Enviando menú a:', message.key.remoteJid);
     await sendMessage(conn, message.key.remoteJid, menuMessage, { quoted: message });
   } catch (err) {
     console.log('😖 Zenitsu se desmayó al enviar el menú:', err.message);
