@@ -17,32 +17,30 @@ async function handler(conn, { message }) {
     const jid = message.key.remoteJid;
 
     await conn.sendMessage(jid, {
-        text: '🔥 *Rengoku está encendiendo el ritual...*\n\n> ¡Prepárate para una frase que podría derretir corazones! 💫',
+        text: '🔥 *Rengoku está encendiendo el ritual...*\n\n> Una frase está a punto de emerger desde las llamas del deseo... 💫',
         contextInfo
     }, { quoted: message });
 
     try {
-        // 🧠 Paso 1: Invocar la frase original
+        // 🧠 Paso 1: Obtener la frase original
         const response = await axios.get('https://api.popcat.xyz/v2/pickuplines');
         const fraseOriginal = response?.data?.message?.pickupline;
-        const fuente = response?.data?.message?.contributor;
 
         if (!fraseOriginal) throw new Error('No se recibió una frase válida.');
 
-        // 🌐 Paso 2: Traducir la frase al español
+        // 🌐 Paso 2: Traducir al español
         const encodedText = encodeURIComponent(fraseOriginal);
         const traduccion = await axios.get(`https://api.popcat.xyz/translate?text=${encodedText}&to=es`);
         const fraseTraducida = traduccion?.data?.translated;
 
         if (!fraseTraducida) throw new Error('No se pudo traducir la frase.');
 
-        // 🎭 Paso 3: Enviar la frase ritualizada
+        // 🎭 Paso 3: Enviar la frase ritualizada en español
         const caption = `
 ╭─「 💘 𝙁𝙍𝘼𝙎𝙀 - 𝘿𝙀 - 𝘾𝙊𝙉𝙌𝙐𝙄𝙎𝙏𝘼 」─╮
 │ 🔥 *Invocador:* Rengoku
-│ 💬 *Frase original:* "${fraseOriginal}"
-│ 🌎 *Traducción:* "${fraseTraducida}"
-│ 🪶 *Fuente:* ${fuente}
+│ 💬 *Frase:* "${fraseTraducida}"
+│ 🌐 *Fuente:* givinghawk.me
 ╰────────────────────────────╯
 
 Rengoku ha canalizado fuego y palabras... ¿te atreves a usarla? ❤️‍🔥
