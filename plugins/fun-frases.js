@@ -41,7 +41,7 @@ async function handler(conn, { message }) {
 │ 🔥 *Invocador:* Frases
 │ 💬 *Frase:* "${fraseTraducida}"
 │ 👑 *Creador:* _Carlos_
-╰────────────────────────╯
+╰─────────────────────╯
 
 Rengoku ha canalizado fuego y palabras... ¿te atreves a usarla? ❤️‍🔥
 `.trim();
