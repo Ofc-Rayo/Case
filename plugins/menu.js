@@ -45,22 +45,15 @@ async function handler(conn, { message }) {
     };
 
     const categorias = {
-        'ℹ️ INFOBOT': ['ia', 'anime', 'ds'],
-        '✨ SER SUB BOT': ['guar'],
-        '🚀 DESCARGAS': ['play', 'play2', 'get', 'tiktok'],
-        '👾 JUEGOS': ['trm'],
-        '✨️ NEW - RPG GACHA': ['guar'],
-        '🟢 REGISTRO': ['welcome'],
+        'ℹ️ INFOBOT': ['ia', 'anime', 'debugadmin','p'],
+        '🧨 AI':['ia','dalle'],
+        '🚀 DESCARGAS': ['play', 'play2', 'tiktok'],
         '⚙️ GRUPO': ['kick', 'promote', 'demote'],
-        '🕹 ENABLE/DISABLE': ['debugadmin', 'update', 'logs'],
-        '🥵 COMANDO +18': ['nsfw', 'p'],
-        '🔍 BUSCADORES': ['google', 'bingsearch', 'playstore', 'clima'],
-        '🧧 STICKER': ['pinterest', 'tenor', 'cosplay'],
-        '🛠 RPG': ['guar'],
-        '🎈 CONVERTIDORES': ['rm'],
-        '🔧 HERRAMIENTA': ['debugadmin', 'logs', 'update'],
-        '🪄 RANDOM': ['waifu', 'aisuki'],
-        '👑 OWNER': ['ds']
+        '🕹 ENABLE/DISABLE': ['welcome'],
+        '🥵 COMANDO +18': ['nsfw', 'pack','boobs','musa'],
+        '🔍 BUSCADORES': ['google', 'bingsearch', 'playstore', 'clima','pinterest', 'tenor', 'cosplay','waifw','aisuki'],
+        '🔧 HERRAMIENTA': ['lumina','neon','1917','acuarela','bandera','blackpinklogo','blackpinkstyle','cartoon','deletingtext','destello','escritura','flag3dtext','galaxy','galaxywall','glitchneon','glitchtexto','gradiente','librearte','logomaker','luxgold','nube','pixelglitch','playa','real','recorte','resplandor','sandsummer','subtext','tipotexto'],
+        '👑 OWNER': ['ds','update','guar','logs','trm','get']
     };
 
     let dynamicMenu = '';
