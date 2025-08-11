@@ -37,11 +37,11 @@ async function handler(conn, { message }) {
 
         // 🎭 Paso 3: Enviar la frase ritualizada en español
         const caption = `
-╭─「 💘 𝙁𝙍𝘼𝙎𝙀 - 𝘿𝙀 - 𝘾𝙊𝙉𝙌𝙐𝙄𝙎𝙏𝘼 」─╮
+╭「 💘 𝙁𝙍𝘼𝙎𝙀 - 𝘿𝙀 - 𝘾𝙊𝙉𝙌𝙐𝙄𝙎𝙏𝘼 」╮
 │ 🔥 *Invocador:* Frases
 │ 💬 *Frase:* "${fraseTraducida}"
 │ 👑 *Creador:* _Carlos_
-╰────────────────────────────╯
+╰────────────────────────╯
 
 Rengoku ha canalizado fuego y palabras... ¿te atreves a usarla? ❤️‍🔥
 `.trim();
