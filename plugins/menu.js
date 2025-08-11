@@ -46,7 +46,7 @@ async function handler(conn, { message }) {
 
     const categorias = {
         'ℹ️ INFOBOT': ['ia', 'anime', 'debugadmin','p'],
-        '🧨 AI':['ia','dalle'],
+        '🧨 AI': ['ia','dalle'],
         '🚀 DESCARGAS': ['play', 'play2', 'tiktok'],
         '⚙️ GRUPO': ['kick', 'promote', 'demote'],
         '🕹 ENABLE/DISABLE': ['welcome'],
