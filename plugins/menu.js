@@ -90,7 +90,7 @@ ${dynamicMenu}
   try {
     console.log('📤 Enviando menú con imagen...');
     await sendMessage(conn, message.key.remoteJid, {
-      image: { url: 'https://o.uguu.se/AVxzdZEc.jpg' }, // ⚠️ Si esta falla, se activa el fallback
+      image: { url: 'https://o.uguu.se/AVxzdZEc.jpg' }, // ⚠️ Si falla, se activa el fallback
       caption: menuCaption
     }, { quoted: message });
   } catch (err) {
