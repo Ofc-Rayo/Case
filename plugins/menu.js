@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 const { users, comads } = require('../main.js');
@@ -89,16 +88,16 @@ ${dynamicMenu}
 `;
 
   try {
-    const menuMessage = {
-      image: { url: 'https://qu.ax/MvYPM.jpg' },
+    console.log('📤 Enviando menú con imagen...');
+    await sendMessage(conn, message.key.remoteJid, {
+      image: { url: 'https://o.uguu.se/AVxzdZEc.jpg' }, // ⚠️ Si esta falla, se activa el fallback
       caption: menuCaption
-    };
-
-    console.log('📤 Enviando menú a:', message.key.remoteJid);
-    await sendMessage(conn, message.key.remoteJid, menuMessage, { quoted: message });
+    }, { quoted: message });
   } catch (err) {
-    console.log('😖 Zenitsu se desmayó al enviar el menú:', err.message);
-    await sendMessage(conn, message.key.remoteJid, { text: `😭 No pude mostrar el menú... Error: ${err.message}` });
+    console.log('⚠️ Zenitsu no pudo enviar la imagen, enviando solo texto...');
+    await sendMessage(conn, message.key.remoteJid, {
+      text: menuCaption
+    }, { quoted: message });
   }
 }
 
