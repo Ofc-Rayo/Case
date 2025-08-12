@@ -85,7 +85,7 @@ async function handler(conn, { message, args }) {
           body: 'Z E N I T S U — invocación segura',
           mediaType: 1,
           previewType: 'PHOTO',
-          thumbnailUrl: imageUrl,
+          thumbnailUrl: 'https://qu.ax/MvYPM.jpg',
           sourceUrl: imageUrl,
           renderLargerThumbnail: false // ✅ Miniatura pequeña activada
         }
