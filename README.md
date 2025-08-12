@@ -6,3 +6,7 @@
 # Zenitsu-Bot
 > Zenitsu-Bot
 ![Zenitsu](https://qu.ax/MvYPM.jpg)
+
+<h1 align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=10&pause=600&color=FFFF00&center=true&vCenter=true&width=600&lines=¡Hasta+pronto!;♦+¡Que+te+valla+bien!+♦" alt="Typing SVG">
+</h1>
