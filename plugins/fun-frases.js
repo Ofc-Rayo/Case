@@ -3,8 +3,8 @@ const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Imagen evocadora
 
 const contextInfo = {
     externalAdReply: {
-        title: "💘 Rengoku PickUpLines",
-        body: "Frases que encienden el alma...",
+        title: "👑 𝑍𝑒𝑛𝑖𝑡𝑠𝑢-𝐵𝑜𝑡 👑",
+        body: "No te enamores de mi...",
         mediaType: 1,
         previewType: 0,
         mediaUrl: "https://givinghawk.me/",
