@@ -2,6 +2,10 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
+const SEARCH_API = 'https://api.vreden.my.id/api/yts?query=';
+const STELLAR_API = 'https://api.stellarwa.xyz/dow/ytmp4?url=';
+const STELLAR_KEY = 'stellar-w879erKu';
+
 async function handler(conn, { message, args }) {
     const query = args.join(' ');
     if (!query) {
@@ -11,15 +15,15 @@ async function handler(conn, { message, args }) {
     }
 
     try {
-        const searchResponse = await axios.get(`https://eliasar-yt-api.vercel.app/api/search/youtube?query=${encodeURIComponent(query)}`);
-        if (searchResponse.data && searchResponse.data.status && searchResponse.data.results.resultado.length > 0) {
-            const firstResult = searchResponse.data.results.resultado[0];
+        const searchResponse = await axios.get(`${SEARCH_API}${encodeURIComponent(query)}`);
+        if (searchResponse.data && searchResponse.data.result && searchResponse.data.result.all.length > 0) {
+            const firstResult = searchResponse.data.result.all[0];
 
             const messageText = `
 ╭─「 🎥 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙑𝙄𝘿𝙀𝙊 」─╮
 │ 🎬 *Título:* ${firstResult.title}
-│ ⏳ *Duración:* ${firstResult.duration}
-│ 📅 *Subido:* ${firstResult.uploaded}
+│ ⏳ *Duración:* ${firstResult.seconds}s
+│ 📅 *Subido:* -
 │ 👀 *Vistas:* ${firstResult.views.toLocaleString()}
 │ 🔽 *Descargando video...*
 ╰────────────────────╯
@@ -55,12 +59,12 @@ async function handler(conn, { message, args }) {
 }
 
 async function getVideoDownloadUrl(videoUrl) {
-    const apiUrl = `https://api.stellarwa.xyz/dow/ytmp4?url=${encodeURIComponent(videoUrl)}&apikey=stellar-w879erKu`;
+    const apiUrl = `${STELLAR_API}${encodeURIComponent(videoUrl)}&apikey=${STELLAR_KEY}`;
 
     try {
         const response = await axios.get(apiUrl);
-        if (response.data && response.data.status) {
-            return response.data.result.urlVideo;
+        if (response.data && response.data.status && response.data.data && response.data.data.dl) {
+            return response.data.data.dl;
         }
     } catch (err) {
         console.error("Error al obtener la URL de descarga del video:", err);
