@@ -110,7 +110,6 @@ async function handler(conn, { message }) {
   const menuCaption = `
 ╭─━━━━━━༺💛༻━━━━━━─╮
 ┃ *🌩️ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙈𝙀𝙉𝙐* ⚡
-┃
 ┃ ${saludo}, *${userName}*
 ┃ 🕰️ Tiempo imperial: *${horaActual}*
 ┃ 📦 *Plugins disponibles:* ${totalPlugins}
