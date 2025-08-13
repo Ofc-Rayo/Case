@@ -43,7 +43,7 @@ async function handler(conn, { message, args }) {
       return conn.sendMessage(
         jid,
         {
-          text: '😱 ¡¿Dónde está la imagen?!\n\n> ¡Necesito que envíes una imagen o cites una imagen, baka! 😤\n\n📌 *Ejemplos de uso:*\n• Envía una imagen con el caption: `.sticker`\n• Cita una imagen y escribe: `.sticker`',
+          text: '😱 ¡¿Dónde está la imagen?!\n\n> ¡Necesito que envíes una imagen o cites una imagen, baka! 😤\n\n',
           contextInfo,
         },
         { quoted: message }
