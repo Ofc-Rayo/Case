@@ -92,9 +92,25 @@ async function handler(conn, { message }) {
     dynamicMenu += `╰────────────────╯\n`;
   }
 
+  // 🕰️ Saludo y hora actual
+  const now = new Date();
+  const hour = now.getHours();
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const horaActual = `${hour}:${minutes}`;
+
+  let saludo = '✨ Buenas noches';
+  if (hour >= 5 && hour < 12) saludo = '🌞 Buenos días';
+  else if (hour >= 12 && hour < 18) saludo = '🌤️ Buenas tardes';
+  else if (hour >= 0 && hour < 5) saludo = '🌙 Buenas madrugadas';
+
+  const userName = message.pushName || 'viajero estelar';
+
   const totalPlugins = pluginFiles.length;
   const menuCaption = `
 ╭─━━━━━━༺💛༻━━━━━━─╮
+┃ ${saludo}, *${userName}*
+┃ 🕰️ Tiempo imperial: *${horaActual}*
+┃
 ┃ *🌩️ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙈𝙀𝙉𝙐* ⚡
 ┃
 ┃ 👥 *Usuarios activos:* ${users}
