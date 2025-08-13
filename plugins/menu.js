@@ -92,10 +92,11 @@ async function handler(conn, { message }) {
     dynamicMenu += `╰────────────────╯\n`;
   }
 
-  // 🕰️ Saludo y hora actual
+  // 🕰️ Saludo y hora ajustados a Cuba
   const now = new Date();
-  const hour = now.getHours();
-  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const cubaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Havana' }));
+  const hour = cubaTime.getHours();
+  const minutes = cubaTime.getMinutes().toString().padStart(2, '0');
   const horaActual = `${hour}:${minutes}`;
 
   let saludo = '✨ Buenas noches';
@@ -108,13 +109,10 @@ async function handler(conn, { message }) {
   const totalPlugins = pluginFiles.length;
   const menuCaption = `
 ╭─━━━━━━༺💛༻━━━━━━─╮
-┃ ${saludo}, *${userName}*
-┃ 🕰️ Tiempo imperial: *${horaActual}*
-┃
 ┃ *🌩️ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙈𝙀𝙉𝙐* ⚡
 ┃
-┃ 👥 *Usuarios activos:* ${users}
-┃ 🧠 *Comandos ejecutados:* ${comads}
+┃ ${saludo}, *${userName}*
+┃ 🕰️ Tiempo imperial: *${horaActual}*
 ┃ 📦 *Plugins disponibles:* ${totalPlugins}
 ┃ 🌀 *Prefijo actual:* ${botPrefix}
 ╰─━━━━━━༺⚡༻━━━━━━─╯
