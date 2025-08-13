@@ -91,7 +91,7 @@ async function handler(conn, { message }) {
   for (const [categoria, comandos] of Object.entries(categorias)) {
     dynamicMenu += `\n╭─🎭 *${categoria}*\n`;
     for (const { nombre, descripcion } of comandos) {
-      dynamicMenu += `┃ ⚡ ${botPrefix}${nombre} → ${descripcion}\n`;
+      dynamicMenu += `┃ ⚡ ${botPrefix}${nombre} \n`;
     }
     dynamicMenu += `╰────────────────╯\n`;
   }
