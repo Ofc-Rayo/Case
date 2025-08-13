@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 
@@ -36,7 +35,6 @@ async function handler(conn, { message }) {
   let users = 0;
   let comads = 0;
 
-  // Try to get stats from database if available
   try {
     const dbPath = path.join(__dirname, '../database.json');
     if (fs.existsSync(dbPath)) {
@@ -52,14 +50,13 @@ async function handler(conn, { message }) {
     console.log(`🔍 Cargando plugin: ${file}`);
     try {
       const pluginPath = path.join(__dirname, file);
-      delete require.cache[require.resolve(pluginPath)]; // Clear cache
+      delete require.cache[require.resolve(pluginPath)];
       const plugin = require(pluginPath);
 
       if (!plugin || typeof plugin !== 'object') throw new Error('Plugin inválido o vacío');
 
       const nombre = plugin.command || file.replace('.js', '');
       
-      // Auto-categorize based on filename if no tag is specified
       let tag = plugin.tag;
       if (!tag || !tags[tag]) {
         if (file.startsWith('ai-') || file.startsWith('ia-')) tag = 'ai';
@@ -76,12 +73,11 @@ async function handler(conn, { message }) {
       }
       
       const categoria = tags[tag] || '🔧 HERRAMIENTAS';
-      const descripcion = plugin.description || '✨ Comando sin descripción aún.';
 
-      console.log(`✅ Plugin: ${nombre} | 🗂 Categoría: ${categoria} | 📝 ${descripcion}`);
+      console.log(`🎭 Invocando técnica: ${nombre} ⚡ Categoría: ${categoria}`);
 
       if (!categorias[categoria]) categorias[categoria] = [];
-      categorias[categoria].push({ nombre, descripcion });
+      categorias[categoria].push({ nombre });
     } catch (err) {
       console.warn(`⚠️ Error al cargar el plugin ${file}:`, err.message);
     }
@@ -90,7 +86,7 @@ async function handler(conn, { message }) {
   let dynamicMenu = '';
   for (const [categoria, comandos] of Object.entries(categorias)) {
     dynamicMenu += `\n╭─🎭 *${categoria}*\n`;
-    for (const { nombre, descripcion } of comandos) {
+    for (const { nombre } of comandos) {
       dynamicMenu += `┃ ⚡ ${botPrefix}${nombre} \n`;
     }
     dynamicMenu += `╰────────────────╯\n`;
@@ -114,7 +110,6 @@ ${dynamicMenu}
 
   try {
     console.log('📤 Enviando menú con imagen...');
-    // Lista de imágenes de respaldo en caso de fallo
     const imageUrls = [
       'https://qu.ax/MvYPM.jpg',
       'https://telegra.ph/file/2e4c8c0b2e06a3b2c6b7e.jpg',
