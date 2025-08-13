@@ -1,4 +1,3 @@
-
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
 const sharp = require('sharp');
 
@@ -51,16 +50,6 @@ async function handler(conn, { message, args }) {
       );
     }
 
-    // Aviso de procesamiento
-    await conn.sendMessage(
-      jid,
-      {
-        text: '⚡ *¡Mi mano tiembla! Pero estoy convirtiendo tu imagen en sticker... ¡con un solo destello!*',
-        contextInfo,
-      },
-      { quoted: message }
-    );
-
     // Procesar imagen para sticker (convertir a WebP y redimensionar)
     const processedSticker = await sharp(imageBuffer)
       .resize(512, 512, { 
@@ -73,22 +62,6 @@ async function handler(conn, { message, args }) {
     // Enviar el sticker procesado
     await conn.sendMessage(jid, {
       sticker: processedSticker
-    }, { quoted: message });
-
-    // Mensaje de éxito
-    const successMessage = `
-╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙎𝙏𝙄𝘾𝙆𝙀𝙍 」╮
-│ 🎨 ¡Tu imagen ha sido convertida!
-│ ⚡ ¡Un destello y listo!
-│ 🔥 ¡Ahora tienes tu sticker personalizado!
-╰────────────────────────╯
-
-*✨ ¡Zenitsu cumplió otra misión sin desmayarse!*
-`.trim();
-
-    await conn.sendMessage(jid, {
-      text: successMessage,
-      contextInfo
     }, { quoted: message });
 
   } catch (error) {
