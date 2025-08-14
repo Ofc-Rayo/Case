@@ -19,11 +19,12 @@ async function handler(conn, { message }) {
   const jid = message.key.remoteJid
 
   const fichaImperial = `
-╭─「 👑 𝘾𝘼𝙍𝙇𝙊𝙎 - 𝘾𝙍𝙀𝘼𝘿𝙊𝙍 」─╮
+╭─「 👑 𝙈𝙞 - 𝘾𝙍𝙀𝘼𝘿𝙊𝙍 」─╮
+│ ♦ Nombre: *Carlos*
 │ 🎭 Rol: _*Creador*_
 │ 🧩 Contacto: +5355699866
 │ 🖼️ GitHub:https://github.com/Kone457
-╰────────────────────────╯
+╰────────────────────╯
 
 🌐 Más en: https://kone457.github.io/Nexus/
 
