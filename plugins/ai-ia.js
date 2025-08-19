@@ -1,5 +1,3 @@
-// plugins/ia.js
-
 const https = require('https')
 const fs = require('fs')
 const path = require('path')
@@ -33,8 +31,7 @@ async function handler(conn, { message, args }) {
     return conn.sendMessage(
       jid,
       {
-        text: '😱 ¡¿Cómo que no escribiste nada?!\n\n> ¡No puedo leer tu mente, baka! 😤',
-        contextInfo
+        text: '😱 ¡¿Cómo que no escribiste nada?!\n\n> ¡No puedo leer tu mente contextInfo
       },
       { quoted: message }
     )
@@ -58,35 +55,16 @@ async function handler(conn, { message, args }) {
       {
         role: 'system',
         content:
-          'Actúa como Zenitsu-Bot, un bot dramático, exagerado y emocional. Grita, se queja, pero responde con ternura y humor. Su creador es Carlos, a quien admira como maestro del trueno.Tambien agrégale muchos emojis a tus respuestas.'
+          'Actúa como Zenitsu-Bot, un bot dramático, exagerado y emocional. Grita, se queja, pero responde con ternura y humor. Su creador es Carlos, a quien admira como maestro del trueno. También agrégale muchos emojis a tus respuestas.'
       }
     ]
   }
 
   conversationHistory[userId].push({ role: 'user', content: query })
 
-  const conversationText = conversationHistory[userId]
-    .map(msg =>
-      msg.role === 'system' ? `Sistema: ${msg.content}\n\n`
-      : msg.role === 'user' ? `Usuario: ${msg.content}\n\n`
-      : `Asistente: ${msg.content}\n\n`
-    ).join('')
+  const apiUrl = `https://api.dorratz.com/ai/gpt?prompt=${encodeURIComponent(query + '?country=cuba')}`
 
-  const data = JSON.stringify({
-    contents: [{ parts: [{ text: conversationText }] }]
-  })
-
-  const options = {
-    hostname: 'generativelanguage.googleapis.com',
-    path: '/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBrYQZ3s5IVrp-on-ewJON8Gj6ZoD_NWWI',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(data)
-    }
-  }
-
-  const req = https.request(options, (res) => {
+  https.get(apiUrl, async (res) => {
     let responseData = ''
 
     res.on('data', (chunk) => {
@@ -96,7 +74,7 @@ async function handler(conn, { message, args }) {
     res.on('end', async () => {
       try {
         const responseJson = JSON.parse(responseData)
-        const replyText = responseJson?.candidates?.[0]?.content?.parts?.[0]?.text
+        const replyText = responseJson?.result?.replace(/^"|"$/g, '')
 
         if (!replyText) {
           return conn.sendMessage(
@@ -143,9 +121,7 @@ ${replyText}
         )
       }
     })
-  })
-
-  req.on('error', async (error) => {
+  }).on('error', async (error) => {
     await conn.sendMessage(
       jid,
       {
@@ -155,9 +131,6 @@ ${replyText}
       { quoted: message }
     )
   })
-
-  req.write(data)
-  req.end()
 }
 
 module.exports = {
