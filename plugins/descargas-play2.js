@@ -4,7 +4,7 @@ const path = require('path');
 
 const SEARCH_API = 'https://api.vreden.my.id/api/yts?query=';
 const STELLAR_API = 'https://api.stellarwa.xyz/dow/ytmp4?url=';
-const STELLAR_KEY = 'stellar-DqKpmwws';
+const STELLAR_KEY = 'stellar-84YV4jCc';
 
 async function handler(conn, { message, args }) {
     const query = args.join(' ');
