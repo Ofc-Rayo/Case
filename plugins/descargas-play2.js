@@ -3,8 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SEARCH_API = 'https://api.vreden.my.id/api/yts?query=';
-const STELLAR_API = 'https://api.stellarwa.xyz/dow/ytmp4?url=';
-const STELLAR_KEY = 'stellar-84YV4jCc';
+const ITZPIRE_API = 'https://itzpire.com/download/ytmp4?url=';
 
 async function handler(conn, { message, args }) {
     const query = args.join(' ');
@@ -16,14 +15,15 @@ async function handler(conn, { message, args }) {
 
     try {
         const searchResponse = await axios.get(`${SEARCH_API}${encodeURIComponent(query)}`);
-        if (searchResponse.data && searchResponse.data.result && searchResponse.data.result.all.length > 0) {
-            const firstResult = searchResponse.data.result.all[0];
+        const results = searchResponse.data?.result?.all;
+
+        if (results && results.length > 0) {
+            const firstResult = results[0];
 
             const messageText = `
 ╭─「 🎥 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙑𝙄𝘿𝙀𝙊 」─╮
 │ 🎬 *Título:* ${firstResult.title}
 │ ⏳ *Duración:* ${firstResult.seconds}s
-│ 📅 *Subido:* -
 │ 👀 *Vistas:* ${firstResult.views.toLocaleString()}
 │ 🔽 *Descargando video...*
 ╰────────────────────╯
@@ -32,10 +32,8 @@ async function handler(conn, { message, args }) {
 > Si lo deseas en solo audio, usa: *play ${firstResult.title}*
 `.trim();
 
-            const imageUrl = firstResult.thumbnail;
-
             await conn.sendMessage(message.key.remoteJid, {
-                image: { url: imageUrl },
+                image: { url: firstResult.thumbnail },
                 caption: messageText
             });
 
@@ -59,12 +57,12 @@ async function handler(conn, { message, args }) {
 }
 
 async function getVideoDownloadUrl(videoUrl) {
-    const apiUrl = `${STELLAR_API}${encodeURIComponent(videoUrl)}&apikey=${STELLAR_KEY}`;
+    const apiUrl = `${ITZPIRE_API}${encodeURIComponent(videoUrl)}`;
 
     try {
         const response = await axios.get(apiUrl);
-        if (response.data && response.data.status && response.data.data && response.data.data.dl) {
-            return response.data.data.dl;
+        if (response.data?.status === 'success' && response.data?.url) {
+            return response.data.url;
         }
     } catch (err) {
         console.error("Error al obtener la URL de descarga del video:", err);
