@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SEARCH_API = 'https://api.vreden.my.id/api/yts?query=';
-const ITZPIRE_API = 'https://itzpire.com/download/ytmp4?url=';
+const ADONIX_API = 'https://myapiadonix.vercel.app/api/ytmp4?url=';
 
 async function handler(conn, { message, args }) {
     const query = args.join(' ');
@@ -57,12 +57,12 @@ async function handler(conn, { message, args }) {
 }
 
 async function getVideoDownloadUrl(videoUrl) {
-    const apiUrl = `${ITZPIRE_API}${encodeURIComponent(videoUrl)}`;
+    const apiUrl = `${ADONIX_API}${encodeURIComponent(videoUrl)}`;
 
     try {
         const response = await axios.get(apiUrl);
-        if (response.data?.status === 'success' && response.data?.url) {
-            return response.data.url;
+        if (response.data?.status === 'success' && response.data?.result?.video) {
+            return response.data.result.video;
         }
     } catch (err) {
         console.error("Error al obtener la URL de descarga del video:", err);
