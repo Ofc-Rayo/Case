@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const SEARCH_API = 'https://api.vreden.my.id/api/yts?query=';
+const SEARCH_API = 'https://api.dorratz.com/v3/yt-search?query=';
 const ADONIX_API = 'https://myapiadonix.vercel.app/api/ytmp4?url=';
 
 async function handler(conn, { message, args }) {
@@ -15,7 +15,7 @@ async function handler(conn, { message, args }) {
 
     try {
         const searchResponse = await axios.get(`${SEARCH_API}${encodeURIComponent(query)}`);
-        const results = searchResponse.data?.result?.all;
+        const results = searchResponse.data?.data;
 
         if (results && results.length > 0) {
             const firstResult = results[0];
@@ -23,8 +23,10 @@ async function handler(conn, { message, args }) {
             const messageText = `
 ╭─「 🎥 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙑𝙄𝘿𝙀𝙊 」─╮
 │ 🎬 *Título:* ${firstResult.title}
-│ ⏳ *Duración:* ${firstResult.seconds}s
+│ ⏳ *Duración:* ${firstResult.duration}
+│ 📅 *Publicado:* ${firstResult.publishedAt}
 │ 👀 *Vistas:* ${firstResult.views.toLocaleString()}
+│ 🧑‍💻 *Autor:* ${firstResult.author.name}
 │ 🔽 *Descargando video...*
 ╰────────────────────╯
 
