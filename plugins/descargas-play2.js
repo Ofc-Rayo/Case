@@ -77,24 +77,36 @@ async function handler(conn, { message, args }) {
 
   // Sin término de búsqueda
   if (!text) {
-    return conn.sendMessage(jid, {
-      text:
-        '😰 ¡Zenitsu necesita saber qué video buscar!\n\n> Ejemplo: play2 Opening Demon Slayer 🎬'
-    })
+    return conn.sendMessage(
+      jid,
+      {
+        text:
+          '😰 ¡Zenitsu necesita saber qué video buscar!\n\n> Ejemplo: play2 Opening Demon Slayer 🎬'
+      },
+      { quoted: message }
+    )
   }
 
   // Mensaje inicial de búsqueda
-  await conn.sendMessage(jid, {
-    text:
-      '⏳ *Buscando tu video...*\n🔍 Probando múltiples fuentes hasta encontrar el mejor resultado.'
-  })
+  await conn.sendMessage(
+    jid,
+    {
+      text:
+        '⏳ *Buscando tu video...*\n🔍 Probando múltiples fuentes hasta encontrar el mejor resultado.'
+    },
+    { quoted: message }
+  )
 
   // 1. Buscar video en cascada
   const selected = await getVideoResult(text)
   if (!selected) {
-    return conn.sendMessage(jid, {
-      text: `❌ No se encontró ningún video para: *${text}*\n\n> Intenta con otro término.`
-    })
+    return conn.sendMessage(
+      jid,
+      {
+        text: `❌ No se encontró ningún video para: *${text}*\n\n> Intenta con otro término.`
+      },
+      { quoted: message }
+    )
   }
 
   try {
@@ -110,13 +122,18 @@ async function handler(conn, { message, args }) {
 
     // Validar respuesta
     if (!json?.result?.status || !dl?.url) {
-      return conn.sendMessage(jid, {
-        text: `⚠️ No se pudo obtener el enlace de descarga para: *${meta.title ||
-          selected.title}*`
-      })
+      return conn.sendMessage(
+        jid,
+        {
+          text: `⚠️ No se pudo obtener el enlace de descarga para: *${
+            meta.title || selected.title
+          }*`
+        },
+        { quoted: message }
+      )
     }
 
-    // 3. Enviar información + miniatura
+    // 3. Enviar miniatura + info
     const caption = `
 🎬 *${meta.title}*
 🎙️ Autor: ${meta.author.name}
@@ -128,32 +145,44 @@ async function handler(conn, { message, args }) {
 📄 Archivo: ${dl.filename}
     `.trim()
 
-    await conn.sendMessage(jid, {
-      image: { url: meta.image || meta.thumbnail },
-      caption,
-      footer: '🎥 Video obtenido vía Vreden API',
-      contextInfo: {
-        externalAdReply: {
-          title: meta.title,
-          body: 'Haz clic para ver o descargar',
-          thumbnailUrl: meta.thumbnail,
-          sourceUrl: selected.url
+    await conn.sendMessage(
+      jid,
+      {
+        image: { url: meta.image || meta.thumbnail },
+        caption,
+        footer: '🎥 Video obtenido vía Vreden API',
+        contextInfo: {
+          externalAdReply: {
+            title: meta.title,
+            body: 'Haz clic para ver o descargar',
+            thumbnailUrl: meta.thumbnail,
+            sourceUrl: selected.url
+          }
         }
-      }
-    })
+      },
+      { quoted: message }
+    )
 
     // 4. Enviar video como stream directo
-    await conn.sendMessage(jid, {
-      video: { url: dl.url },
-      mimetype: 'video/mp4',
-      fileName: dl.filename || 'video.mp4'
-    })
+    await conn.sendMessage(
+      jid,
+      {
+        video: { url: dl.url },
+        mimetype: 'video/mp4',
+        fileName: dl.filename || 'video.mp4'
+      },
+      { quoted: message }
+    )
   } catch (err) {
     console.error('💥 Error en play2:', err)
-    await conn.sendMessage(jid, {
-      text:
-        '❌ ¡Algo salió mal al descargar el video!\n\n> Zenitsu se tropezó con la ceremonia. Reintenta más tarde.'
-    })
+    await conn.sendMessage(
+      jid,
+      {
+        text:
+          '❌ ¡Algo salió mal al descargar el video!\n\n> Zenitsu se tropezó con la ceremonia. Reintenta más tarde.'
+      },
+      { quoted: message }
+    )
   }
 }
 
