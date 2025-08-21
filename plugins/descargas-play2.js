@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SEARCH_API = 'https://api.dorratz.com/v3/yt-search?query=';
-const YTMP4_API  = 'https://apis-starlights-team.koyeb.app/starlight/youtube-mp4?url=';
+const YTMP4_API  = 'https://api.vreden.my.id/api/ytmp4?url='; // ← nueva API
 
 async function handler(conn, { message, args }) {
   const query = args.join(' ');
@@ -56,11 +56,14 @@ async function handler(conn, { message, args }) {
 }
 
 async function getVideoDownloadUrl(videoUrl) {
-  // OJO: la API devuelve el link en `video_url`, no en `url`
   const apiUrl = `${YTMP4_API}${encodeURIComponent(videoUrl)}`;
   const res = await axios.get(apiUrl);
-  console.log('>> Starlights API response:', res.data);
-  return res.data?.video_url || null;
+  console.log('>> vreden API response:', res.data);
+  // La nueva API estructura: res.data.result.download.url
+  if (res.data?.result?.status && res.data.result.download?.url) {
+    return res.data.result.download.url;
+  }
+  return null;
 }
 
 async function sendVideoAsFile(conn, message, videoUrl, videoTitle) {
