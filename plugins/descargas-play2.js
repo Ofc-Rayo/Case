@@ -1,7 +1,9 @@
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
 const SEARCH_API = 'https://api.dorratz.com/v3/yt-search?query=';
-const YTMP4_API  = 'https://api.vreden.my.id/api/ytmp4?url=';
+const YTMP4_API  = 'https://api.vreden.my.id/api/ytmp4?url='; // ← nueva API
 
 async function handler(conn, { message, args }) {
   const query = args.join(' ');
@@ -12,7 +14,6 @@ async function handler(conn, { message, args }) {
   }
 
   try {
-    // 1. Buscar video
     const { data: searchData } = await axios.get(`${SEARCH_API}${encodeURIComponent(query)}`);
     const results = searchData?.data;
     if (!results || results.length === 0) {
@@ -20,9 +21,8 @@ async function handler(conn, { message, args }) {
         text: '*🔍 Zenitsu no encontró resultados...*\n\n> Intenta con otro término, por favor.',
       });
     }
-    const first = results[0];
 
-    // 2. Mensaje inicial
+    const first = results[0];
     const infoMsg = `
 ╭─「 🎥 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙑𝙄𝘿𝙀𝙊 」─╮
 │ 🎬 *Título:* ${first.title}
@@ -34,7 +34,7 @@ async function handler(conn, { message, args }) {
 ╰────────────────────╯
 
 *😳 Zenitsu está trabajando en ello... ¡No lo presiones!* ⚡
-> Para solo audio: `play ${first.title}`
+> Si lo deseas en solo audio, usa: *play ${first.title}*
     `.trim();
 
     await conn.sendMessage(message.key.remoteJid, {
@@ -42,21 +42,15 @@ async function handler(conn, { message, args }) {
       caption: infoMsg
     });
 
-    // 3. Obtener URL de descarga
     const videoUrl = await getVideoDownloadUrl(first.url);
-    if (!videoUrl) throw new Error('No se obtuvo URL de descarga.');
+    if (!videoUrl) throw new Error('Video URL no obtenida de la API.');
 
-    // 4. Enviar directamente como documento usando la URL remota
-    await conn.sendMessage(message.key.remoteJid, {
-      document: { url: videoUrl },
-      mimetype: 'video/mp4',
-      fileName: `${sanitize(first.title)}.mp4`
-    });
+    await sendVideoAsFile(conn, message, videoUrl, first.title);
 
   } catch (err) {
-    console.error('Error en play2:', err);
+    console.error(err);
     await conn.sendMessage(message.key.remoteJid, {
-      text: '*❌ ¡El rito falló!*\n\n> Zenitsu no pudo enviar el video. Reintenta más tarde.',
+      text: '*❌ ¡Algo salió mal!*\n\n> Zenitsu se tropezó intentando descargar el video... vuelve a intentarlo más tarde.',
     });
   }
 }
@@ -65,15 +59,36 @@ async function getVideoDownloadUrl(videoUrl) {
   const apiUrl = `${YTMP4_API}${encodeURIComponent(videoUrl)}`;
   const res = await axios.get(apiUrl);
   console.log('>> vreden API response:', res.data);
-  // Aseguramos que la estructura exista
+  // La nueva API estructura: res.data.result.download.url
   if (res.data?.result?.status && res.data.result.download?.url) {
     return res.data.result.download.url;
   }
   return null;
 }
 
-function sanitize(title) {
-  return title.replace(/[<>:"/\\|?*\x00-\x1F]/g, '').substring(0, 50);
+async function sendVideoAsFile(conn, message, videoUrl, videoTitle) {
+  const safeTitle = videoTitle.replace(/[<>:"/\\|?*\x00-\x1F]/g, '');
+  const outPath   = path.resolve(__dirname, `${Date.now()}_${safeTitle}.mp4`);
+
+  try {
+    const writer = fs.createWriteStream(outPath);
+    const stream = await axios({ url: videoUrl, method: 'GET', responseType: 'stream' });
+    stream.data.pipe(writer);
+    await new Promise((r, rej) => writer.on('finish', r).on('error', rej));
+
+    await conn.sendMessage(message.key.remoteJid, {
+      document: { url: outPath },
+      mimetype: 'video/mp4',
+      fileName: `${safeTitle}.mp4`
+    });
+    fs.unlinkSync(outPath);
+
+  } catch (e) {
+    console.error('Error enviando archivo:', e);
+    await conn.sendMessage(message.key.remoteJid, {
+      text: '*⚠️ Zenitsu no pudo enviar el archivo...*\n\n> Intenta nuevamente, por favor.',
+    });
+  }
 }
 
 module.exports = {
