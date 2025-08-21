@@ -1,112 +1,163 @@
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
+const axios = require('axios')
 
-const SEARCH_API = 'https://api.dorratz.com/v3/yt-search?query=';
-const YTMP4_API  = 'https://api.vreden.my.id/api/ytmp4?url=';
+/**
+ * 🔍 Búsqueda en cascada usando múltiples APIs
+ */
+async function getVideoResult(query) {
+  // 1. EliasarYT
+  try {
+    const res = await axios.get(
+      `https://eliasar-yt-api.vercel.app/api/search/youtube?query=${encodeURIComponent(
+        query
+      )}`
+    )
+    const list = res.data?.results?.resultado
+    if (list?.length) return { title: list[0].title, url: list[0].url }
+  } catch (e) {
+    console.warn('⚠️ EliasarYT falló:', e.message)
+  }
 
+  // 2. Dorratz
+  try {
+    const res = await axios.get(
+      `https://api.dorratz.com/v3/yt-search?query=${encodeURIComponent(query)}`
+    )
+    const list = res.data?.data || res.data?.result?.all
+    if (list?.length) return { title: list[0].title, url: list[0].url }
+  } catch (e) {
+    console.warn('⚠️ Dorratz falló:', e.message)
+  }
+
+  // 3. Starlight Team
+  try {
+    const res = await axios.get(
+      `https://apis-starlights-team.koyeb.app/starlight/youtube-search?text=${encodeURIComponent(
+        query
+      )}`
+    )
+    const list = res.data?.results
+    if (list?.length) return { title: list[0].title, url: list[0].link }
+  } catch (e) {
+    console.warn('⚠️ Starlight API falló:', e.message)
+  }
+
+  // 4. Delirius
+  try {
+    const res = await axios.get(
+      `https://delirius-apiofc.vercel.app/search/ytsearch?q=${encodeURIComponent(
+        query
+      )}`
+    )
+    const list = res.data?.data
+    if (list?.length) return { title: list[0].title, url: list[0].url }
+  } catch (e) {
+    console.warn('⚠️ Delirius API falló:', e.message)
+  }
+
+  // 5. Sylphy
+  try {
+    const res = await axios.get(
+      `https://api.sylphy.xyz/search/youtube?q=${encodeURIComponent(query)}`
+    )
+    const list = res.data?.res
+    if (list?.length) return { title: list[0].title, url: list[0].url }
+  } catch (e) {
+    console.warn('⚠️ Sylphy API falló:', e.message)
+  }
+
+  return null
+}
+
+/**
+ * 🔧 Manejador del comando play2 (Zenitsu-Bot)
+ */
 async function handler(conn, { message, args }) {
-  const query = args.join(' ');
-  if (!query) {
-    return conn.sendMessage(message.key.remoteJid, {
-      text: '😰 ¡Zenitsu necesita saber qué video buscar!\n\n> Ejemplo: play2 Opening Demon Slayer 🎬',
-    });
+  const jid = message.key.remoteJid
+  const text = args.join(' ').trim()
+
+  // Sin término de búsqueda
+  if (!text) {
+    return conn.sendMessage(jid, {
+      text:
+        '😰 ¡Zenitsu necesita saber qué video buscar!\n\n> Ejemplo: play2 Opening Demon Slayer 🎬'
+    })
+  }
+
+  // Mensaje inicial de búsqueda
+  await conn.sendMessage(jid, {
+    text:
+      '⏳ *Buscando tu video...*\n🔍 Probando múltiples fuentes hasta encontrar el mejor resultado.'
+  })
+
+  // 1. Buscar video en cascada
+  const selected = await getVideoResult(text)
+  if (!selected) {
+    return conn.sendMessage(jid, {
+      text: `❌ No se encontró ningún video para: *${text}*\n\n> Intenta con otro término.`
+    })
   }
 
   try {
-    // 1. Buscar en YouTube
-    const searchResponse = await axios.get(`${SEARCH_API}${encodeURIComponent(query)}`);
-    const results = searchResponse.data?.data;
+    // 2. Descargar vía Vreden API
+    const dlRes = await axios.get(
+      `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(
+        selected.url
+      )}`
+    )
+    const json = dlRes.data
+    const meta = json?.result?.metadata || {}
+    const dl = json?.result?.download || {}
 
-    if (!results || results.length === 0) {
-      return conn.sendMessage(message.key.remoteJid, {
-        text: '🔍 Zenitsu no encontró resultados...\n\n> Intenta con otro término, por favor.',
-      });
+    // Validar respuesta
+    if (!json?.result?.status || !dl?.url) {
+      return conn.sendMessage(jid, {
+        text: `⚠️ No se pudo obtener el enlace de descarga para: *${meta.title ||
+          selected.title}*`
+      })
     }
 
-    const firstResult = results[0];
+    // 3. Enviar información + miniatura
+    const caption = `
+🎬 *${meta.title}*
+🎙️ Autor: ${meta.author.name}
+📅 Publicado: ${meta.ago}
+⏱️ Duración: ${meta.timestamp}
+👁️ Vistas: ${meta.views.toLocaleString()}
 
-    // 2. Mensaje inicial
-    const messageText = `
-╭─「 🎥 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 𝘽𝙊𝙏 - 𝙑𝙄𝘿𝙀𝙊 」─╮
-│ 🎬 Título: ${firstResult.title}
-│ ⏳ Duración: ${firstResult.duration}
-│ 📅 Publicado: ${firstResult.publishedAt}
-│ 👀 Vistas: ${firstResult.views.toLocaleString()}
-│ 🧑‍💻 Autor: ${firstResult.author.name}
-│ 🔽 Descargando video...
-╰────────────────────╯
+📥 Calidad: ${dl.quality}
+📄 Archivo: ${dl.filename}
+    `.trim()
 
-😳 Zenitsu está trabajando en ello... ¡No lo presiones! ⚡
-> Si lo deseas en solo audio, usa: play ${firstResult.title}
-    `.trim();
+    await conn.sendMessage(jid, {
+      image: { url: meta.image || meta.thumbnail },
+      caption,
+      footer: '🎥 Video obtenido vía Vreden API',
+      contextInfo: {
+        externalAdReply: {
+          title: meta.title,
+          body: 'Haz clic para ver o descargar',
+          thumbnailUrl: meta.thumbnail,
+          sourceUrl: selected.url
+        }
+      }
+    })
 
-    await conn.sendMessage(message.key.remoteJid, {
-      image:   { url: firstResult.thumbnail },
-      caption: messageText
-    });
-
-    // 3. Obtener URL de descarga desde vreden API
-    const videoDownloadUrl = await getVideoDownloadUrl(firstResult.url);
-    if (!videoDownloadUrl) throw new Error('No se pudo obtener el video.');
-
-    // 4. Descargar, guardar y enviar como documento
-    await sendVideoAsFile(conn, message, videoDownloadUrl, firstResult.title);
-
-  } catch (err) {
-    console.error('Error en play2:', err);
-    await conn.sendMessage(message.key.remoteJid, {
-      text: '❌ ¡Algo salió mal!\n\n> Zenitsu se tropezó intentando descargar el video... vuelve a intentarlo más tarde.',
-    });
-  }
-}
-
-async function getVideoDownloadUrl(videoUrl) {
-  const apiUrl = `${YTMP4_API}${encodeURIComponent(videoUrl)}`;
-  const response = await axios.get(apiUrl);
-  console.log('>> vreden API response:', response.data);
-  // La nueva API devuelve la URL en result.download.url
-  if (response.data?.result?.status && response.data.result.download?.url) {
-    return response.data.result.download.url;
-  }
-  return null;
-}
-
-async function sendVideoAsFile(conn, message, videoUrl, videoTitle) {
-  const sanitizedTitle = videoTitle.replace(/[<>:"/\\|?*\x00-\x1F]/g, '');
-  const videoPath = path.resolve(__dirname, `${Date.now()}_${sanitizedTitle}.mp4`);
-
-  try {
-    const writer = fs.createWriteStream(videoPath);
-    const videoStream = await axios({
-      url:          videoUrl,
-      method:       'GET',
-      responseType: 'stream',
-    });
-
-    videoStream.data.pipe(writer);
-    await new Promise((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
-
-    await conn.sendMessage(message.key.remoteJid, {
-      document: { url: videoPath },
+    // 4. Enviar video como stream directo
+    await conn.sendMessage(jid, {
+      video: { url: dl.url },
       mimetype: 'video/mp4',
-      fileName: `${sanitizedTitle}.mp4`
-    });
-
-    fs.unlinkSync(videoPath);
-
+      fileName: dl.filename || 'video.mp4'
+    })
   } catch (err) {
-    console.error('Error enviando archivo:', err);
-    await conn.sendMessage(message.key.remoteJid, {
-      text: '⚠️ Zenitsu no pudo enviar el archivo...\n\n> Intenta nuevamente, por favor.',
-    });
+    console.error('💥 Error en play2:', err)
+    await conn.sendMessage(jid, {
+      text:
+        '❌ ¡Algo salió mal al descargar el video!\n\n> Zenitsu se tropezó con la ceremonia. Reintenta más tarde.'
+    })
   }
 }
 
 module.exports = {
   command: 'play2',
-  handler,
-};
+  handler
+}
