@@ -58,9 +58,12 @@ async function handler(conn, { message, args }) {
         const audioRes = await axios.get(`https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(video.url)}`);
         const audio = audioRes.data?.result;
 
-        if (!audio || !audio.download || !audio.download.status) {
+        // Validación escénica: ¿el audio coincide con la búsqueda?
+        const titleMatch = audio?.metadata?.title?.toLowerCase().includes(query.toLowerCase());
+
+        if (!audio || !audio.download || !audio.download.status || !titleMatch) {
             return conn.sendMessage(message.key.remoteJid, {
-                text: `😢 *Zenitsu no pudo convertir el audio de:* ${video.title}\n\n🛠️ ${audio?.download?.message || 'Error desconocido'}`,
+                text: `😢 *Zenitsu no pudo convertir el audio de:* ${video.title}\n\n🛠️ ${audio?.download?.message || 'Converting error'}\n🎭 ¿Intentamos con otro título más claro o menos viral?`,
                 contextInfo
             }, { quoted: message });
         }
@@ -73,12 +76,12 @@ async function handler(conn, { message, args }) {
             contextInfo
         }, { quoted: message });
 
-        // Mensaje de despedida eliminado
+        // Despedida eliminada para mantener el flujo limpio
 
     } catch (err) {
         console.error("⚠️ Error en el comando play:", err.message);
         await conn.sendMessage(message.key.remoteJid, {
-            text: `❌ *Error inesperado en la reproducción.*\n\n🛠️ ${err.message}`,
+            text: `❌ *Error inesperado en la reproducción.*\n\n🛠️ ${err.message}\n🌧️ Zenitsu está revisando los cables del universo...`,
             contextInfo
         }, { quoted: message });
     }
