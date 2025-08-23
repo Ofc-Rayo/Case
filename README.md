@@ -2,7 +2,7 @@
 
 <div style="display: flex; align-items: center; gap: 25px; justify-content: center; margin-bottom: 20px;">
   <!-- Título animado con energía -->
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=40&pause=600&color=FFFF00&width=40&lines=⚡+¡Zenitsu+Bot!+⚡;♦+¡En+desarrollo!+♦" alt="ZenitsuBot Typing SVG">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=40&pause=600&color=FFFF00&width=400&lines=⚡+¡Zenitsu+Bot!+⚡;♦+¡En+desarrollo!+♦" alt="ZenitsuBot Typing SVG">
 
   <!-- Imagen del personaje -->
   <img src="https://qu.ax/MvYPM.jpg" alt="Zenitsu" width="200" style="border-radius: 12px; box-shadow: 0 0 10px #FFD700;">
