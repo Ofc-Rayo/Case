@@ -10,7 +10,7 @@
 
 <h1 align="center">⚡ Zenitsu-Bot ⚡</h1>
 
-<p align="center"><em>🌀 Un bot en proceso de despertar su poder... inspirado por la velocidad, el miedo y el corazón de Zenitsu Agatsuma 🌀</em></p>
+<p align="center"><em>🌀 Un bot en proceso de despertar su poder... inspirado por la velocidad, el miedo y el corazón de Zenitsu 🌀</em></p>
 
 <hr>
 
