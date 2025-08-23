@@ -18,13 +18,13 @@ async function handler(conn, { message, args }) {
     const query = args.join(' ');
     if (!query) {
         return conn.sendMessage(message.key.remoteJid, {
-            text: '*😰 Zenitsu se quedó sin ritmo...*\n\n> Ejemplo: `play lintang asmoro` 🎶',
+            text: '*😰 Zenitsu se quedó sin ritmo...*\n\n> Ejemplo: `play summertime sadness` 🎶',
             contextInfo
         }, { quoted: message });
     }
 
     await conn.sendMessage(message.key.remoteJid, {
-        text: `🔎 *Buscando en YouTube...*\n🎞️ Afinando melodías de *${query}*`,
+        text: `🔎 *Buscando en YouTube...*\n🎞️ Afinando melodías de *${query}*...`,
         contextInfo
     }, { quoted: message });
 
@@ -34,7 +34,7 @@ async function handler(conn, { message, args }) {
 
         if (!video) {
             return conn.sendMessage(message.key.remoteJid, {
-                text: `❌ *Zenitsu no encontró transmisiones para:* ${query}`,
+                text: `😢 *Zenitsu no encontró transmisiones para:* ${query}\n🌧️ El universo musical se quedó en silencio...`,
                 contextInfo
             }, { quoted: message });
         }
@@ -55,28 +55,26 @@ async function handler(conn, { message, args }) {
             contextInfo
         }, { quoted: message });
 
-        const audioRes = await axios.get(`https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(video.url)}`);
-        const audio = audioRes.data?.result;
+        // Conversión con API Delirius
+        const audioRes = await axios.get(`https://delirius-apiofc.vercel.app/download/ytmp3?url=${encodeURIComponent(video.url)}`);
+        const audio = audioRes.data?.data;
 
-        // Validación escénica: ¿el audio coincide con la búsqueda?
-        const titleMatch = audio?.metadata?.title?.toLowerCase().includes(query.toLowerCase());
-
-        if (!audio || !audio.download || !audio.download.status || !titleMatch) {
+        if (!audio || !audio.download || !audio.download.url) {
             return conn.sendMessage(message.key.remoteJid, {
-                text: `😢 *Zenitsu no pudo convertir el audio de:* ${video.title}\n\n🛠️ ${audio?.download?.message || 'Converting error'}\n🎭 ¿Intentamos con otro título más claro o menos viral?`,
+                text: `😢 *Zenitsu no pudo convertir el audio de:* ${video.title}\n\n🛠️ Converting error\n🎭 ¿Intentamos con otro título más claro o menos viral?`,
                 contextInfo
             }, { quoted: message });
         }
 
         await conn.sendMessage(message.key.remoteJid, {
             audio: { url: audio.download.url },
-            fileName: `${audio.metadata.title}.mp3`,
+            fileName: audio.download.filename,
             mimetype: "audio/mp4",
             ptt: false,
             contextInfo
         }, { quoted: message });
 
-        // Despedida eliminada para mantener el flujo limpio
+        // No se envía despedida final para mantener el cierre musical
 
     } catch (err) {
         console.error("⚠️ Error en el comando play:", err.message);
