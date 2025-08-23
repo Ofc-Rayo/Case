@@ -14,14 +14,11 @@ const contextInfo = {
   }
 };
 
-const DELIRIUS_API = "https://delirius-apiofc.vercel.app/download/ytmp3?url=";
-const VREDEN_API   = "https://api.vreden.my.id/api/ytmp3?url=";
-
 async function handler(conn, { message, args }) {
   const query = args.join(' ');
   if (!query) {
     return conn.sendMessage(message.key.remoteJid, {
-      text: '*😰 Zenitsu se quedó sin ritmo...*\n\n> Ejemplo: `play summertime sadness` 🎶',
+      text: '*😰 Zenitsu se quedó sin ritmo...*\n\n> Ejemplo: `play DJ malam pagi slowed` 🎶',
       contextInfo
     }, { quoted: message });
   }
@@ -33,80 +30,48 @@ async function handler(conn, { message, args }) {
   }, { quoted: message });
 
   try {
-    // 1) Buscar video en YouTube
-    const searchRes = await axios.get(
-      `https://api.vreden.my.id/api/yts?query=${encodeURIComponent(query)}`
-    );
-    const video = searchRes.data?.result?.all?.[0];
+    // Llamada única a la API de búsqueda + conversión
+    const apiUrl = `https://api.vreden.my.id/api/ytplaymp3?query=${encodeURIComponent(query)}`;
+    const res = await axios.get(apiUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+    const result = res.data?.result;
 
-    if (!video) {
+    // Validación escénica
+    if (!result?.status || !result.download?.status) {
       return conn.sendMessage(message.key.remoteJid, {
-        text: `😢 *Zenitsu no encontró transmisiones para:* ${query}\n🌧️ El universo musical se quedó en silencio...`,
+        text: `😢 *Zenitsu no pudo convertir el audio de:* ${query}\n\n🛠️ Converting error\n🎭 ¿Intentamos con otro título más claro o menos viral?`,
         contextInfo
       }, { quoted: message });
     }
 
-    // 2) Mostrar miniatura y datos
+    const { metadata, download } = result;
+
+    // Mostrar miniatura y datos
     const caption = `
-╭─「 🎧 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙔𝙊𝙐𝙏𝙐𝘽𝙀 」─╮
-│ 🎬 *Título:* ${video.title}
-│ 👤 *Autor:* ${video.author.name}
-│ ⏱️ *Duración:* ${video.duration.timestamp}
-│ 👁️ *Vistas:* ${video.views.toLocaleString()}
-│ 🔗 *YouTube:* ${video.url}
+╭─「 🎧 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙔𝙏𝙋𝙇𝘼𝙔𝙈𝙋𝟯 」─╮
+│ 🎬 *Título:* ${metadata.title}
+│ 👤 *Autor:* ${metadata.author.name}
+│ ⏱️ *Duración:* ${metadata.duration.timestamp}
+│ 👁️ *Vistas:* ${metadata.views.toLocaleString()}
+│ 🔗 *YouTube:* ${metadata.url}
 ╰────────────────────────────╯
 `.trim();
 
     await conn.sendMessage(message.key.remoteJid, {
-      image: { url: video.thumbnail },
+      image: { url: metadata.thumbnail },
       caption,
       contextInfo
     }, { quoted: message });
 
-    // 3) Intento principal: Delirius
-    let audioData;
-    try {
-      const delRes = await axios.get(
-        `${DELIRIUS_API}${encodeURIComponent(video.url)}`,
-        { headers: { "User-Agent": "Mozilla/5.0" } }
-      );
-      audioData = delRes.data?.data;
-    } catch (err) {
-      // Si Delirius bloquea con 403, Zenitsu invoca el plan B
-      if (err.response?.status === 403) {
-        await conn.sendMessage(message.key.remoteJid, {
-          text: `🔒 *Hechizo Delirius bloqueado.*\n🛠️ Código 403\n🎭 Invocando plan B...`,
-          contextInfo
-        }, { quoted: message });
-
-        const vreRes = await axios.get(
-          `${VREDEN_API}${encodeURIComponent(video.url)}`,
-          { headers: { "User-Agent": "Mozilla/5.0" } }
-        );
-        audioData = vreRes.data?.result;
-      } else {
-        throw err;
-      }
-    }
-
-    // 4) Validación de resultado
-    if (!audioData?.download?.url) {
-      return conn.sendMessage(message.key.remoteJid, {
-        text: `😢 *Zenitsu no pudo convertir el audio de:* ${video.title}\n\n🛠️ Converting error\n🎭 ¿Intentamos con otro título más claro o menos viral?`,
-        contextInfo
-      }, { quoted: message });
-    }
-
-    // 5) Envío del audio
+    // Envío del audio
     await conn.sendMessage(message.key.remoteJid, {
-      audio: { url: audioData.download.url },
-      fileName: audioData.download.filename,
+      audio: { url: download.url },
+      fileName: download.filename,
       mimetype: "audio/mp4",
       ptt: false,
       contextInfo
     }, { quoted: message });
 
-    // Fin natural: el audio es la última nota
+    // El audio es el cierre natural de Zenitsu
 
   } catch (err) {
     console.error("⚠️ Error en el comando play:", err.message);
