@@ -3,151 +3,91 @@ const axios = require('axios');
 const thumbnailUrl = 'https://qu.ax/QuwNu.jpg';
 
 const contextInfo = {
-
     externalAdReply: {
-
-        title: "🎧 Spotify Music",
-
-        body: "Reproducción directa desde el universo K-pop...",
-
+        title: "🎧 YouTube DJ Ambatukam",
+        body: "Transmisión directa desde el universo viral...",
         mediaType: 1,
-
         previewType: 0,
-
-        mediaUrl: "https://open.spotify.com",
-
-        sourceUrl: "https://open.spotify.com",
-
+        mediaUrl: "https://youtube.com",
+        sourceUrl: "https://youtube.com",
         thumbnailUrl
-
     }
-
 };
 
 async function handler(conn, { message, args }) {
-
     const query = args.join(' ');
-
     if (!query) {
-
         return conn.sendMessage(message.key.remoteJid, {
-
-            text: '*😰 ¡Zenitsu necesita saber qué canción buscar!*\n\n> Ejemplo: `play TWICE` 🎶',
-
+            text: '*😰 Zenitsu se quedó sin ritmo...*\n\n> Ejemplo: `play dj ambatukam` 🎶',
             contextInfo
-
         }, { quoted: message });
-
     }
 
     await conn.sendMessage(message.key.remoteJid, {
-
-        text: `🔎 *Buscando en Spotify...*\n🎞️ Cazando melodías de *${query}*`,
-
+        text: `🔎 *Buscando en YouTube...*\n🎞️ Afinando melodías de *${query}*`,
         contextInfo
-
     }, { quoted: message });
 
     try {
+        const searchRes = await axios.get(`https://api.vreden.my.id/api/yts?query=${encodeURIComponent(query)}`);
+        const video = searchRes.data?.result?.all?.[0];
 
-        const searchRes = await axios.get(`https://delirius-apiofc.vercel.app/search/spotify?q=${encodeURIComponent(query)}&limit=1`);
-
-        const track = searchRes.data?.data?.[0];
-
-        if (!track) {
-
+        if (!video) {
             return conn.sendMessage(message.key.remoteJid, {
-
                 text: `❌ *Zenitsu no encontró transmisiones para:* ${query}`,
-
                 contextInfo
-
             }, { quoted: message });
-
         }
 
         const caption = `
-
-╭─「 🎧 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙎𝙋𝙊𝙏𝙄𝙁𝙔 」─╮
-
-│ 🎬 *Título:* ${track.title}
-
-│ 👤 *Artista:* ${track.artist}
-
-│ 💿 *Álbum:* ${track.album}
-
-│ ⏱️ *Duración:* ${track.duration}
-
-│ 📈 *Popularidad:* ${track.popularity}
-
-│ 📅 *Publicado:* ${track.publish}
-
-│ 🔗 *Spotify:* ${track.url}
-
+╭─「 🎧 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙔𝙊𝙐𝙏𝙐𝘽𝙀 」─╮
+│ 🎬 *Título:* ${video.title}
+│ 👤 *Autor:* ${video.author.name}
+│ ⏱️ *Duración:* ${video.duration.timestamp}
+│ 👁️ *Vistas:* ${video.views.toLocaleString()}
+│ 🔗 *YouTube:* ${video.url}
 ╰────────────────────────────╯
-
 `.trim();
 
         await conn.sendMessage(message.key.remoteJid, {
-
-            image: { url: track.image },
-
+            image: { url: video.thumbnail },
             caption,
-
             contextInfo
-
         }, { quoted: message });
 
-        const downloadRes = await axios.get(`https://delirius-apiofc.vercel.app/download/spotifydl?url=${encodeURIComponent(track.url)}`);
+        const downloadRes = await axios.get(`https://myapiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(video.url)}`);
+        const audio = downloadRes.data?.result;
 
-        const audioData = downloadRes.data?.data;
-
-        if (!audioData || !audioData.url) {
-
+        if (!audio || !audio.url) {
             return conn.sendMessage(message.key.remoteJid, {
-
-                text: `❌ *No se pudo obtener el audio para:* ${track.title}`,
-
+                text: `❌ *No se pudo obtener el audio para:* ${video.title}`,
                 contextInfo
-
             }, { quoted: message });
-
         }
 
         await conn.sendMessage(message.key.remoteJid, {
-
-            audio: { url: audioData.url },
-
-            fileName: `${audioData.title}.mp3`,
-
+            audio: { url: audio.url },
+            fileName: `${video.title}.mp3`,
             mimetype: "audio/mp4",
-
             ptt: false,
-
             contextInfo
+        }, { quoted: message });
 
+        await conn.sendMessage(message.key.remoteJid, {
+            text: `🌸 *Gracias por compartir tu ritmo con Zenitsu.*\n🎶 Que el beat te acompañe siempre.`,
+            contextInfo
         }, { quoted: message });
 
     } catch (err) {
-
         console.error("⚠️ Error en el comando play:", err.message);
-
         await conn.sendMessage(message.key.remoteJid, {
-
             text: `❌ *Error inesperado en la reproducción.*\n\n🛠️ ${err.message}`,
-
             contextInfo
-
         }, { quoted: message });
-
     }
-
 }
 
 module.exports = {
-
     command: 'play',
-
     handler,
-
 };
