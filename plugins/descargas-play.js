@@ -4,8 +4,8 @@ const thumbnailUrl = 'https://qu.ax/QuwNu.jpg';
 
 const contextInfo = {
     externalAdReply: {
-        title: "🎧 YouTube DJ Ambatukam",
-        body: "Transmisión directa desde el universo viral...",
+        title: "🎧 YouTube Music",
+        body: "Reproducción directa desde el universo viral...",
         mediaType: 1,
         previewType: 0,
         mediaUrl: "https://youtube.com",
@@ -18,7 +18,7 @@ async function handler(conn, { message, args }) {
     const query = args.join(' ');
     if (!query) {
         return conn.sendMessage(message.key.remoteJid, {
-            text: '*😰 Zenitsu se quedó sin ritmo...*\n\n> Ejemplo: `play dj ambatukam` 🎶',
+            text: '*😰 Zenitsu se quedó sin ritmo...*\n\n> Ejemplo: `play lintang asmoro` 🎶',
             contextInfo
         }, { quoted: message });
     }
@@ -55,19 +55,19 @@ async function handler(conn, { message, args }) {
             contextInfo
         }, { quoted: message });
 
-        const downloadRes = await axios.get(`https://myapiadonix.vercel.app/api/ytmp3?url=${encodeURIComponent(video.url)}`);
-        const audio = downloadRes.data?.result;
+        const audioRes = await axios.get(`https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(video.url)}`);
+        const audio = audioRes.data?.result;
 
-        if (!audio || !audio.url) {
+        if (!audio || !audio.download || !audio.download.status) {
             return conn.sendMessage(message.key.remoteJid, {
-                text: `❌ *No se pudo obtener el audio para:* ${video.title}`,
+                text: `😢 *Zenitsu no pudo convertir el audio de:* ${video.title}\n\n🛠️ ${audio?.download?.message || 'Error desconocido'}`,
                 contextInfo
             }, { quoted: message });
         }
 
         await conn.sendMessage(message.key.remoteJid, {
-            audio: { url: audio.url },
-            fileName: `${video.title}.mp3`,
+            audio: { url: audio.download.url },
+            fileName: `${audio.metadata.title}.mp3`,
             mimetype: "audio/mp4",
             ptt: false,
             contextInfo
