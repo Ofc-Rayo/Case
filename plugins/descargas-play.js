@@ -73,10 +73,7 @@ async function handler(conn, { message, args }) {
             contextInfo
         }, { quoted: message });
 
-        await conn.sendMessage(message.key.remoteJid, {
-            text: `🌸 *Gracias por compartir tu ritmo con Zenitsu.*\n🎶 Que el beat te acompañe siempre.`,
-            contextInfo
-        }, { quoted: message });
+        // Mensaje de despedida eliminado
 
     } catch (err) {
         console.error("⚠️ Error en el comando play:", err.message);
