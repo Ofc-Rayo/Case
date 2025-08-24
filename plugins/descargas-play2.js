@@ -158,6 +158,6 @@ async function handler(conn, { message, args }) {
 }
 
 module.exports = {
-  command: ['play2', 'playvideo', 'buscayoutube'],
+  command: 'play2',
   handler
 }
