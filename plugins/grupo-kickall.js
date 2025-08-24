@@ -6,7 +6,7 @@ async function handler(conn, { message }) {
     if (!isGroup) {
         return conn.sendMessage(from, {
             text: '😰 Este comando solo puede usarse en grupos.',
-        });
+        }, { quoted: message });
     }
 
     const groupMetadata = await conn.groupMetadata(from);
@@ -20,13 +20,13 @@ async function handler(conn, { message }) {
     if (!isSenderAdmin) {
         return conn.sendMessage(from, {
             text: '😤 Solo los administradores pueden invocar el ritual de expulsión total.',
-        });
+        }, { quoted: message });
     }
 
     if (!isBotAdmin) {
         return conn.sendMessage(from, {
             text: '⚠️ Zenitsu no puede ejecutar el ritual si no es administrador...',
-        });
+        }, { quoted: message });
     }
 
     const toKick = participants
@@ -35,8 +35,8 @@ async function handler(conn, { message }) {
 
     if (toKick.length === 0) {
         return conn.sendMessage(from, {
-            text: '⚡ Todos los miembros restantes son administradores o el bot. Ritual completo.',
-        });
+            text: '🌸 Todos los miembros restantes son administradores o el bot. Ritual completo.',
+        }, { quoted: message });
     }
 
     for (const target of toKick) {
@@ -60,7 +60,7 @@ async function handler(conn, { message }) {
 
     await conn.sendMessage(from, {
         text: '✅ Ritual completado. El grupo ha sido purificado.',
-    });
+    }, { quoted: message });
 }
 
 module.exports = {
