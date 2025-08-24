@@ -17,11 +17,7 @@ async function handler(conn, { message }) {
     };
 
     const caption = `
-╭─「 🖼️ 𝘾𝙀𝙉𝙄𝙓 - 𝙄𝙈𝘼𝙂𝙀𝙉 」─╮
-│ ✨ *Estado:* Imagen enviada
-│ 🎨 Ritual por: *Carlos*
-╰─────────────────────╯
-*📥 Aquí está...*
+* Aquí está...\n>Con su novia*
 `.trim();
 
     await conn.sendMessage(jid, {
