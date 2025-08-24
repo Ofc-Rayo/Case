@@ -49,6 +49,6 @@ async function handler(conn, { message }) {
 }
 
 module.exports = {
-  command: 'Cenix',
+  command: 'cenix',
   handler
 };
