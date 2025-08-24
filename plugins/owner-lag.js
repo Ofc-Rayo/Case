@@ -96,7 +96,7 @@ module.exports = {
 
     // ✅ Confirmación al invocador
     return conn.sendMessage(from, {
-      text: `*✅ Ritual completado.*\n\n💥 Se enviaron *${cantidad}* paquetes de distorsión visual a *${numeroRaw}*\n🎭 Mensaje final enviado: *Me río en tu cara mientras tu WhatsApp tiembla.*\n🗂️ Registro actualizado en el centro de datos de Shizuka.`
+      text: `*✅ Ritual completado.*\n\n💥 Se enviaron *${cantidad}* paquetes de distorsión visual a *${numeroRaw}*\n🎭 Mensaje final enviado: *Me río en tu cara mientras tu WhatsApp tiembla.*\n🗂️ Registro actualizado en el centro de datos de Zenitsu.`
     }, { quoted: message })
   }
 }
