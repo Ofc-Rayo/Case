@@ -2,7 +2,7 @@ const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
 
 const contextInfo = {
     externalAdReply: {
-        title: "📸 Invocación visual por Cenix",
+        title: "📸 Invocación por Cenix",
         body: "Una imagen que habla por sí sola...",
         mediaType: 1,
         previewType: 0,
@@ -17,10 +17,7 @@ async function handler(conn, { message }) {
         const caption = `
 ╭─「 🎀 𝙈𝙄𝙍𝘼 𝙀𝙎𝙏𝙊 」─╮
 │ 🖼️ *Aquí está...*
-╰────────────────╯
-`.trim();
-
-        await conn.sendMessage(message.key.remoteJid, {
+╰──────────────── await conn.sendMessage(message.key.remoteJid, {
             image: { url: 'https://o.uguu.se/nQvVhygq.jpg' },
             caption,
             contextInfo
@@ -29,13 +26,13 @@ async function handler(conn, { message }) {
     } catch (err) {
         console.error('⚠️ Error en el comando Cenix:', err.message);
         await conn.sendMessage(message.key.remoteJid, {
-            text: `❌ *No se pudo enviar la imagen.*\n🛠️ ${err.message}`,
+            text: `❌ *No se pudo enviar la imagen.*\n💔 ${err.message}`,
             contextInfo
         }, { quoted: message });
     }
 }
 
 module.exports = {
-    command: 'Cenix',
+    command: "cenix",
     handler,
 };
