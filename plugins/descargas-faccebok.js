@@ -18,7 +18,10 @@ async function handler(conn, { message, args }) {
   const quoted = message;
   const url = args[0];
 
+  console.log('[fb] 🔍 Enlace recibido:', url);
+
   if (!url || !url.includes('facebook.com')) {
+    console.log('[fb] ⚠️ Enlace inválido o ausente');
     return conn.sendMessage(jid, {
       text: '*📘 ¿Dónde está el portal de Meta?*\n\n> Ingresa un enlace válido de Facebook para invocar el video.',
       contextInfo
@@ -32,10 +35,15 @@ async function handler(conn, { message, args }) {
 
   try {
     const api = `https://api.vreden.my.id/api/fbdl?url=${encodeURIComponent(url)}`;
+    console.log('[fb] 🌐 Consultando API:', api);
+
     const res = await axios.get(api);
+    console.log('[fb] 📥 Respuesta recibida:', res.data);
+
     const data = res.data?.data;
 
     if (!data || !data.hd_url) {
+      console.log('[fb] ❌ Video no disponible o sin hd_url');
       return conn.sendMessage(jid, {
         text: '📭 *No se pudo abrir el portal del recuerdo.*\n\n> Verifica el enlace o intenta más tarde.',
         contextInfo
@@ -50,6 +58,8 @@ async function handler(conn, { message, args }) {
 *✨ Video invocado con éxito...*
 `.trim();
 
+    console.log('[fb] 🎬 Enviando video con URL:', data.hd_url);
+
     await conn.sendMessage(jid, {
       video: { url: data.hd_url },
       caption,
@@ -63,7 +73,7 @@ async function handler(conn, { message, args }) {
     }, { quoted });
 
   } catch (err) {
-    console.error('[fbdl] Error:', err.message);
+    console.error('[fb] 🧨 Error al invocar el ritual:', err.message);
     await conn.sendMessage(jid, {
       text: '🚫 *Ups... el archivo emocional se resistió a ser invocado.*\n\n> Intenta más tarde o revisa el enlace.',
       contextInfo
