@@ -1,38 +1,54 @@
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
+async function handler(conn, { message }) {
+  const jid = message.key.remoteJid;
+  const quoted = message;
 
-const contextInfo = {
-    externalAdReply: {
-        title: "📸 Invocación por Cenix",
-        body: "Una imagen que habla por sí sola...",
+  try {
+    const imageUrl = 'https://o.uguu.se/nQvVhygq.jpg';
+
+    const contextInfo = {
+      externalAdReply: {
+        title: '🪄 Cenix - Invocación Visual',
+        body: 'Una imagen que susurra desde el otro lado...',
         mediaType: 1,
         previewType: 0,
-        mediaUrl: "https://o.uguu.se/nQvVhygq.jpg",
-        sourceUrl: "https://o.uguu.se/nQvVhygq.jpg",
-        thumbnailUrl
-    }
-};
+        sourceUrl: imageUrl,
+        thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
+      }
+    };
 
-async function handler(conn, { message }) {
-    try {
-        const caption = `
-╭─「 🎀 𝙈𝙄𝙍𝘼 𝙀𝙎𝙏𝙊 」─╮
-│ 🖼️ *Aquí está...*
-╰──────────────── await conn.sendMessage(message.key.remoteJid, {
-            image: { url: 'https://o.uguu.se/nQvVhygq.jpg' },
-            caption,
-            contextInfo
-        }, { quoted: message });
+    const caption = `
+╭─「 🖼️ 𝘾𝙀𝙉𝙄𝙓 - 𝙄𝙈𝘼𝙂𝙀𝙉 」─╮
+│ ✨ *Estado:* Imagen enviada
+│ 🎨 Creador: *Carlos*
+╰─────────────────────╯
+*📥 Aquí está...*
+`.trim();
 
-    } catch (err) {
-        console.error('⚠️ Error en el comando Cenix:', err.message);
-        await conn.sendMessage(message.key.remoteJid, {
-            text: `❌ *No se pudo enviar la imagen.*\n💔 ${err.message}`,
-            contextInfo
-        }, { quoted: message });
-    }
+    await conn.sendMessage(jid, {
+      image: { url: imageUrl },
+      caption,
+      contextInfo
+    }, { quoted });
+
+  } catch (err) {
+    console.error('💥 Error en el comando Cenix:', err.message);
+    await conn.sendMessage(jid, {
+      text: '*⚠️ No se pudo enviar la imagen.*\n\n> 🧵 El hilo visual se ha enredado...',
+      contextInfo: {
+        externalAdReply: {
+          title: '🪄 Cenix - Invocación Visual',
+          body: 'Error en la conexión estética...',
+          mediaType: 1,
+          previewType: 0,
+          sourceUrl: 'https://o.uguu.se/nQvVhygq.jpg',
+          thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
+        }
+      }
+    }, { quoted });
+  }
 }
 
 module.exports = {
-    command: "cenix",
-    handler,
+  command: 'Cenix',
+  handler
 };
