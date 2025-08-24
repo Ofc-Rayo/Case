@@ -1,19 +1,18 @@
 // plugins/sendto.js
-const { allOwners, botname } = require('../settings');
+const { allOwners } = require('../settings');
 
 module.exports = {
   command: 'sendto',
   handler: async (conn, { message, args }) => {
     const from    = message.key.remoteJid;
     const sender  = message.key.participant || from;
-    const isGroup = from.endsWith('@g.us');
 
     console.log(`📨 [DEBUG] Comando sendto invocado por: ${sender}`);
 
     // 🔐 Validación de owner
     if (!allOwners.includes(sender)) {
       return conn.sendMessage(from, {
-        text: `*🚫 Ritual denegado*\n\n> Solo el maestro de ${botname} puede lanzar mensajes directos.`,
+        text: `*🚫 Ritual denegado*\n\n> Solo el maestro puede lanzar mensajes directos.`,
       }, { quoted: message });
     }
 
@@ -29,9 +28,9 @@ module.exports = {
     const jid = numberRaw.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
 
     try {
-      // 🕊️ Envío del mensaje
+      // 🕊️ Envío del mensaje sin marco
       await conn.sendMessage(jid, {
-        text: `*📩 Mensaje ritual de ${botname}:*\n\n${textToSend}`,
+        text: textToSend,
       });
 
       // ✅ Confirmación al invocador
