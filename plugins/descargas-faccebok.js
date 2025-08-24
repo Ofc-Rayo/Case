@@ -1,5 +1,5 @@
 const axios = require('axios');
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura evocadora
 
 const contextInfo = {
   externalAdReply: {
@@ -31,12 +31,12 @@ async function handler(conn, { message, args }) {
   }, { quoted });
 
   try {
-    const api = `https://delirius-apiofc.vercel.app/download/facebook?url=${encodeURIComponent(url)}`;
+    const api = `https://api.vreden.my.id/api/fbdl?url=${encodeURIComponent(url)}`;
     const res = await axios.get(api);
-    const data = res.data?.urls?.find(u => u.hd || u.sd);
+    const data = res.data?.data;
 
-    const videoUrl = data?.hd || data?.sd;
-    const calidad = data?.hd ? 'HD' : data?.sd ? 'SD' : 'Desconocida';
+    const videoUrl = data?.hd_url || data?.sd_url;
+    const calidad = data?.hd_url ? 'HD' : data?.sd_url ? 'SD' : 'Desconocida';
 
     if (!videoUrl) {
       return conn.sendMessage(jid, {
@@ -49,7 +49,7 @@ async function handler(conn, { message, args }) {
 ╭─「 🎬 𝙁𝘼𝘾𝙀𝘽𝙊𝙊𝙆 - 𝙍𝙄𝙏𝙐𝘼𝙇 」─╮
 │ 🔗 Enlace: ${url}
 │ 📺 Calidad: ${calidad}
-│ 🌐 Fuente: Delirius API
+│ 🌐 Fuente: Vreden API
 ╰────────────────────────╯
 ⚡ Video invocado con éxito...
 `.trim();
@@ -57,9 +57,8 @@ async function handler(conn, { message, args }) {
     await conn.sendMessage(jid, {
       video: { url: videoUrl },
       caption,
-      contextInfo,
-      quoted
-    });
+      contextInfo
+    }, { quoted });
 
     await conn.sendMessage(jid, {
       text: '✅ Video enviado. ¿Deseas invocar otro portal?',
@@ -67,7 +66,7 @@ async function handler(conn, { message, args }) {
     }, { quoted });
 
   } catch (err) {
-    console.error('[fb-delirius] Error:', err.message);
+    console.error('[fb-vreden] Error:', err.message);
     await conn.sendMessage(jid, {
       text: '🚫 Ups... algo falló al intentar invocar el video.\n\n> Intenta más tarde o revisa el enlace.',
       contextInfo
