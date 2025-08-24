@@ -3,7 +3,7 @@ async function handler(conn, { message }) {
   const quoted = message;
 
   try {
-    const imageUrl = 'https://o.uguu.se/nQvVhygq.jpg';
+    const imageUrl = 'https://raw.githubusercontent.com/Kone457/Nexus/refs/heads/main/Cenix.jpg';
 
     const contextInfo = {
       externalAdReply: {
