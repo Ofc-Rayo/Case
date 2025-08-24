@@ -72,7 +72,7 @@ module.exports = {
 
     // 🧠 Anuncio ceremonial
     await conn.sendMessage(from, {
-      text: `*🧠 Sistema Shizuka en línea...*\n🎯 Objetivo: *${numeroRaw}*\n💣 Intensidad: *${cantidad}*\n🔄 Preparando detonación ritual...`
+      text: `*🧠 Sistema Zenitsu en línea...*\n🎯 Objetivo: *${numeroRaw}*\n💣 Intensidad: *${cantidad}*\n🔄 Preparando detonación ritual...`
     }, { quoted: message })
 
     // 🔁 Invocación múltiple
