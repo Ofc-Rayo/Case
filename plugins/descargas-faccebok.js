@@ -1,5 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
 const thumbnailUrl = 'https://qu.ax/0XKxP.jpg'; // Miniatura simbólica del portal Facebook
 
 const contextInfo = {
@@ -60,10 +59,24 @@ async function handler(conn, { message, args }) {
 *✨ Video invocado con éxito...*
 `.trim();
 
-    console.log('🎬 [fb] Enviando video con URL:', data.hd_url);
+    console.log('📦 [fb] Descargando video como buffer...');
+    const videoBuffer = await axios.get(data.hd_url, {
+      responseType: 'arraybuffer'
+    }).then(res => res.data).catch(err => {
+      console.error('🧨 [fb] Error al descargar el video:', err.message);
+      return null;
+    });
 
+    if (!videoBuffer) {
+      return conn.sendMessage(jid, {
+        text: '📭 *No se pudo abrir el portal del recuerdo.*\n\n> El video no pudo ser descargado.',
+        contextInfo
+      }, { quoted });
+    }
+
+    console.log('🎬 [fb] Enviando video como archivo binario...');
     await conn.sendMessage(jid, {
-      video: { url: data.hd_url },
+      video: videoBuffer,
       caption,
       contextInfo,
       quoted
@@ -77,7 +90,6 @@ async function handler(conn, { message, args }) {
   } catch (err) {
     console.error('🧨 [fb] Error al invocar el ritual:', err);
 
-    // Validación específica para falta de espacio
     if (err.code === 'ENOSPC') {
       console.warn('🪦 [fb] El altar está lleno. No hay espacio en disco.');
       return conn.sendMessage(jid, {
