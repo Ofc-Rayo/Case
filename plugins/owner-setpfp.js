@@ -12,31 +12,27 @@ module.exports = {
 
     // 🔐 Validación de owner
     if (!allOwners.includes(sender)) {
-      console.log(`🚫 [DEBUG] Usuario no autorizado: ${sender}`);
       return conn.sendMessage(from, {
         text: `*😤 ¡Alto ahí!*\n\n> Solo el gran maestro de ${botname} puede alterar mi esencia visual.`,
       }, { quoted: message });
     }
 
-    // 📸 Validación de imagen en respuesta
-    const quotedMsg = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-    const imageMsg  = quotedMsg?.imageMessage;
+    // 📸 Validación: ¿se respondió a una imagen?
+    const quoted = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+    const imageMessage = quoted?.imageMessage;
 
-    if (!imageMsg) {
-      console.log('🚫 [DEBUG] No se respondió a una imagen');
+    if (!imageMessage) {
       return conn.sendMessage(from, {
-        text: '*🖼️ Para este ritual, debes responder a una imagen.*\n\n> Zenitsu necesita una fuente visual para transformarse.',
+        text: '*🖼️ Ritual fallido*\n\n> Debes responder a una imagen para que Zenitsu adopte esa forma.',
       }, { quoted: message });
     }
 
     try {
       // 🧿 Descarga de imagen
-      const stream = await conn.downloadMediaMessage({ message: quotedMsg });
+      const stream = await conn.downloadMediaMessage({ message: { imageMessage } });
 
       // 🪞 Cambio de avatar
-      await conn.updateProfilePicture(botname + '@s.whatsapp.net', stream);
-
-      console.log('✅ [DEBUG] Avatar actualizado con éxito');
+      await conn.updateProfilePicture(conn.user.id, stream);
 
       // 🎭 Confirmación ritual
       await conn.sendMessage(from, {
@@ -44,8 +40,8 @@ module.exports = {
       }, { quoted: message });
     } catch (err) {
       console.error('💥 [DEBUG] Error al cambiar la foto de perfil:', err);
-      return conn.sendMessage(from, {
-        text: '*💥 ¡Algo salió mal al transformar mi imagen!*\n\n> El ritual fue interrumpido por fuerzas desconocidas.',
+      await conn.sendMessage(from, {
+        text: `*💥 ¡Algo salió mal al transformar mi imagen!*\n\n> El ritual fue interrumpido por fuerzas desconocidas.`,
       }, { quoted: message });
     }
   }
