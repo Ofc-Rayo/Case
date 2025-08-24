@@ -1,40 +1,57 @@
+// plugins/meme.js
 const axios = require('axios');
 const { default: fetch } = require('node-fetch');
 
-async function handler(conn, { message }) {
+async function handler(conn, { message, args }) {
   const from = message.key.remoteJid;
+  const sender = message.key.participant || from;
+
+  // 📝 Validación de argumentos
+  if (args.length < 2) {
+    return conn.sendMessage(from, {
+      text: `*📜 Uso correcto del ritual:*\n\n> \`.meme TextoArriba TextoAbajo\``,
+    }, { quoted: message });
+  }
+
+  const topText = args[0];
+  const bottomText = args.slice(1).join(' ');
 
   try {
-    const res = await axios.get('https://meme-api.com/gimme/SpanishMemes');
+    // 🔍 Obtener plantillas disponibles
+    const res = await axios.get('https://api.imgflip.com/get_memes');
+    const memes = res.data.data.memes;
+    const randomMeme = memes[Math.floor(Math.random() * memes.length)];
 
-    if (!res.data || !res.data.url) {
+    // 🧪 Generar meme con texto
+    const memeGenUrl = `https://api.imgflip.com/caption_image?template_id=${randomMeme.id}&username=imgflip_hubot&password=imgflip_hubot&text0=${encodeURIComponent(topText)}&text1=${encodeURIComponent(bottomText)}`;
+    const memeRes = await axios.get(memeGenUrl);
+    const finalUrl = memeRes.data?.data?.url;
+
+    if (!finalUrl) {
       return conn.sendMessage(from, {
-        text: '❌ No pude obtener un meme ahora. Intenta luego.',
+        text: '❌ No se pudo generar el meme. Intenta con otro texto.',
       }, { quoted: message });
     }
 
-    const memeUrl = res.data.url;
-    const title = res.data.title || 'Meme en español';
+    // 🧿 Descargar imagen
+    const imageRes = await fetch(finalUrl);
+    const buffer = await imageRes.buffer();
 
-    // 🧿 Descarga del contenido visual
-    const response = await fetch(memeUrl);
-    const buffer = await response.buffer();
-
-    // 🎭 Envío del meme con atmósfera
+    // 🎭 Enviar meme con atmósfera
     await conn.sendMessage(from, {
       image: buffer,
-      caption: `🤣 *${title}*`,
+      caption: `🤣 *${randomMeme.name}*`,
     }, { quoted: message });
 
-  } catch (e) {
-    console.error('💥 [DEBUG] Error en comando memes:', e);
+  } catch (err) {
+    console.error('💥 [DEBUG] Error en comando meme:', err);
     await conn.sendMessage(from, {
-      text: '⚠️ Error obteniendo el meme. Intenta más tarde.',
+      text: `*⚠️ El ritual fue interrumpido*\n\n> Zenitsu no pudo completar la invocación del meme.`,
     }, { quoted: message });
   }
 }
 
 module.exports = {
-  command: 'memes',
+  command: 'meme',
   handler,
 };
