@@ -17,7 +17,7 @@ async function handler(conn, { message }) {
     };
 
     const caption = `
-* Aquí está...\n>Con su novia*
+* Aquí está...\n> Con su novia*
 `.trim();
 
     await conn.sendMessage(jid, {
