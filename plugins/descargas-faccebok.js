@@ -1,5 +1,5 @@
 const axios = require('axios');
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura ritual
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
 
 const contextInfo = {
   externalAdReply: {
@@ -33,27 +33,14 @@ async function handler(conn, { message, args }) {
   try {
     const api = `https://delirius-apiofc.vercel.app/download/facebook?url=${encodeURIComponent(url)}`;
     const res = await axios.get(api);
-    const data = res.data;
+    const data = res.data?.urls?.find(u => u.hd || u.sd);
 
-    const urls = Array.isArray(data.urls) ? data.urls : [];
-    const videoHd = urls.find(u => u.hd)?.hd;
-    const videoSd = urls.find(u => u.sd)?.sd;
-    const videoUrl = videoHd || videoSd;
-    const calidad = videoHd ? 'HD' : videoSd ? 'SD' : 'Desconocida';
+    const videoUrl = data?.hd || data?.sd;
+    const calidad = data?.hd ? 'HD' : data?.sd ? 'SD' : 'Desconocida';
 
     if (!videoUrl) {
       return conn.sendMessage(jid, {
         text: '🚫 La API no devolvió un enlace válido.\n\n> Intenta con otro video.',
-        contextInfo
-      }, { quoted });
-    }
-
-    // Validación ceremonial de disponibilidad
-    try {
-      await axios.head(videoUrl);
-    } catch {
-      return conn.sendMessage(jid, {
-        text: '🚫 El video no está disponible públicamente.\n\n> Puede que esté protegido o haya expirado.',
         contextInfo
       }, { quoted });
     }
@@ -70,8 +57,9 @@ async function handler(conn, { message, args }) {
     await conn.sendMessage(jid, {
       video: { url: videoUrl },
       caption,
-      contextInfo
-    }, { quoted });
+      contextInfo,
+      quoted
+    });
 
     await conn.sendMessage(jid, {
       text: '✅ Video enviado. ¿Deseas invocar otro portal?',
