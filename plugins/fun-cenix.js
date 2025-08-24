@@ -40,7 +40,7 @@ async function handler(conn, { message }) {
           body: 'Error en la conexión estética...',
           mediaType: 1,
           previewType: 0,
-          sourceUrl: 'https://o.uguu.se/nQvVhygq.jpg',
+          sourceUrl: imageUrl,
           thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
         }
       }
