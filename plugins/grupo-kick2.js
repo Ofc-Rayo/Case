@@ -39,4 +39,4 @@ async function handler(conn, { message, normalizedSender, isGroup }) {
     }
 }
 
-module.exports = { command: 'kickfilter', handler };
+module.exports = { command: 'kick2', handler };
