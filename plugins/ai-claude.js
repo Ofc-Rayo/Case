@@ -33,7 +33,7 @@ async function handler(conn, { message, args }) {
 
     try {
         const encodedPrompt = encodeURIComponent(prompt);
-        const apiUrl = `https://itzpire.com/ai/claude?prompt=${encodedPrompt}`;
+        const apiUrl = `https://itzpire.com/ai/claude?q=${encodedPrompt}`;
 
         const response = await axios.get(apiUrl);
         const result = response?.data?.result;
