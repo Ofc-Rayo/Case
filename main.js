@@ -19,10 +19,7 @@ const writeDB = (data) => {
   try {
     fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
   } catch (err) {
-    console.error(
-      '¡Ay no! ¡Algo terrible pasó al guardar los datos! ¡Tengo miedo!:',
-      err
-    );
+    console.error('¡Ay no! ¡Algo terrible pasó al guardar los datos! ¡Tengo miedo!:', err);
   }
 };
 
@@ -55,10 +52,6 @@ const setWelcomeStatus = (groupId, status) => {
   db.groups[groupId].welcomeStatus = status;
   writeDB(db);
 };
-
-// ┏━╸┏━┓╻  ┏━╸┏━┓┏━╸┏┓┏━╸┏━┓
-// ┗━┓┣━┫┃  ┣╸ ┃ ┃┣╸ ┃┃┃╺┓┃ ┃
-// ┗━┛╹ ╹┗━╸┗━╸┗━┛┗━╸╹╹┗━┛┗━┛
 
 const createDecoratedBox = (text) => {
   const top = '╔═ೋ❀❀═══╗';
@@ -113,6 +106,14 @@ const sendMedia = async (conn, to, media, caption = '', type = 'image') => {
   }
 };
 
+const sendWelcomeCard = async (conn, to, username = 'Zero Two', groupName = 'Pop Cat Community', memberCount = '219', avatarUrl = 'https://cdn.discordapp.com/embed/avatars/0.png') => {
+  const api = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(username)}&text2=Welcome+To+${encodeURIComponent(groupName)}&text3=Member+${memberCount}&avatar=${encodeURIComponent(avatarUrl)}`;
+  await conn.sendMessage(to, {
+    image: { url: api },
+    caption: createDecoratedBox(`🎉 ¡Bienvenido, ${username}! Zenitsu Bot te recibe con flow y ternura ✨`)
+  });
+};
+
 const loadPlugins = () => {
   plugins = {};
   fs.readdirSync(pathPlugins).forEach((file) => {
@@ -134,25 +135,12 @@ fs.watch(pathPlugins, { recursive: true }, (eventType, filename) => {
 
 loadPlugins();
 
-async function logEvent(
-  conn,
-  m,
-  type,
-  user = 'Un pobre chico asustado',
-  groupName = '',
-  groupLink = ''
-) {
+async function logEvent(conn, m, type, user = 'Un pobre chico asustado', groupName = '', groupLink = '') {
   console.log(
-    chalk.bold.red(
-      '━━━━━━━━━━ Zenitsu Bot: ¡Ay no, otro evento! ━━━━━━━━━━'
-    ) +
+    chalk.bold.red('━━━━━━━━━━ Zenitsu Bot: ¡Ay no, otro evento! ━━━━━━━━━━') +
       '\n' +
       chalk.blue('│⏰ Hora del miedo: ') +
-      chalk.green(
-        new Date().toLocaleString('es-ES', {
-          timeZone: 'America/Argentina/Buenos_Aires',
-        })
-      ) +
+      chalk.green(new Date().toLocaleString('es-ES', { timeZone: 'America/Argentina/Buenos_Aires' })) +
       '\n' +
       chalk.yellow('️│🏷️ Modo (¡qué nervios!): ') +
       chalk.magenta([`${conn.public ? 'Público' : 'Privado'}`]) +
@@ -160,17 +148,9 @@ async function logEvent(
       chalk.cyan('│📑 Tipo de... ¡Algo está pasando!: ') +
       chalk.white(type) +
       (m.key.remoteJid.endsWith('@g.us')
-        ? `\n${chalk.bgGreen(
-            '│🌸 Grupo (¡espero que no haya demonios!):'
-          )} ${chalk.greenBright(groupName)} ➜ ${chalk.green(
-            m.key.remoteJid
-          )}` +
-          `\n${chalk.bgBlue(
-            '│🔗 Enlace del grupo (¡podría ser una trampa!):'
-          )} ${chalk.blueBright(groupLink)}`
-        : `\n${chalk.bgMagenta('│💌 Un mensaje de:')} ${chalk.magentaBright(
-            user
-          )}`)
+        ? `\n${chalk.bgGreen('│🌸 Grupo (¡espero que no haya demonios!):')} ${chalk.greenBright(groupName)} ➜ ${chalk.green(m.key.remoteJid)}` +
+          `\n${chalk.bgBlue('│🔗 Enlace del grupo (¡podría ser una trampa!):')} ${chalk.blueBright(groupLink)}`
+        : `\n${chalk.bgMagenta('│💌 Un mensaje de:')} ${chalk.magentaBright(user)}`)
   );
 }
 
@@ -180,15 +160,10 @@ async function handleMessage(conn, message) {
   const isGroup = from.endsWith('@g.us');
   const sender = key.participant || from;
 
-  // Normalización de IDs para validación robusta
   const normalizedSender = sender.replace(/@lid$/, '@s.whatsapp.net');
-  const altNormalizedSender = sender.replace(
-    /@s\.whatsapp\.net$/,
-    '@lid'
-  );
+  const altNormalizedSender = sender.replace(/@s\.whatsapp\.net$/, '@lid');
 
-  let groupName = '',
-    groupLink = '';
+  let groupName = '', groupLink = '';
 
   if (isGroup) {
     try {
@@ -197,8 +172,7 @@ async function handleMessage(conn, message) {
       const inviteCode = await conn.groupInviteCode(from);
       groupLink = `https://chat.whatsapp.com/${inviteCode}`;
     } catch {
-      groupLink =
-        '¡Me temblaron las manos y no pude conseguir el enlace! ¡Lo siento mucho!';
+      groupLink = '¡Me temblaron las manos y no pude conseguir el enlace! ¡Lo siento mucho!';
     }
   }
 
@@ -228,20 +202,10 @@ async function handleMessage(conn, message) {
           groupLink,
         });
 
-        await logEvent(
-          conn,
-          message,
-          `Comando: ${commandName}`,
-          sender,
-          groupName,
-          groupLink
-        );
+        await logEvent(conn, message, `Comando: ${commandName}`, sender, groupName, groupLink);
         incrementComms();
       } catch (err) {
-        console.error(
-          chalk.red(`💥 ¡Error al ejecutar el comando ${commandName}!`),
-          err
-        );
+        console.error(chalk.red(`💥 ¡Error al ejecutar el comando ${commandName}!`), err);
       }
     }
   }
@@ -255,12 +219,11 @@ async function handleGroupEvents(conn, update) {
       if (welcomeStatus === 'on') {
         const metadata = await conn.groupMetadata(id);
         const groupName = metadata.subject;
-        const welcomeMessage = `¡Kyaa! ¡Bienvenido, @${participant.split(
-          '@'
-        )[0]} a ${groupName}! ¡Espero que este grupo no esté lleno de demonios! ¡Por favor, cuídame!`;
-        await sendText(conn, id, welcomeMessage, {
-          mentions: [participant],
-        });
+        const memberCount = metadata.participants.length;
+        const username = participant.split('@')[0];
+        const avatarUrl = 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+        await sendWelcomeCard(conn, id, username, groupName, memberCount, avatarUrl);
         incrementGrups();
       }
     }
@@ -269,11 +232,4 @@ async function handleGroupEvents(conn, update) {
 
 module.exports = {
   handleMessage,
-  handleGroupEvents,
-  sendMedia,
-  incrementComms,
-  incrementGrups,
-  incrementUsers,
-  getWelcomeStatus,
-  setWelcomeStatus,
-};
+  handle
