@@ -180,7 +180,6 @@ async function handleMessage(conn, message) {
   const isGroup = from.endsWith('@g.us');
   const sender = key.participant || from;
 
-  // Normalización de IDs para validación robusta
   const normalizedSender = sender.replace(/@lid$/, '@s.whatsapp.net');
   const altNormalizedSender = sender.replace(
     /@s\.whatsapp\.net$/,
@@ -255,12 +254,31 @@ async function handleGroupEvents(conn, update) {
       if (welcomeStatus === 'on') {
         const metadata = await conn.groupMetadata(id);
         const groupName = metadata.subject;
-        const welcomeMessage = `¡Kyaa! ¡Bienvenido, @${participant.split(
-          '@'
-        )[0]} a ${groupName}! ¡Espero que este grupo no esté lleno de demonios! ¡Por favor, cuídame!`;
-        await sendText(conn, id, welcomeMessage, {
+
+        const username = participant.split('@')[0];
+        const memberCount = metadata.participants.length;
+
+        // Avatar del usuario
+        const ppUrl = await conn.profilePictureUrl(participant, 'image').catch(
+          () =>
+            'https://cdn.discordapp.com/embed/avatars/0.png'
+        );
+
+        // URL de la tarjeta de bienvenida Popcat
+        const welcomeCardUrl = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
+          username
+        )}&text2=Bienvenido+a+${encodeURIComponent(
+          groupName
+        )}&text3=Miembro+${memberCount}&avatar=${encodeURIComponent(ppUrl)}`;
+
+        const caption = `¡Kyaa! 🌸 Bienvenido @${username} a *${groupName}* 🎉\nPor favor, no me asustes mucho...`;
+
+        await conn.sendMessage(id, {
+          image: { url: welcomeCardUrl },
+          caption,
           mentions: [participant],
         });
+
         incrementGrups();
       }
     }
