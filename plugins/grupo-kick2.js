@@ -12,10 +12,11 @@ async function handler(conn, { message }) {
 
     const groupMetadata = await conn.groupMetadata(from);
     const admins = groupMetadata.participants.filter(p => p.admin).map(p => p.id);
-    const botId = conn.user.id.split(':')[0] + '@s.whatsapp.net';
 
+    // ✅ detectar el ID del bot de forma segura
+    const botId = conn.user.id.split(':')[0] + '@s.whatsapp.net';
     const isSenderAdmin = admins.includes(sender);
-    const isBotAdmin = admins.includes(botId);
+    const isBotAdmin = admins.includes(botId) || admins.some(a => a.includes(conn.user.id.split('@')[0]));
 
     if (!isSenderAdmin) {
         return conn.sendMessage(from, {
@@ -28,12 +29,12 @@ async function handler(conn, { message }) {
         });
     }
 
-    // 🔹 FILTRO: expulsa a quienes empiecen con cierto prefijo
-    const prefixFilter = ['+212', '+20', '+966']; // Ejemplo de prefijos internacionales
+    // 🔹 FILTRO: prefijos a expulsar
+    const prefixFilter = ['212', '20', '966']; // ejemplo: Marruecos, Egipto, Arabia Saudita
 
     let toKick = groupMetadata.participants
         .map(p => p.id)
-        .filter(id => prefixFilter.some(pref => id.startsWith(pref.replace('+', ''))));
+        .filter(id => prefixFilter.some(pref => id.startsWith(pref)));
 
     if (toKick.length === 0) {
         return conn.sendMessage(from, {
