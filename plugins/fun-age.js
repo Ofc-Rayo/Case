@@ -3,7 +3,7 @@ const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura evocadora
 
 const contextInfo = {
     externalAdReply: {
-        title: '🧠 Lectura Facial',
+        title: '🔮 Lectura Facial',
         body: 'Descubre la edad emocional y la energía del rostro',
         mediaType: 1,
         previewType: 0,
@@ -12,19 +12,22 @@ const contextInfo = {
     }
 };
 
-async function handler(conn, { message, args, command }) {
-    const imageUrl = args[0];
+async function handler(conn, { message, command }) {
     const from = message.key.remoteJid;
+    const quoted = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+
+    const imageMessage = quoted?.imageMessage || message.message?.imageMessage;
+    const imageUrl = imageMessage?.url || imageMessage?.directPath;
 
     if (!imageUrl) {
         return conn.sendMessage(from, {
-            text: `🖼️ *Invoca un rostro...*\n\n> Escribe la URL de una imagen para leer su energía facial.\n\n📌 Ejemplo:\n${command} https://i.ibb.co/ZcPLKgK/darlyn-profile-programacion.jpg`,
+            text: `🖼️ *Invoca un rostro...*\n\n> Responde a una imagen con el comando para leer su energía facial.\n\n📌 Ejemplo:\n.age (respondiendo a una foto)`,
             contextInfo
         }, { quoted: message });
     }
 
     await conn.sendMessage(from, {
-        text: '🔮 *Zenitsu está observando el rostro con ternura...*',
+        text: '🧿 *Zenitsu está contemplando el rostro con ternura...*',
         contextInfo
     }, { quoted: message });
 
@@ -36,7 +39,7 @@ async function handler(conn, { message, args, command }) {
 
         if (!data || !data.age) {
             return conn.sendMessage(from, {
-                text: `📭 *No se pudo leer el rostro de la imagen.*\n\n> Verifica que la URL sea válida y que el rostro esté visible.`,
+                text: `📭 *No se pudo leer el rostro de la imagen.*\n\n> Asegúrate de que sea una foto clara y visible.`,
                 contextInfo: {
                     externalAdReply: {
                         title: 'Sin lectura',
