@@ -18,13 +18,13 @@ async function handler(conn, { message, args, command }) {
 
     if (!phrase) {
         return conn.sendMessage(from, {
-            text: `🗣️ *Invoca una frase...*\n\n> Escribe un mensaje para canalizarlo como voz ceremonial.\n\n📌 Ejemplo:\n${command} Te extraño, Mitsuri.`,
+            text: `🗣️ *Invoca una frase...*\n\n> Escribe un mensaje para canalizarlo como voz ceremonial.\n\n📌 Ejemplo:\n.voz Te extraño, Mitsuri.`,
             contextInfo
         }, { quoted: message });
     }
 
     await conn.sendMessage(from, {
-        text: '🎙️ *Zenitsu está canalizando la voz de Adonix...*',
+        text: '🎙️ *Zenitsu está canalizando la voz...*',
         contextInfo
     }, { quoted: message });
 
@@ -36,8 +36,7 @@ async function handler(conn, { message, args, command }) {
         const caption = `
 ╭─「 🔊 𝙑𝙊𝙕 𝘾𝘼𝙉𝘼𝙇𝙄𝙕𝘼𝘿𝘼 」─╮
 │ 📝 *Frase:* ${phrase}
-│ 🎧 *Estilo:* Adonix ceremonial
-│ 🌐 *Origen:* myapiadonix.vercel.app
+│ 🎧 *Estilo:* Zenitsu Bot 
 ╰────────────────────╯
 
 Zenitsu escuchó la frase... y la convirtió en vibración emocional. ✨🔮
@@ -74,7 +73,7 @@ Zenitsu se quedó sin palabras... pero volverá con más vibración. 🎧⚡
             contextInfo: {
                 externalAdReply: {
                     title: 'Error en la voz',
-                    body: 'No se pudo acceder al canal Adonix',
+                    body: 'No se pudo acceder al canal',
                     thumbnailUrl,
                     sourceUrl: 'https://myapiadonix.vercel.app/api/adonixvoz'
                 }
