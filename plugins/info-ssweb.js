@@ -52,7 +52,6 @@ async function handler(conn, { message, args, command }) {
 ╭─「 🖼️ 𝘾𝘼𝙋𝙏𝙐𝙍𝘼 𝙒𝙀𝘽 」─╮
 │ 🌐 *URL:* ${url}
 │ 🧭 *Origen:* Delirius (神志不清)
-│ 📥 *Descarga:* [Captura visual](${data.download})
 ╰────────────────────╯
 
 Zenitsu capturó el portal... ¡y quedó hipnotizado por su estética! ✨📸
