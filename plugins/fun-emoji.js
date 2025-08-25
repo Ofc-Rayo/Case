@@ -18,7 +18,7 @@ async function handler(conn, { message, args, command }) {
 
     if (!emoji) {
         return conn.sendMessage(from, {
-            text: `🎨 *Invoca una emoción...*\n\n> Escribe un emoji para ver cómo se representa en cada universo digital.\n\n📌 Ejemplo:\n${command} 😁`,
+            text: `🎨 *Invoca una emoción...*\n\n> Escribe un emoji para ver cómo se representa en cada universo digital.\n\n📌 Ejemplo:\n.emoji 😁`,
             contextInfo
         }, { quoted: message });
     }
@@ -51,24 +51,6 @@ async function handler(conn, { message, args, command }) {
         const caption = `
 ╭─「 🌐 𝙀𝙈𝙊𝙅𝙄 𝙑𝙀𝙍𝙎𝙄𝙊𝙉𝙀𝙎 」─╮
 │ 😁 *Emoji:* ${emoji}
-│ 🧭 *Origen:* Delirius (神志不清)
-│ 🖼️ *Estilos disponibles:*
-│   ├─ Apple
-│   ├─ Google
-│   ├─ Facebook
-│   ├─ Twitter
-│   ├─ Samsung
-│   ├─ Microsoft
-│   ├─ WhatsApp
-│   ├─ Messenger
-│   ├─ JoyPixels
-│   ├─ OpenMoji
-│   ├─ Emojidex
-│   ├─ HTC
-│   ├─ LG
-│   ├─ Mozilla
-│   ├─ SoftBank
-│   └─ AU KDDI
 ╰────────────────────╯
 
 Zenitsu reunió los rostros... ¡y cada uno sonríe con su propio estilo! 🎭✨
