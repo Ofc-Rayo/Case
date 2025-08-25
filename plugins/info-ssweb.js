@@ -18,7 +18,7 @@ async function handler(conn, { message, args, command }) {
 
     if (!url) {
         return conn.sendMessage(from, {
-            text: `🌐 *Invoca un portal digital...*\n\n> Escribe una URL para capturar su esencia visual.\n\n📌 Ejemplo:\n${command} https://github.com/delirius0`,
+            text: `🌐 *Invoca un portal digital...*\n\n> Escribe una URL para capturar su esencia visual.\n\n📌 Ejemplo:\n${command} https://github.com/Kone457/Zenitsu-Bot`,
             contextInfo
         }, { quoted: message });
     }
