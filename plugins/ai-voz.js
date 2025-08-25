@@ -3,7 +3,7 @@ const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura evocadora
 
 const contextInfo = {
     externalAdReply: {
-        title: '🔮 Voz Adonix',
+        title: '🔮 Zenitsu Habla',
         body: 'Convierte palabras en vibraciones rituales',
         mediaType: 1,
         previewType: 0,
