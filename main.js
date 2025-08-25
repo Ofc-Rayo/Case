@@ -3,7 +3,6 @@ const { prefix } = require('./settings.js');
 const path = './database.json';
 const chalk = require('chalk');
 const pathPlugins = './plugins';
-const axios = require('axios');
 
 let plugins = {};
 
@@ -20,7 +19,10 @@ const writeDB = (data) => {
   try {
     fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
   } catch (err) {
-    console.error('¡Ay no! ¡Algo terrible pasó al guardar los datos! ¡Tengo miedo!:', err);
+    console.error(
+      '¡Ay no! ¡Algo terrible pasó al guardar los datos! ¡Tengo miedo!:',
+      err
+    );
   }
 };
 
@@ -53,6 +55,10 @@ const setWelcomeStatus = (groupId, status) => {
   db.groups[groupId].welcomeStatus = status;
   writeDB(db);
 };
+
+// ┏━╸┏━┓╻  ┏━╸┏━┓┏━╸┏┓┏━╸┏━┓
+// ┗━┓┣━┫┃  ┣╸ ┃ ┃┣╸ ┃┃┃╺┓┃ ┃
+// ┗━┛╹ ╹┗━╸┗━╸┗━┛┗━╸╹╹┗━┛┗━┛
 
 const createDecoratedBox = (text) => {
   const top = '╔═ೋ❀❀═══╗';
@@ -128,9 +134,18 @@ fs.watch(pathPlugins, { recursive: true }, (eventType, filename) => {
 
 loadPlugins();
 
-async function logEvent(conn, m, type, user = 'Un pobre chico asustado', groupName = '', groupLink = '') {
+async function logEvent(
+  conn,
+  m,
+  type,
+  user = 'Un pobre chico asustado',
+  groupName = '',
+  groupLink = ''
+) {
   console.log(
-    chalk.bold.red('━━━━━━━━━━ Zenitsu Bot: ¡Ay no, otro evento! ━━━━━━━━━━') +
+    chalk.bold.red(
+      '━━━━━━━━━━ Zenitsu Bot: ¡Ay no, otro evento! ━━━━━━━━━━'
+    ) +
       '\n' +
       chalk.blue('│⏰ Hora del miedo: ') +
       chalk.green(
@@ -145,9 +160,17 @@ async function logEvent(conn, m, type, user = 'Un pobre chico asustado', groupNa
       chalk.cyan('│📑 Tipo de... ¡Algo está pasando!: ') +
       chalk.white(type) +
       (m.key.remoteJid.endsWith('@g.us')
-        ? `\n${chalk.bgGreen('│🌸 Grupo (¡espero que no haya demonios!):')} ${chalk.greenBright(groupName)} ➜ ${chalk.green(m.key.remoteJid)}` +
-          `\n${chalk.bgBlue('│🔗 Enlace del grupo (¡podría ser una trampa!):')} ${chalk.blueBright(groupLink)}`
-        : `\n${chalk.bgMagenta('│💌 Un mensaje de:')} ${chalk.magentaBright(user)}`)
+        ? `\n${chalk.bgGreen(
+            '│🌸 Grupo (¡espero que no haya demonios!):'
+          )} ${chalk.greenBright(groupName)} ➜ ${chalk.green(
+            m.key.remoteJid
+          )}` +
+          `\n${chalk.bgBlue(
+            '│🔗 Enlace del grupo (¡podría ser una trampa!):'
+          )} ${chalk.blueBright(groupLink)}`
+        : `\n${chalk.bgMagenta('│💌 Un mensaje de:')} ${chalk.magentaBright(
+            user
+          )}`)
   );
 }
 
@@ -157,8 +180,12 @@ async function handleMessage(conn, message) {
   const isGroup = from.endsWith('@g.us');
   const sender = key.participant || from;
 
+  // Normalización de IDs para validación robusta
   const normalizedSender = sender.replace(/@lid$/, '@s.whatsapp.net');
-  const altNormalizedSender = sender.replace(/@s\.whatsapp\.net$/, '@lid');
+  const altNormalizedSender = sender.replace(
+    /@s\.whatsapp\.net$/,
+    '@lid'
+  );
 
   let groupName = '',
     groupLink = '';
@@ -170,7 +197,8 @@ async function handleMessage(conn, message) {
       const inviteCode = await conn.groupInviteCode(from);
       groupLink = `https://chat.whatsapp.com/${inviteCode}`;
     } catch {
-      groupLink = '¡Me temblaron las manos y no pude conseguir el enlace! ¡Lo siento mucho!';
+      groupLink =
+        '¡Me temblaron las manos y no pude conseguir el enlace! ¡Lo siento mucho!';
     }
   }
 
@@ -200,10 +228,20 @@ async function handleMessage(conn, message) {
           groupLink,
         });
 
-        await logEvent(conn, message, `Comando: ${commandName}`, sender, groupName, groupLink);
+        await logEvent(
+          conn,
+          message,
+          `Comando: ${commandName}`,
+          sender,
+          groupName,
+          groupLink
+        );
         incrementComms();
       } catch (err) {
-        console.error(chalk.red(`💥 ¡Error al ejecutar el comando ${commandName}!`), err);
+        console.error(
+          chalk.red(`💥 ¡Error al ejecutar el comando ${commandName}!`),
+          err
+        );
       }
     }
   }
@@ -215,23 +253,15 @@ async function handleGroupEvents(conn, update) {
     if (action === 'add') {
       const welcomeStatus = getWelcomeStatus(id);
       if (welcomeStatus === 'on') {
-        try {
-          const metadata = await conn.groupMetadata(id);
-          const groupName = encodeURIComponent(metadata.subject);
-          const memberCount = metadata.participants.length;
-          const username = encodeURIComponent(`@${participant.split('@')[0]}`);
-          const avatarURL = `https://cdn.discordapp.com/embed/avatars/${Math.floor(Math.random() * 5)}.png`;
-
-          const apiURL = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${username}&text2=Bienvenido+a+${groupName}&text3=Miembro+${memberCount}&avatar=${avatarURL}`;
-
-          const response = await axios.get(apiURL, { responseType: 'arraybuffer' });
-          const imageBuffer = Buffer.from(response.data, 'binary');
-
-          await conn.sendMessage(id, { image: imageBuffer, mimetype: 'image/png' });
-          incrementGrups();
-        } catch (err) {
-          await sendText(conn, id, '¡Ay no! No pude generar la bienvenida visual. ¡Estoy temblando!');
-        }
+        const metadata = await conn.groupMetadata(id);
+        const groupName = metadata.subject;
+        const welcomeMessage = `¡Kyaa! ¡Bienvenido, @${participant.split(
+          '@'
+        )[0]} a ${groupName}! ¡Espero que este grupo no esté lleno de demonios! ¡Por favor, cuídame!`;
+        await sendText(conn, id, welcomeMessage, {
+          mentions: [participant],
+        });
+        incrementGrups();
       }
     }
   }
@@ -239,11 +269,11 @@ async function handleGroupEvents(conn, update) {
 
 module.exports = {
   handleMessage,
-  handleGroup,
+  handleGroupEvents,
   sendMedia,
   incrementComms,
   incrementGrups,
   incrementUsers,
   getWelcomeStatus,
   setWelcomeStatus,
-  },
+};
