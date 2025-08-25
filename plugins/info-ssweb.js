@@ -51,7 +51,6 @@ async function handler(conn, { message, args, command }) {
         const caption = `
 ╭─「 🖼️ 𝘾𝘼𝙋𝙏𝙐𝙍𝘼 𝙒𝙀𝘽 」─╮
 │ 🌐 *URL:* ${url}
-│ 🧭 *Origen:* Delirius (神志不清)
 ╰────────────────────╯
 
 Zenitsu capturó el portal... ¡y quedó hipnotizado por su estética! ✨📸
