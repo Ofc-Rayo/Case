@@ -1,4 +1,3 @@
-// plugins/kickfilter.js
 async function handler(conn, { message, normalizedSender, isGroup }) {
     if (!isGroup) return;
 
@@ -6,19 +5,17 @@ async function handler(conn, { message, normalizedSender, isGroup }) {
     const groupMetadata = await conn.groupMetadata(from);
     const admins = groupMetadata.participants.filter(p => p.admin).map(p => p.id);
 
-    // IDs normalizados
     const botId = conn.user.id;
     const senderId = normalizedSender;
 
-    const isSenderAdmin = admins.includes(senderId) || admins.includes(senderId.replace(/@s\.whatsapp\.net$/, '@lid'));
-    const isBotAdmin = admins.includes(botId) || admins.some(a => a.includes(botId.split('@')[0]));
+    // ✅ Comparación robusta
+    const isSenderAdmin = admins.some(a => a.split('@')[0] === senderId.split('@')[0]);
+    const isBotAdmin = admins.some(a => a.split('@')[0] === botId.split('@')[0]);
 
     if (!isSenderAdmin) return conn.sendMessage(from, { text: '*😤 Solo admins pueden usar esto*' });
     if (!isBotAdmin) return conn.sendMessage(from, { text: '*⚠️ No puedo expulsar si no soy admin*' });
 
-    // Prefijos a expulsar (sin el +)
     const prefixFilter = ['212', '20', '966']; 
-
     const toKick = groupMetadata.participants
         .map(p => p.id)
         .filter(id => prefixFilter.some(pref => id.startsWith(pref)));
