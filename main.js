@@ -239,4 +239,11 @@ async function handleGroupEvents(conn, update) {
 
 module.exports = {
   handleMessage,
-  handleGroup
+  handleGroup,
+  sendMedia,
+  incrementComms,
+  incrementGrups,
+  incrementUsers,
+  getWelcomeStatus,
+  setWelcomeStatus,
+  },
