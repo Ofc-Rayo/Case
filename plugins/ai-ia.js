@@ -77,7 +77,7 @@ async function handler(conn, { message, args }) {
 
   const options = {
     hostname: 'generativelanguage.googleapis.com',
-    path: '/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBrYQZ3s5IVrp-on-ewJON8Gj6ZoD_NWWI',
+    path: '/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBA_t7qCvPrsuokI_RV2myhaEf3wtJSqbc',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
