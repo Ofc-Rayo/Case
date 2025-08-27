@@ -20,7 +20,7 @@ const writeDB = (data) => {
     fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
   } catch (err) {
     console.error(
-      '¡Ay no! ¡Algo terrible pasó al guardar los datos! ¡Tengo miedo!:',
+      '😱⚡ Aaaahhh... ¡me puse nervioso y fallé al guardar los datos! Pero lo intentaré otra vez, lo prometo 💛',
       err
     );
   }
@@ -56,13 +56,10 @@ const setWelcomeStatus = (groupId, status) => {
   writeDB(db);
 };
 
-// ┏━╸┏━┓╻  ┏━╸┏━┓┏━╸┏┓┏━╸┏━┓
-// ┗━┓┣━┫┃  ┣╸ ┃ ┃┣╸ ┃┃┃╺┓┃ ┃
-// ┗━┛╹ ╹┗━╸┗━╸┗━┛┗━╸╹╹┗━┛┗━┛
-
+// ⚡ Decoración estilo Zenitsu Bot ⚡
 const createDecoratedBox = (text) => {
-  const top = '╔═ೋ❀❀═══╗';
-  const bottom = '╚═ೋ❀❀═══╝';
+  const top = '╔══⚡😱⚡══╗';
+  const bottom = '╚══⚡😖⚡══╝';
   const lines = text.split('\n');
   const maxLen = Math.max(...lines.map((line) => line.length));
 
@@ -109,7 +106,7 @@ const sendMedia = async (conn, to, media, caption = '', type = 'image') => {
   } else if (type === 'video') {
     await sendVideo(conn, to, media, caption);
   } else {
-    await sendText(conn, to, '¡Kyaa! ¡No sé cómo enviar eso! ¡Qué miedo!');
+    await sendText(conn, to, '😖💦 ¡No sé qué es eso! Me da miedo, no puedo enviarlo 💛');
   }
 };
 
@@ -138,39 +135,31 @@ async function logEvent(
   conn,
   m,
   type,
-  user = 'Un pobre chico asustado',
+  user = '¡Un humano aterrador! 😱',
   groupName = '',
   groupLink = ''
 ) {
   console.log(
-    chalk.bold.red(
-      '━━━━━━━━━━ Zenitsu Bot: ¡Ay no, otro evento! ━━━━━━━━━━'
+    chalk.bold.yellow(
+      '━━━━━━━━━━ Zenitsu Bot ⚡: ¡Ay Dios mío, pasó algo! ━━━━━━━━━━'
     ) +
       '\n' +
-      chalk.blue('│⏰ Hora del miedo: ') +
+      chalk.blue('│⏰ Hora: ') +
       chalk.green(
         new Date().toLocaleString('es-ES', {
           timeZone: 'America/Argentina/Buenos_Aires',
         })
       ) +
       '\n' +
-      chalk.yellow('️│🏷️ Modo (¡qué nervios!): ') +
-      chalk.magenta([`${conn.public ? 'Público' : 'Privado'}`]) +
+      chalk.yellow('️│😖 Estado: ') +
+      chalk.magenta([`${conn.public ? 'Público ⚡' : 'Privado 😭'}`]) +
       '\n' +
-      chalk.cyan('│📑 Tipo de... ¡Algo está pasando!: ') +
+      chalk.cyan('│📑 Evento: ') +
       chalk.white(type) +
       (m.key.remoteJid.endsWith('@g.us')
-        ? `\n${chalk.bgGreen(
-            '│🌸 Grupo (¡espero que no haya demonios!):'
-          )} ${chalk.greenBright(groupName)} ➜ ${chalk.green(
-            m.key.remoteJid
-          )}` +
-          `\n${chalk.bgBlue(
-            '│🔗 Enlace del grupo (¡podría ser una trampa!):'
-          )} ${chalk.blueBright(groupLink)}`
-        : `\n${chalk.bgMagenta('│💌 Un mensaje de:')} ${chalk.magentaBright(
-            user
-          )}`)
+        ? `\n${chalk.bgGreen('│😨 Grupo:')} ${chalk.greenBright(groupName)} ➜ ${chalk.green(m.key.remoteJid)}` +
+          `\n${chalk.bgBlue('│🔗 Link:')} ${chalk.blueBright(groupLink)}`
+        : `\n${chalk.bgMagenta('│💛 Usuario:')} ${chalk.magentaBright(user)}`)
   );
 }
 
@@ -196,8 +185,7 @@ async function handleMessage(conn, message) {
       const inviteCode = await conn.groupInviteCode(from);
       groupLink = `https://chat.whatsapp.com/${inviteCode}`;
     } catch {
-      groupLink =
-        '¡Me temblaron las manos y no pude conseguir el enlace! ¡Lo siento mucho!';
+      groupLink = '😭⚡ No pude conseguir el link... lo siento mucho.';
     }
   }
 
@@ -238,7 +226,7 @@ async function handleMessage(conn, message) {
         incrementComms();
       } catch (err) {
         console.error(
-          chalk.red(`💥 ¡Error al ejecutar el comando ${commandName}!`),
+          chalk.red(`💥😱 ¡Se rompió todo con el comando ${commandName}! Perdón perdón 🙇‍♂️`),
           err
         );
       }
@@ -249,29 +237,28 @@ async function handleMessage(conn, message) {
 async function handleGroupEvents(conn, update) {
   const { id, participants, action } = update;
   for (const participant of participants) {
-    if (action === 'add') {
-      const welcomeStatus = getWelcomeStatus(id);
-      if (welcomeStatus === 'on') {
-        const metadata = await conn.groupMetadata(id);
-        const groupName = metadata.subject;
+    const welcomeStatus = getWelcomeStatus(id);
 
-        const username = participant.split('@')[0];
-        const memberCount = metadata.participants.length;
+    if (welcomeStatus === 'on') {
+      const metadata = await conn.groupMetadata(id);
+      const groupName = metadata.subject;
+      const username = participant.split('@')[0];
+      const memberCount = metadata.participants.length;
 
-        // Avatar del usuario
-        const ppUrl = await conn.profilePictureUrl(participant, 'image').catch(
-          () =>
-            'https://cdn.discordapp.com/embed/avatars/0.png'
-        );
+      // Avatar del usuario
+      const ppUrl = await conn.profilePictureUrl(participant, 'image').catch(
+        () => 'https://cdn.discordapp.com/embed/avatars/0.png'
+      );
 
-        // URL de la tarjeta de bienvenida Popcat
+      if (action === 'add') {
+        // ⚡ Bienvenida
         const welcomeCardUrl = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
           username
-        )}&text2=Bienvenido+a+${encodeURIComponent(
+        )}&text2=Bienvenid@+a+${encodeURIComponent(
           groupName
         )}&text3=Miembro+${memberCount}&avatar=${encodeURIComponent(ppUrl)}`;
 
-        const caption = `¡Kyaa! 🌸 Bienvenido @${username} a *${groupName}* 🎉\nPor favor, no me asustes mucho...`;
+        const caption = `😖 Aaaahh @${username}, ¡entraste al grupo *${groupName}*! 😱⚡\nPor favor no me asustes y pásala bien 💛`;
 
         await conn.sendMessage(id, {
           image: { url: welcomeCardUrl },
@@ -280,6 +267,21 @@ async function handleGroupEvents(conn, update) {
         });
 
         incrementGrups();
+      } else if (action === 'remove') {
+        // ⚡ Despedida
+        const goodbyeCardUrl = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
+          username
+        )}&text2=Adiós+de+${encodeURIComponent(
+          groupName
+        )}&text3=Te+extrañaré+😖⚡&avatar=${encodeURIComponent(ppUrl)}`;
+
+        const caption = `😭 Oh no... @${username} salió de *${groupName}* ⚡\n¡Me siento muy solo ahora! Cuídate mucho 💛`;
+
+        await conn.sendMessage(id, {
+          image: { url: goodbyeCardUrl },
+          caption,
+          mentions: [participant],
+        });
       }
     }
   }
