@@ -1,55 +1,64 @@
+const miniatura = 'https://i.imgur.com/ZenitsuWelcome.png'; 
+
 module.exports = {
-    command: 'welcome',
-    handler: async (conn, { message, args }) => {
-        const { key, participant, remoteJid } = message.key;
-        const from = remoteJid;
-        const isGroup = from.endsWith('@g.us');
+  command: 'welcome',
+  handler: async (conn, { message, args }) => {
+    const { key, participant, remoteJid } = message.key;
+    const from = remoteJid;
+    const isGroup = from.endsWith('@g.us');
 
-        if (!isGroup) {
-            await conn.sendMessage(from, {
-                text: '*😰 ¡Este comando solo funciona en grupos!*\n\n> Zenitsu no sabe cómo dar la bienvenida en privado...',
-            });
-            return;
-        }
+    if (!isGroup) {
+      await conn.sendMessage(from, {
+        image: { url: miniatura },
+        caption: `*😰 ¡Este comando solo funciona en grupos!*\n\n> Zenitsu se sonroja... no sabe cómo dar la bienvenida en privado 💦`,
+      });
+      return;
+    }
 
-        if (args.length === 0 || !['on', 'off'].includes(args[0].toLowerCase())) {
-            await conn.sendMessage(from, {
-                text: '*📥 Uso correcto:*\n\n> `welcome on` para activar\n> `welcome off` para desactivar\n\nZenitsu necesita instrucciones claras 😳',
-            });
-            return;
-        }
+    if (args.length === 0 || !['on', 'off'].includes(args[0].toLowerCase())) {
+      await conn.sendMessage(from, {
+        image: { url: miniatura },
+        caption: `*📥 Uso correcto del ritual:*\n\n> \`welcome on\` para activar 🌸\n> \`welcome off\` para desactivar 🌙\n\nZenitsu necesita instrucciones claras... ¡se pone nervioso! 😳`,
+      });
+      return;
+    }
 
-        const status = args[0].toLowerCase();
+    const status = args[0].toLowerCase();
 
-        try {
-            const groupMetadata = await conn.groupMetadata(from);
-            const admins = groupMetadata.participants.filter((p) => p.admin).map((p) => p.id);
-            const isAdmin = admins.includes(participant) || participant === conn.user.id;
+    try {
+      const groupMetadata = await conn.groupMetadata(from);
+      const admins = groupMetadata.participants.filter((p) => p.admin).map((p) => p.id);
+      const isAdmin = admins.includes(participant) || participant === conn.user.id;
 
-            if (!isAdmin) {
-                await conn.sendMessage(from, {
-                    text: '*😤 Solo los administradores pueden usar este comando.*\n\n> Zenitsu no quiere meterse en problemas...',
-                });
-                return;
-            }
+      if (!isAdmin) {
+        await conn.sendMessage(from, {
+          image: { url: miniatura },
+          caption: `*😤 Solo los administradores pueden invocar este ritual.*\n\n> Zenitsu no quiere meterse en problemas... ¡tiembla de miedo! 🫣`,
+        });
+        return;
+      }
 
-            const { setWelcomeStatus } = require('../main'); // Ajusta la ruta según tu estructura.
+      const { setWelcomeStatus } = require('../main'); // Ajusta la ruta si es necesario
+      setWelcomeStatus(from, status);
 
-            setWelcomeStatus(from, status);
-
-            const response = `
-╭─「 👋 𝙈𝙀𝙉𝙎𝘼𝙅𝙀 𝘿𝙀 𝘽𝙄𝙀𝙉𝙑𝙀𝙉𝙄𝘿𝘼 」─╮
-│ Estado: ${status === 'on' ? '✅ Activado' : '❌ Desactivado'}
+      const aura = status === 'on' ? '✨ Activado con ternura' : '🌑 Desactivado con respeto';
+      const response = `
+╭─「 👋 𝙍𝙄𝙏𝙐𝘼𝙇 𝘿𝙀 𝘽𝙄𝙀𝙉𝙑𝙀𝙉𝙄𝘿𝘼 」─╮
+│ Estado: ${aura}
 │ Grupo: ${groupMetadata.subject}
 ╰────────────────────────────╯
 `.trim();
 
-            await conn.sendMessage(from, { text: response });
-        } catch (err) {
-            await conn.sendMessage(from, {
-                text: '*❌ ¡Algo salió mal!*\n\n> Zenitsu se tropezó intentando cambiar el estado de bienvenida...',
-            });
-            console.error('Error en el comando welcome:', err.message);
-        }
+      await conn.sendMessage(from, {
+        image: { url: miniatura },
+        caption: response,
+      });
+    } catch (err) {
+      await conn.sendMessage(from, {
+        image: { url: miniatura },
+        caption: `*❌ ¡Algo salió mal!*\n\n> Zenitsu se tropezó intentando cambiar el estado de bienvenida... ¡ayúdalo con cariño! 😢`,
+      });
+      console.error('Error en el comando welcome:', err.message);
     }
+  }
 };
