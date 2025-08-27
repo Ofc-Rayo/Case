@@ -11,6 +11,7 @@ module.exports = {
       await conn.sendMessage(from, {
         image: { url: miniatura },
         caption: `*😰 ¡Este comando solo funciona en grupos!*\n\n> Zenitsu se sonroja... no sabe cómo dar la bienvenida en privado 💦`,
+        quoted: message
       });
       return;
     }
@@ -19,6 +20,7 @@ module.exports = {
       await conn.sendMessage(from, {
         image: { url: miniatura },
         caption: `*📥 Uso correcto del ritual:*\n\n> \`welcome on\` para activar 🌸\n> \`welcome off\` para desactivar 🌙\n\nZenitsu necesita instrucciones claras... ¡se pone nervioso! 😳`,
+        quoted: message
       });
       return;
     }
@@ -34,6 +36,7 @@ module.exports = {
         await conn.sendMessage(from, {
           image: { url: miniatura },
           caption: `*😤 Solo los administradores pueden invocar este ritual.*\n\n> Zenitsu no quiere meterse en problemas... ¡tiembla de miedo! 🫣`,
+          quoted: message
         });
         return;
       }
@@ -41,7 +44,7 @@ module.exports = {
       const { setWelcomeStatus } = require('../main'); // Ajusta la ruta si es necesario
       setWelcomeStatus(from, status);
 
-      const aura = status === 'on' ? '✨ Activado con ternura' : '🌑 Desactivado con respeto';
+      const aura = status === 'on' ? '✨ Activado en este grupo' : '🌑 Desactivado en este grupo';
       const response = `
 ╭─「 👋 𝙍𝙄𝙏𝙐𝘼𝙇 𝘿𝙀 𝘽𝙄𝙀𝙉𝙑𝙀𝙉𝙄𝘿𝘼 」─╮
 │ Estado: ${aura}
@@ -52,11 +55,13 @@ module.exports = {
       await conn.sendMessage(from, {
         image: { url: miniatura },
         caption: response,
+        quoted: message
       });
     } catch (err) {
       await conn.sendMessage(from, {
         image: { url: miniatura },
         caption: `*❌ ¡Algo salió mal!*\n\n> Zenitsu se tropezó intentando cambiar el estado de bienvenida... ¡ayúdalo con cariño! 😢`,
+        quoted: message
       });
       console.error('Error en el comando welcome:', err.message);
     }
