@@ -32,7 +32,7 @@ async function handler(conn, { message }) {
       text: '*⚠️ No se pudo enviar la imagen.*\n\n> 🧵 El hilo visual se ha enredado...',
       contextInfo: {
         externalAdReply: {
-          title: 🤤 Oscar - en sus sueños humedos',
+          title: '🤤 Oscar - en sus sueños humedos',
           body: 'Error en la conexión estética...',
           mediaType: 1,
           previewType: 0,
