@@ -1,4 +1,4 @@
-const miniatura = 'https://i.imgur.com/ZenitsuWelcome.png'; 
+const miniatura = 'https://qu.ax/MvYPM.jpg'; 
 
 module.exports = {
   command: 'welcome',
