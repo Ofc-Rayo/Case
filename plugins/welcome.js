@@ -1,4 +1,16 @@
-const miniatura = 'https://qu.ax/MvYPM.jpg'; 
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg' // Miniatura evocadora estilo Zenitsu
+
+const contextInfo = {
+  externalAdReply: {
+    title: '👋 Bienvenida Ritual',
+    body: 'Zenitsu está temblando... ¡pero activando el aura grupal!',
+    mediaType: 1,
+    previewType: 0,
+    mediaUrl: 'https://zenitsu.bot',
+    sourceUrl: 'https://zenitsu.bot',
+    thumbnailUrl
+  }
+}
 
 module.exports = {
   command: 'welcome',
@@ -9,19 +21,17 @@ module.exports = {
 
     if (!isGroup) {
       await conn.sendMessage(from, {
-        image: { url: miniatura },
-        caption: `*😰 ¡Este comando solo funciona en grupos!*\n\n> Zenitsu se sonroja... no sabe cómo dar la bienvenida en privado 💦`,
-        quoted: message
-      });
+        text: '😰 ¡Este comando solo funciona en grupos!\n\n> Zenitsu se sonroja... no sabe cómo dar la bienvenida en privado 💦',
+        contextInfo
+      }, { quoted: message });
       return;
     }
 
     if (args.length === 0 || !['on', 'off'].includes(args[0].toLowerCase())) {
       await conn.sendMessage(from, {
-        image: { url: miniatura },
-        caption: `*📥 Uso correcto del ritual:*\n\n> \`welcome on\` para activar 🌸\n> \`welcome off\` para desactivar 🌙\n\nZenitsu necesita instrucciones claras... ¡se pone nervioso! 😳`,
-        quoted: message
-      });
+        text: '📥 *Uso correcto del ritual:*\n\n> `welcome on` para activar 🌸\n> `welcome off` para desactivar 🌙\n\nZenitsu necesita instrucciones claras... ¡se pone nervioso! 😳',
+        contextInfo
+      }, { quoted: message });
       return;
     }
 
@@ -34,14 +44,13 @@ module.exports = {
 
       if (!isAdmin) {
         await conn.sendMessage(from, {
-          image: { url: miniatura },
-          caption: `*😤 Solo los administradores pueden invocar este ritual.*\n\n> Zenitsu no quiere meterse en problemas... ¡tiembla de miedo! 🫣`,
-          quoted: message
-        });
+          text: '😤 *Solo los administradores pueden invocar este ritual.*\n\n> Zenitsu no quiere meterse en problemas... ¡tiembla de miedo! 🫣',
+          contextInfo
+        }, { quoted: message });
         return;
       }
 
-      const { setWelcomeStatus } = require('../main'); // Ajusta la ruta si es necesario
+      const { setWelcomeStatus } = require('../main');
       setWelcomeStatus(from, status);
 
       const aura = status === 'on' ? '✨ Activado en este grupo' : '🌑 Desactivado en este grupo';
@@ -50,20 +59,20 @@ module.exports = {
 │ Estado: ${aura}
 │ Grupo: ${groupMetadata.subject}
 ╰────────────────────────────╯
+
+Zenitsu está exhausto... ¡pero lo logró! ⚡
 `.trim();
 
       await conn.sendMessage(from, {
-        image: { url: miniatura },
-        caption: response,
-        quoted: message
-      });
+        text: response,
+        contextInfo
+      }, { quoted: message });
+
     } catch (err) {
       await conn.sendMessage(from, {
-        image: { url: miniatura },
-        caption: `*❌ ¡Algo salió mal!*\n\n> Zenitsu se tropezó intentando cambiar el estado de bienvenida... ¡ayúdalo con cariño! 😢`,
-        quoted: message
-      });
-      console.error('Error en el comando welcome:', err.message);
+        text: `❌ ¡Algo salió mal!\n\n> Zenitsu se tropezó intentando cambiar el estado de bienvenida...\n🛠️ ${err.message}`,
+        contextInfo
+      }, { quoted: message });
     }
   }
 };
