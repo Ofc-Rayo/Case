@@ -68,7 +68,7 @@ async function handler(conn, { message, args }) {
     .map(msg =>
       msg.role === 'system' ? `Sistema: ${msg.content}\n\n`
       : msg.role === 'user' ? `Usuario: ${msg.content}\n\n`
-      : `Asistente: ${msg.content}\n\n`
+      : ` ${msg.content}\n\n`
     ).join('')
 
   const data = JSON.stringify({
