@@ -27,7 +27,7 @@ async function handler(conn, { message }) {
     }, { quoted });
 
   } catch (err) {
-    console.error('💥 Error en el comando Cenix:', err.message);
+    console.error('💥 Error en el comando Oscar:', err.message);
     await conn.sendMessage(jid, {
       text: '*⚠️ No se pudo enviar la imagen.*\n\n> 🧵 El hilo visual se ha enredado...',
       contextInfo: {
@@ -45,6 +45,6 @@ async function handler(conn, { message }) {
 }
 
 module.exports = {
-  command: 'sueñodeoscar',
+  command: 'oscar',
   handler
 };
