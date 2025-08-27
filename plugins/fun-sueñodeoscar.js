@@ -45,6 +45,6 @@ async function handler(conn, { message }) {
 }
 
 module.exports = {
-  command: 'sueñodeoscar',
+  command: 'oscar',
   handler
 };
