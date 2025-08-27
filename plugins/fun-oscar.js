@@ -17,7 +17,7 @@ async function handler(conn, { message }) {
     };
 
     const caption = `
-🤤 *Suena Oscar...*\n> Pero recuerda, ella no te quiere 😈
+🤤 *Sueña Oscar...*\n> Pero recuerda, ella no te quiere 😈
 `.trim();
 
     await conn.sendMessage(jid, {
