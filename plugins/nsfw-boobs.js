@@ -1,9 +1,7 @@
-// plugins/boobs.js
-
 const axios = require('axios');
 const path = require('path');
 
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Imagen dramática de Zenitsu
+const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; 
 
 const contextInfo = {
   externalAdReply: {
@@ -19,8 +17,21 @@ const contextInfo = {
 
 async function handler(conn, { message, args }) {
   const jid = message.key.remoteJid;
+  const isGroup = jid.endsWith('@g.us');
+  
+  
+  if (isGroup) {
+    const { getNsfwStatus } = require('../main');
+    const nsfwEnabled = getNsfwStatus(jid);
+    
+    if (nsfwEnabled === 'off') {
+      return conn.sendMessage(jid, {
+        text: '🔞 *Contenido NSFW deshabilitado en este grupo.*\n\n> Los administradores pueden activarlo con: `nsfw on`\n\n> Zenitsu está aliviado... ¡estos comandos le dan mucha vergüenza! 😳',
+      }, { quoted: message });
+    }
+  }
 
-  // Aviso de “procesando”
+  
   await conn.sendMessage(
     jid,
     {
@@ -30,14 +41,14 @@ async function handler(conn, { message, args }) {
     { quoted: message }
   );
 
-  // Construir la URL de la API
+  
   const apiUrl = `https://delirius-apiofc.vercel.app/nsfw/boobs`;
 
   try {
     const response = await axios.get(apiUrl, { responseType: 'arraybuffer' });
     const imageBuffer = Buffer.from(response.data, 'binary');
 
-    // Texto de la respuesta dramática
+
     const messageText = `
 ╭「 ⚡ 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙍𝙀𝙎𝙋𝙐𝙀𝙎𝙏𝘼 」╮
 │ 😱 ¡No puedo creer que haya hecho esto!
