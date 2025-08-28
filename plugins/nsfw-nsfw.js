@@ -1,6 +1,21 @@
 const axios = require('axios');
 
 async function handler(conn, { message }) {
+    const from = message.key.remoteJid;
+    const isGroup = from.endsWith('@g.us');
+    
+    
+    if (isGroup) {
+        const { getNsfwStatus } = require('../main');
+        const nsfwEnabled = getNsfwStatus(from);
+        
+        if (nsfwEnabled === 'off') {
+            return conn.sendMessage(from, {
+                text: '🔞 *Contenido NSFW deshabilitado en este grupo.*\n\n> Los administradores pueden activarlo con: `nsfw on`\n\n> Zenitsu está aliviado... ¡estos comandos le dan mucha vergüenza! 😳',
+            }, { quoted: message });
+        }
+    }
+    
     try {
         const response = await axios.get('https://eliasar-yt-api.vercel.app/api/nsfw');
         if (response.data && response.data.status) {
