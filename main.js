@@ -44,19 +44,29 @@ const incrementUsers = () => {
   writeDB(db);
 };
 
-const getWelcomeStatus = (groupId) => {
-  const db = readDB();
-  return db.groups[groupId]?.welcomeStatus || 'off';
-};
 
-const setWelcomeStatus = (groupId, status) => {
-  const db = readDB();
-  if (!db.groups[groupId]) db.groups[groupId] = {};
-  db.groups[groupId].welcomeStatus = status;
-  writeDB(db);
-};
+const welcomeStatus = {};
 
-// ⚡ Decoración estilo Zenitsu Bot ⚡
+function setWelcomeStatus(groupId, status) {
+  welcomeStatus[groupId] = status;
+}
+
+function getWelcomeStatus(groupId) {
+  return welcomeStatus[groupId] || 'off';
+}
+
+
+const nsfwStatus = {};
+
+function setNsfwStatus(groupId, status) {
+  nsfwStatus[groupId] = status;
+}
+
+function getNsfwStatus(groupId) {
+  return nsfwStatus[groupId] || 'off';
+}
+
+
 const createDecoratedBox = (text) => {
   const top = '╔══⚡😱⚡══╗';
   const bottom = '╚══⚡😖⚡══╝';
@@ -201,6 +211,12 @@ async function handleMessage(conn, message) {
     const commandName = args.shift().toLowerCase();
 
     if (plugins[commandName]) {
+      // Verificar estado NSFW antes de ejecutar comandos NSFW
+      if (plugins[commandName].nsfw && !getNsfwStatus(from)) {
+        await sendText(conn, from, '🚫 Este comando está desactivado para este grupo 😖');
+        return;
+      }
+
       try {
         await plugins[commandName].handler(conn, {
           conn,
@@ -245,13 +261,13 @@ async function handleGroupEvents(conn, update) {
       const username = participant.split('@')[0];
       const memberCount = metadata.participants.length;
 
-      // Avatar del usuario
+      
       const ppUrl = await conn.profilePictureUrl(participant, 'image').catch(
         () => 'https://cdn.discordapp.com/embed/avatars/0.png'
       );
 
       if (action === 'add') {
-        // ⚡ Bienvenida
+        
         const welcomeCardUrl = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
           username
         )}&text2=Bienvenid@+a+${encodeURIComponent(
@@ -268,7 +284,7 @@ async function handleGroupEvents(conn, update) {
 
         incrementGrups();
       } else if (action === 'remove') {
-        // ⚡ Despedida
+        
         const goodbyeCardUrl = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
           username
         )}&text2=Adiós+de+${encodeURIComponent(
@@ -294,6 +310,8 @@ module.exports = {
   incrementComms,
   incrementGrups,
   incrementUsers,
-  getWelcomeStatus,
   setWelcomeStatus,
+  getWelcomeStatus,
+  setNsfwStatus,
+  getNsfwStatus,
 };
