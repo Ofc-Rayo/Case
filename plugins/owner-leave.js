@@ -2,7 +2,7 @@
 const { allOwners, botname } = require('../settings')
 
 module.exports = {
-  command: 'xd',
+  command: 'leave',
   handler: async (conn, { message }) => {
     const from    = message.key.remoteJid
     const sender  = message.key.participant || from
