@@ -1,4 +1,4 @@
-const axios = require('axios'); // Asegúrate de tener axios instalado: npm install axios
+const axios = require('axios'); 
 
 const thumbnailUrl = 'https://qu.ax/MvYPM.jpg';
 
@@ -15,6 +15,19 @@ const contextInfo = {
 
 async function handler(conn, { message, args }) {
   const jid = message.key.remoteJid;
+  const isGroup = jid.endsWith('@g.us');
+  
+  
+  if (isGroup) {
+    const { getNsfwStatus } = require('../main');
+    const nsfwEnabled = getNsfwStatus(jid);
+    
+    if (nsfwEnabled === 'off') {
+      return conn.sendMessage(jid, {
+        text: '🔞 *Contenido NSFW deshabilitado en este grupo.*\n\n> Los administradores pueden activarlo con: `nsfw on`\n\n> Zenitsu está aliviado... ¡estos comandos le dan mucha vergüenza! 😳',
+      }, { quoted: message });
+    }
+  }
   const quoted = message;
   const query = args.join(' ');
 
@@ -37,7 +50,7 @@ async function handler(conn, { message, args }) {
       }, { quoted });
     }
 
-    const imagesToSend = images.slice(0, 5); // Obtiene las primeras 10 imágenes
+    const imagesToSend = images.slice(0, 5); 
 
     for (const imageUrl of imagesToSend) {
       const caption = `
