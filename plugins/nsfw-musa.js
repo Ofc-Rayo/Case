@@ -1,10 +1,10 @@
-// plugins/musa.js
+
 const axios = require('axios');
 
 const COOLDOWN_MS = 8000;
 const cooldowns = new Map();
 
-// Categorías SFW de waifu.pics (solo seguras)
+
 const SFW_CATEGORIES = [
   'waifu','neko','shinobu','megumin','bully','cuddle','cry','hug','awoo','kiss',
   'lick','pat','smug','bonk','yeet','blush','smile','wave','highfive','handhold',
@@ -22,10 +22,24 @@ function makeTraceId() {
 
 async function handler(conn, { message, args }) {
   const jid = message.key.remoteJid;
+  const isGroup = jid.endsWith('@g.us');
+  
+  
+  if (isGroup) {
+    const { getNsfwStatus } = require('../main');
+    const nsfwEnabled = getNsfwStatus(jid);
+    
+    if (nsfwEnabled === 'off') {
+      return conn.sendMessage(jid, {
+        text: '🔞 *Contenido NSFW deshabilitado en este grupo.*\n\n> Los administradores pueden activarlo con: `nsfw on`\n\n> Zenitsu está aliviado... ¡estos comandos le dan mucha vergüenza! 😳',
+      }, { quoted: message });
+    }
+  }
+  
   const now = Date.now();
   const last = cooldowns.get(jid) || 0;
 
-  // Cooldown por chat
+  
   if (now - last < COOLDOWN_MS) {
     const wait = Math.ceil((COOLDOWN_MS - (now - last)) / 1000);
     return conn.sendMessage(jid, {
@@ -33,11 +47,11 @@ async function handler(conn, { message, args }) {
     });
   }
 
-  // Categoría
+  
   const inputCategory = args[0] || 'waifu';
   const category = pickSafeCategory(inputCategory) || 'waifu';
 
-  // Guía si la categoría no es válida
+  
   if (!pickSafeCategory(inputCategory) && args[0]) {
     const sample = SFW_CATEGORIES.slice(0, 10).join(' · ');
     await conn.sendMessage(jid, {
@@ -50,13 +64,13 @@ async function handler(conn, { message, args }) {
   cooldowns.set(jid, now);
   const traceId = makeTraceId();
 
-  // Mensaje de invocación
+  
   await conn.sendMessage(jid, {
     text: `*🔮 Invocando musa \`${category}\`...*\n> id: ${traceId}`
   });
 
   try {
-    // Waifu.pics SFW
+    
     const apiUrl = `https://api.waifu.pics/sfw/${encodeURIComponent(category)}`;
     const res = await axios.get(apiUrl, { timeout: 15000 });
 
@@ -87,7 +101,7 @@ async function handler(conn, { message, args }) {
           previewType: 'PHOTO',
           thumbnailUrl: 'https://qu.ax/MvYPM.jpg',
           sourceUrl: imageUrl,
-          renderLargerThumbnail: false // ✅ Miniatura pequeña activada
+          renderLargerThumbnail: false 
         }
       }
     });
@@ -101,6 +115,6 @@ async function handler(conn, { message, args }) {
 }
 
 module.exports = {
-  command: 'musa', // Uso: musa [categoria]
+  command: 'musa', 
   handler
 };
