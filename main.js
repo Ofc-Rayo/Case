@@ -52,7 +52,7 @@ function setWelcomeStatus(groupId, status) {
 }
 
 function getWelcomeStatus(groupId) {
-  return welcomeStatus[groupId] || 'off';
+  return welcomeStatus[groupId] || 'on';
 }
 
 
