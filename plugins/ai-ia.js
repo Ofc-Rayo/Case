@@ -1,72 +1,45 @@
-const https = require('https');
+import axios from 'axios';
 
-async function handler(conn, { message, args }) {
-  const jid = message.key.remoteJid;
+let handler = m => m;
 
-  // Obtener el texto del mensaje recibido
-  const msgObj = (message.message?.conversation) ||
-      (message.message?.extendedTextMessage?.text) ||
-      (message.message?.imageMessage?.caption) ||
-      (message.message?.videoMessage?.caption) ||
-      (message.message?.documentMessage?.caption) ||
-      '';
+handler.all = async function (m, { conn }) {
+    let user = global.db.data.users[m.sender];
+    let chat = global.db.data.chats[m.chat];
 
-  const query = msgObj.trim();
-  if (!query) {
-    console.log('No se detectó texto en el mensaje.');
-    return;
-  }
+    m.isBot = m.id.startsWith('BAE5') && m.id.length === 16 
+           || m.id.startsWith('3EB0') && (m.id.length === 12 || m.id.length === 20 || m.id.length === 22) 
+           || m.id.startsWith('B24E') && m.id.length === 20;
 
-  const url = `https://gokublack.xyz/ai/bard?text=${encodeURIComponent(query)}`;
-  console.log('Consultando URL:', url);
+    if (m.isBot || m.sender.includes('bot') || m.sender.includes('Bot')) return;
 
-  https.get(url, (res) => {
-    let data = '';
+    const prefixRegex = new RegExp('^[' + (opts['prefix'] || '‎z/i!#$%+£¢€¥^°=¶∆×÷π√✓©®:;?&.,\\-').replace(/[|\\{}()[\]^$+*?.\-\^]/g, '\\$&') + ']');
+    if (prefixRegex.test(m.text)) return;
 
-    res.on('data', chunk => {
-      data += chunk;
-    });
+    let query = m.text;
+    let username = m.pushName || "Usuario";
 
-    res.on('end', async () => {
-      try {
-        console.log('Respuesta completa recibida:', data);
-        const response = JSON.parse(data);
+    let prompt = `
+Eres MeguminBot 💥, el bot creado por David-Chian para WhatsApp. Estás aquí para entretener con humor, ayudarte a programar y responder preguntas. Siempre con un toque divertido. 🙃😂🎉
+Usuario: ${username}
+Mensaje: ${query}
+`.trim();
 
-        if (response.status && response.result && response.result.response) {
-          await conn.sendMessage(
-            jid,
-            { text: response.result.response },
-            { quoted: message }
-          );
-          console.log('Respuesta enviada al usuario.');
-        } else {
-          console.error('Respuesta de API inválida:', response);
-          await conn.sendMessage(
-            jid,
-            { text: 'No se obtuvo una respuesta válida de la IA.' },
-            { quoted: message }
-          );
+    try {
+        await this.sendPresenceUpdate('composing', m.chat);
+
+        const res = await axios.get(`https://gokublack.xyz/ai/bard?text=${encodeURIComponent(query)}`);
+        let reply = res.data?.result || res.data?.respuesta || res.data || "Lo siento, no entendí eso.";
+
+        if (reply && reply.trim().length > 0) {
+            await this.reply(m.chat, reply.trim(), m);
         }
-      } catch (e) {
-        console.error('Error al parsear JSON o al enviar mensaje:', e);
-        await conn.sendMessage(
-          jid,
-          { text: 'Ocurrió un error procesando la respuesta de la IA.' },
-          { quoted: message }
-        );
-      }
-    });
 
-  }).on('error', async (err) => {
-    console.error('Error al hacer la solicitud HTTPS:', err.message);
-    await conn.sendMessage(
-      jid,
-      { text: `Error al conectar con la API: ${err.message}` },
-      { quoted: message }
-    );
-  });
-}
+    } catch (error) {
+        console.error('❌ Error al procesar la respuesta:', error);
+        await this.reply(m.chat, '😢 Ocurrió un error procesando tu mensaje.', m);
+    }
 
-module.exports = {
-  handler
+    return true;
 };
+
+module.exports = handler;
