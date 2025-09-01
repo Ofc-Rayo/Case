@@ -3,9 +3,6 @@ const path = require('path');
 
 const handler = async (m, { conn, usedPrefix, command }) => {
     try {
-        await m.react?.('🕒');
-        conn.sendPresenceUpdate?.('composing', m.chat);
-
         const pluginsDir = './plugins';
         const files = fs.readdirSync(pluginsDir).filter(file => file.endsWith('.js'));
 
@@ -30,9 +27,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
         }
 
         await conn.reply(m.chat, response, m);
-        await m.react?.('✅');
     } catch (err) {
-        await m.react?.('✖️');
         await conn.reply(m.chat, `⚠︎ Ocurrió un error: ${err.message}`, m);
     }
 };
