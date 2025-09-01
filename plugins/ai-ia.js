@@ -6,7 +6,7 @@ let handler = async function (m, { conn }) {
         if (!query) return;
 
         const res = await axios.get(`https://gokublack.xyz/ai/bard?text=${encodeURIComponent(query)}`);
-        const reply = res?.data?.result || res?.data?.respuesta || res?.data || 'No entendí eso...';
+        const reply = res?.data?.result?.response || 'No entendí eso...';
 
         await conn.reply(m.chat, reply.trim(), m);
     } catch (error) {
