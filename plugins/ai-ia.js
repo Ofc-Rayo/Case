@@ -1,8 +1,5 @@
 const axios = require('axios')
 
-const prefix = '.'
-let autoresponderActivo = true
-
 const contextInfo = {
   externalAdReply: {
     title: '⚡ Zenitsu-Bot',
@@ -15,45 +12,20 @@ const contextInfo = {
   }
 }
 
-async function handler(m, { conn }) {
+async function handler(m, { conn, args }) {
   try {
-    const text = m.body || m.text || '' // ✅ Asegurarse de que haya texto
-    if (!text) return
-
-    // ✅ Comando para activar o desactivar autoresponder
-    if (text.startsWith(prefix)) {
-      const args = text.slice(prefix.length).trim().split(/\s+/)
-      const command = args.shift().toLowerCase()
-
-      if (command === 'on' && args[0] === 'autoresponder') {
-        autoresponderActivo = true
-        return await conn.sendMessage(
-          m.chat,
-          {
-            text: '✅ *Autoresponder activado.*',
-            contextInfo
-          },
-          { quoted: m }
-        )
-      }
-
-      if (command === 'off' && args[0] === 'autoresponder') {
-        autoresponderActivo = false
-        return await conn.sendMessage(
-          m.chat,
-          {
-            text: '❌ *Autoresponder desactivado.*',
-            contextInfo
-          },
-          { quoted: m }
-        )
-      }
-
-      return // 👉 Detener aquí si es otro comando
+    if (!args || args.length === 0) {
+      return await conn.sendMessage(
+        m.chat,
+        {
+          text: '⚠️ Por favor, escribe tu pregunta después del comando. Ejemplo:\nai ¿Cómo estás?',
+          contextInfo
+        },
+        { quoted: m }
+      )
     }
 
-    // ✅ Autoresponder si está activo
-    if (!autoresponderActivo) return
+    const prompt = args.join(' ')
 
     await conn.sendMessage(
       m.chat,
@@ -64,14 +36,14 @@ async function handler(m, { conn }) {
       { quoted: m }
     )
 
-    const url = `https://gokublack.xyz/ai/bard?text=${encodeURIComponent(text)}`
+    const url = `https://gokublack.xyz/ai/bard?text=${encodeURIComponent(prompt)}`
     const res = await axios.get(url)
     const replyRaw = res?.data?.result?.response || 'No entendí eso...'
 
     const replyText = `
 ⚡✨ *Zenitsu-Bot responde* ✨⚡
 
-😳> *Pregunta:* ${text}
+😳> *Pregunta:* ${prompt}
 
 🎭> *Respuesta:* ${replyRaw}
 
@@ -99,4 +71,7 @@ async function handler(m, { conn }) {
   }
 }
 
-module.exports = handler
+module.exports = {
+  command: 'ai',
+  handler,
+}
