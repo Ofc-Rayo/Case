@@ -52,28 +52,16 @@ async function handler(conn, { message, args }) {
     const { metadata } = result;
     const ytUrl = metadata.url;
 
-    const apis = [
-      `https://apis.davidcyriltech.my.id/youtube/mp3?url=${ytUrl}`,
-      `https://api.ryzendesu.vip/api/downloader/ytmp3?url=${ytUrl}`
-    ];
+    // test
+    const newApi = `https://myapiadonix.vercel.app/download/yt?url=${encodeURIComponent(ytUrl)}&format=mp3`;
 
-    let downloadInfo = null;
+    const dlRes = await axios.get(newApi);
 
-    for (const api of apis) {
-      try {
-        const dlRes = await axios.get(api);
-        if (dlRes.data?.url || dlRes.data?.result?.url) {
-          downloadInfo = dlRes.data.url ? dlRes.data : dlRes.data.result;
-          break;
-        }
-      } catch (e) {
-        continue;
-      }
+    if (!dlRes.data?.url) {
+      throw new Error("La nueva API no devolvió un enlace válido.");
     }
 
-    if (!downloadInfo?.url) {
-      throw new Error("No se pudo descargar el audio desde ninguna API.");
-    }
+    const downloadUrl = dlRes.data.url;
 
     const caption = `
 ╭─「 🎶 *REPRODUCIENDO* 」─╮
@@ -90,7 +78,7 @@ async function handler(conn, { message, args }) {
     }, { quoted: message });
 
     await conn.sendMessage(message.key.remoteJid, {
-      audio: { url: downloadInfo.url },
+      audio: { url: downloadUrl },
       fileName: `${metadata.title}.mp3`,
       mimetype: "audio/mp4",
       ptt: false,
