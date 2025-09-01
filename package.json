@@ -1,7 +1,7 @@
 {
-  "name": "Zenitsu-Bot",
+  "name": "Simple-Bot",
   "version": "1.0.0",
-  "description": "Zenitsu-Bot",
+  "description": "Bot en Desarrollo",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
