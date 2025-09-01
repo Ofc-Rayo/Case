@@ -1,21 +1,22 @@
-module.exports = {
-  command: 'restart',
-  handler: async (conn, { message }) => {
-    const from = message.key.remoteJid;
+const { cmd } = require("../command");
+const { sleep } = require("../lib/functions");
 
+module.exports = cmd({
+    pattern: "restart",
+    filename: __filename
+},
+async (conn, mek, m, { reply, isCreator }) => {
     try {
-      await conn.sendMessage(from, {
-        text: 'Reiniciando el bot...',
-      }, { quoted: message });
+        if (!isCreator) {
+            return reply("Solo el owner puede usar este comando.");
+        }
 
-      setTimeout(() => {
-        process.exit(0);
-      }, 3000);
-    } catch (error) {
-      console.error(error);
-      await conn.sendMessage(from, {
-        text: `Error al reiniciar: ${error}`,
-      }, { quoted: message });
+        const { exec } = require("child_process");
+        reply("Reiniciando...");
+        await sleep(1500);
+        exec("pm2 restart all");
+    } catch (e) {
+        console.error(e);
+        reply(`${e}`);
     }
-  }
-};
+});
