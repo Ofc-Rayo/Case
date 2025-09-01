@@ -11,6 +11,6 @@ const handler = async (m, { conn, usedPrefix, command }) => {
 };
 
 module.exports = {
-    command: 'restart',
+    command: 'claude',
     handler,
 };
