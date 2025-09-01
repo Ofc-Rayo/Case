@@ -9,7 +9,7 @@ global.prefix = ['.'];
 
 // IDs tal como los definiste
 global.ownerid  = ["595972157130@s.whatsapp.net"];
-global.ownerlid = ["261271484104740@lid"];
+global.ownerlid = ["174560573964411@lid"];
 
 // 🚀 Genera un array unificado que incluya todas las formas
 global.allOwners = Array.from(new Set([
