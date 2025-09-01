@@ -4,7 +4,7 @@ const path = './database.json';
 const chalk = require('chalk');
 const pathPlugins = './plugins';
 
-const { processMessage } = require('./autoResponder'); // <--- IMPORTA AQUÍ
+const { processMessage } = require('./autoresponder'); // <--- IMPORTA AQUÍ
 
 let plugins = {};
 
