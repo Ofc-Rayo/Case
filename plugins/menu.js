@@ -5,14 +5,11 @@ async function handler(conn, { message }) {
   const userName = message.pushName || 'Simple Bot';
 
   const caption = `
-╭─━━━━━━˚˖𓍢🌷✧˚.🎀⋆━━━━━━─╮
-┃ Hola, *${userName}*
-┃ 
-┃ ⚡ Muy pronto el menú estará disponible...
-┃ 🌱 El bot sigue en desarrollo.
-┃ 👨‍💻 Developed by: *Rayo-ofc*
-╰─━━━━━━˚˖𓍢🌷✧˚.🎀⋆━━━━━━─╯
-`;
+✧ Hola, *${userName}*
+✧ Muy pronto el menú estará disponible...
+✧ 🌱 El bot sigue en desarrollo.
+✧ 👨‍💻 Developed by: *Rayo-ofc*
+˖𓍢🌷˚.`;
 
   try {
     console.log('Enviando mensaje del desarrollador...');
