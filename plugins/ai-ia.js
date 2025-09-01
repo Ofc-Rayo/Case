@@ -1,5 +1,8 @@
 const axios = require('axios')
 
+// Variable global para controlar el estado del autoresponder
+let autoresponderActivo = true
+
 const contextInfo = {
   externalAdReply: {
     title: '⚡ Zenitsu-Bot',
@@ -15,7 +18,20 @@ const contextInfo = {
 async function handler(m, { conn }) {
   try {
     const query = m.text?.trim()
-    if (!query) return // Si no hay texto, no responder
+    if (!query) return
+
+    // Comandos para activar/desactivar el autoresponder
+    if (query.toLowerCase() === 'on autoresponder') {
+      autoresponderActivo = true
+      return await conn.sendMessage(m.chat, { text: '✅ Autoresponder activado.' }, { quoted: m })
+    }
+    if (query.toLowerCase() === 'off autoresponder') {
+      autoresponderActivo = false
+      return await conn.sendMessage(m.chat, { text: '❌ Autoresponder desactivado.' }, { quoted: m })
+    }
+
+    // Si el autoresponder está desactivado, no responder
+    if (!autoresponderActivo) return
 
     // Mensaje estilo "Zenitsu" mientras procesa
     await conn.sendMessage(
