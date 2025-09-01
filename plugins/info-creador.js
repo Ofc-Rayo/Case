@@ -5,12 +5,10 @@ const thumbnailUrl = 'https://qu.ax/MvYPM.jpg' // Miniatura ceremonial
 
 const contextInfo = {
   externalAdReply: {
-    title: '👑 Carlos - Creador',
-    body: 'Creador Oficial',
+    title: 'Creador - Rayo',
+    body: 'Creador - Rayo-ofc',
     mediaType: 1,
     previewType: 0,
-    mediaUrl: 'https://zenitsu.bot',
-    sourceUrl: 'https://zenitsu.bot',
     thumbnailUrl
   }
 }
@@ -19,17 +17,14 @@ async function handler(conn, { message }) {
   const jid = message.key.remoteJid
 
   const fichaImperial = `
-╭─「 👑 𝙈𝙞 - 𝘾𝙍𝙀𝘼𝘿𝙊𝙍 」─╮
-│ ♦ Nombre: *Carlos*
-│ 🎭 Rol: _*Creador*_
-│ 🧩 Contacto: +5355699866
-│ 🖼️ GitHub:https://github.com/Kone457
+╭─「 𝘾𝙍𝙀𝘼𝘿𝙊𝙍 」─╮
+│ 💥 Nombre: *Ivan*
+│ 🌌 Rol: _*Creador*_
+│ ✨ Contacto: +595972157130
+│ 💸 PayPal: https://paypal.me/black374673
+apoyenme con el proyecto para seguir mejorando
 ╰────────────────────╯
-
-🌐 Más en: https://kone457.github.io/Nexus/
-
-🧎‍♂️ Zenitsu se inclina ante su maestro del trueno.
-`.trim()
+*No olvides de seguir el canal*`.trim()
 
   await conn.sendMessage(
     jid,
