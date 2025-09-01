@@ -2,11 +2,10 @@ const axios = require('axios');
 
 const thumbnailUrl = 'https://qu.ax/QuwNu.jpg';
 
-// Contexto combinado
 const contextInfo = {
   externalAdReply: {
-    title: "🎧 YouTube Music",
-    body: "Reproducción directa desde el universo viral...",
+    title: "YouTube - Play",
+    body: "Bot Hecho desde Cero Desarrollado por Rayo-ofc",
     mediaType: 1,
     previewType: 0,
     mediaUrl: "https://youtube.com",
@@ -16,8 +15,9 @@ const contextInfo = {
   forwardingScore: 999,
   isForwarded: true,
   forwardedNewsletterMessageInfo: {
-    newsletterJid: '120363318767880951@newsletter',
-    newsletterName: 'DEVELOPED AUDIO',
+    newsletterJid:
+'120363276986902836@newsletter',
+    newsletterName: 'Toca aquí 👆🏻',
     serverMessageId: 143
   }
 };
@@ -26,14 +26,13 @@ async function handler(conn, { message, args }) {
   const query = args.join(' ');
   if (!query) {
     return conn.sendMessage(message.key.remoteJid, {
-      text: '*😰 Zenitsu se quedó sin ritmo...*\n\n> Ejemplo: `play DJ malam pagi slowed` 🎶',
+      text: '⚡ *Lo uso mal*\n\n> Ejemplo de uso: `play Vamos albirroja`',
       contextInfo
     }, { quoted: message });
   }
 
-  // Aviso de búsqueda
   await conn.sendMessage(message.key.remoteJid, {
-    text: `🔎 *Buscando en YouTube...*\n🎞️ Afinando melodías de *${query}*...`,
+    text: `*Buscando su audio en YouTube...*`,
     contextInfo
   }, { quoted: message });
 
@@ -44,7 +43,7 @@ async function handler(conn, { message, args }) {
 
     if (!result?.status || !result.download?.status) {
       return conn.sendMessage(message.key.remoteJid, {
-        text: `😢 *Zenitsu no pudo convertir el audio de:* ${query}\n\n🛠️ Converting error\n🎭 ¿Intentamos con otro título más claro o menos viral?`,
+        text: `*Se produjo un error en la descarga intentalo mas tarde*`,
         contextInfo
       }, { quoted: message });
     }
@@ -52,12 +51,13 @@ async function handler(conn, { message, args }) {
     const { metadata, download } = result;
 
     const caption = `
-╭─「 🎧 𝙕𝙀𝙉𝙄𝙏𝙎𝙐 - 𝙔𝙏𝙋𝙇𝘼𝙔𝙈𝙋𝟯 」─╮
+╭─「 SIMPLE - BOT 」─╮
 │ 🎬 *Título:* ${metadata.title}
 │ 👤 *Autor:* ${metadata.author.name}
 │ ⏱️ *Duración:* ${metadata.duration.timestamp}
 │ 👁️ *Vistas:* ${metadata.views.toLocaleString()}
 │ 🔗 *YouTube:* ${metadata.url}
+│ 📋 Nota: *apóyame con el proyecto vía PayPal* https://paypal.me/black374673
 ╰────────────────────────────╯
 `.trim();
 
@@ -78,7 +78,7 @@ async function handler(conn, { message, args }) {
   } catch (err) {
     console.error("⚠️ Error en el comando play:", err.message);
     await conn.sendMessage(message.key.remoteJid, {
-      text: `❌ *Error inesperado en la reproducción.*\n\n🛠️ ${err.message}\n🌧️ Zenitsu está revisando los cables del universo...`,
+      text: `*Error inesperado en la reproducción.*\n\n ${err.message}\n⚡ simple bot está revisando los cables del universo...`,
       contextInfo
     }, { quoted: message });
   }
