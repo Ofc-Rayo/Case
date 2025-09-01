@@ -6,7 +6,7 @@ const handler = async (m, { conn, usedPrefix, command }) => {
         }, 3000); 
     } catch (error) {
         console.log(error);
-        conn.reply(m.chat, `${error}`, m);
+        m.reply(`${error}`);
     }
 };
 
