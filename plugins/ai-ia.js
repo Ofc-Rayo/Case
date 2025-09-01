@@ -17,26 +17,58 @@ const contextInfo = {
 
 async function handler(m, { conn }) {
   try {
-    const text = m.text?.trim()
+    const text = m.body || m.text || '' // ✅ Asegurarse de que haya texto
     if (!text) return
 
-    if (!text.startsWith(prefix)) {
-      if (!autoresponderActivo) return
+    // ✅ Comando para activar o desactivar autoresponder
+    if (text.startsWith(prefix)) {
+      const args = text.slice(prefix.length).trim().split(/\s+/)
+      const command = args.shift().toLowerCase()
 
-      await conn.sendMessage(
-        m.chat,
-        {
-          text: '⚡ Estoy temblando... ¡Ya casi te respondo! 😳',
-          contextInfo
-        },
-        { quoted: m }
-      )
+      if (command === 'on' && args[0] === 'autoresponder') {
+        autoresponderActivo = true
+        return await conn.sendMessage(
+          m.chat,
+          {
+            text: '✅ *Autoresponder activado.*',
+            contextInfo
+          },
+          { quoted: m }
+        )
+      }
 
-      const url = `https://gokublack.xyz/ai/bard?text=${encodeURIComponent(text)}`
-      const res = await axios.get(url)
-      const replyRaw = res?.data?.result?.response || 'No entendí eso...'
+      if (command === 'off' && args[0] === 'autoresponder') {
+        autoresponderActivo = false
+        return await conn.sendMessage(
+          m.chat,
+          {
+            text: '❌ *Autoresponder desactivado.*',
+            contextInfo
+          },
+          { quoted: m }
+        )
+      }
 
-      const replyText = `
+      return // 👉 Detener aquí si es otro comando
+    }
+
+    // ✅ Autoresponder si está activo
+    if (!autoresponderActivo) return
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        text: '⚡ Estoy temblando... ¡Ya casi te respondo! 😳',
+        contextInfo
+      },
+      { quoted: m }
+    )
+
+    const url = `https://gokublack.xyz/ai/bard?text=${encodeURIComponent(text)}`
+    const res = await axios.get(url)
+    const replyRaw = res?.data?.result?.response || 'No entendí eso...'
+
+    const replyText = `
 ⚡✨ *Zenitsu-Bot responde* ✨⚡
 
 😳> *Pregunta:* ${text}
@@ -44,31 +76,16 @@ async function handler(m, { conn }) {
 🎭> *Respuesta:* ${replyRaw}
 
 😤 ¡Estoy exhausto pero lo logré! ⚡⚡
-      `.trim()
+    `.trim()
 
-      await conn.sendMessage(
-        m.chat,
-        {
-          text: replyText,
-          contextInfo
-        },
-        { quoted: m }
-      )
-      return
-    }
-
-    const args = text.slice(prefix.length).trim().split(/ +/)
-    const command = args.shift().toLowerCase()
-
-    if (command === 'on' && args[0] === 'autoresponder') {
-      autoresponderActivo = true
-      return await conn.sendMessage(m.chat, { text: '✅ Autoresponder activado.' }, { quoted: m })
-    }
-    if (command === 'off' && args[0] === 'autoresponder') {
-      autoresponderActivo = false
-      return await conn.sendMessage(m.chat, { text: '❌ Autoresponder desactivado.' }, { quoted: m })
-    }
-
+    await conn.sendMessage(
+      m.chat,
+      {
+        text: replyText,
+        contextInfo
+      },
+      { quoted: m }
+    )
   } catch (error) {
     console.error('❌ Error al obtener respuesta de la API:', error)
     await conn.sendMessage(
