@@ -236,7 +236,7 @@ async function handleMessage(conn, message) {
         await logEvent(
           conn,
           message,
-       `Comando: ${commandName}`,
+         `Comando: ${commandName}`,
           sender,
           groupName,
           groupLink
