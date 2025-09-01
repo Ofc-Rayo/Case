@@ -2,20 +2,6 @@ const https = require('https')
 const fs = require('fs')
 const path = require('path')
 
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'
-
-const contextInfo = {
-  externalAdReply: {
-    title: 'Zenitsu-Bot',
-    body: 'Respondiendo tu consulta',
-    mediaType: 1,
-    previewType: 0,
-    mediaUrl: 'https://zenitsu.bot',
-    sourceUrl: 'https://zenitsu.bot',
-    thumbnailUrl
-  }
-}
-
 const historyPath = path.resolve('./zenitsuMemory.json')
 if (!fs.existsSync(historyPath)) {
   fs.writeFileSync(historyPath, JSON.stringify({}), 'utf8')
@@ -31,21 +17,11 @@ async function handler(conn, { message, args }) {
     return conn.sendMessage(
       jid,
       {
-        text: 'No escribiste nada. Por favor, escribe una pregunta.',
-        contextInfo
+        text: 'No escribiste nada. Por favor, escribe una pregunta.'
       },
       { quoted: message }
     )
   }
-
-  await conn.sendMessage(
-    jid,
-    {
-      text: 'Procesando tu solicitud, espera un momento...',
-      contextInfo
-    },
-    { quoted: message }
-  )
 
   const rawHistory = fs.readFileSync(historyPath, 'utf8')
   const conversationHistory = JSON.parse(rawHistory || '{}')
@@ -74,8 +50,7 @@ async function handler(conn, { message, args }) {
           return conn.sendMessage(
             jid,
             {
-              text: 'La IA no respondió. Intenta de nuevo más tarde.',
-              contextInfo
+              text: 'La IA no respondió. Intenta de nuevo más tarde.'
             },
             { quoted: message }
           )
@@ -86,17 +61,10 @@ async function handler(conn, { message, args }) {
         conversationHistory[userId].push({ role: 'assistant', content: replyText })
         fs.writeFileSync(historyPath, JSON.stringify(conversationHistory, null, 2), 'utf8')
 
-        const messageText = `
-Pregunta: ${query}
-
-Respuesta: ${replyText}
-        `.trim()
-
         await conn.sendMessage(
           jid,
           {
-            text: messageText,
-            contextInfo
+            text: replyText
           },
           { quoted: message }
         )
@@ -104,8 +72,7 @@ Respuesta: ${replyText}
         await conn.sendMessage(
           jid,
           {
-            text: `Error al procesar la respuesta de la IA.\n${error.message}`,
-            contextInfo
+            text: `Error al procesar la respuesta de la IA.\n${error.message}`
           },
           { quoted: message }
         )
@@ -115,8 +82,7 @@ Respuesta: ${replyText}
     await conn.sendMessage(
       jid,
       {
-        text: `Error de conexión con la IA.\n${error.message}`,
-        contextInfo
+        text: `Error de conexión con la IA.\n${error.message}`
       },
       { quoted: message }
     )
