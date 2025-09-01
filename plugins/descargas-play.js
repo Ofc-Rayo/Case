@@ -45,8 +45,8 @@ async function handler(conn, { message, args }) {
 
     const result = searchRes.data?.result;
 
-    if (!searchRes.data.status || !result?.download) {
-      throw new Error("No se pudo obtener el audio.");
+    if (!searchRes.data.status || !result || !result.download || !result.title || !result.thumbnail) {
+      throw new Error("No se pudo obtener información válida del audio.");
     }
 
     const { title, thumbnail, download } = result;
@@ -72,6 +72,7 @@ async function handler(conn, { message, args }) {
     }, { quoted: message });
 
   } catch (err) {
+    console.error("Error completo:", err);
     await conn.sendMessage(message.key.remoteJid, {
       text: `❌ *Ocurrió un error al procesar la canción.*\n\n🛠️ ${err.message}`,
       contextInfo
