@@ -1,12 +1,12 @@
-const handler = async (m, { conn, usedPrefix, command }) => {
+const handler = async (m, { conn }) => {
     try {
-        m.reply('「🔁」 Reiniciando El Bot....');
+        await m.reply('「🔁」 Reiniciando El Bot....');
         setTimeout(() => {
             process.exit(0);
         }, 3000); 
     } catch (error) {
-        console.log(error);
-        m.reply(`${error}`);
+        console.error(error);
+        await m.reply(`Error al reiniciar: ${error}`);
     }
 };
 
