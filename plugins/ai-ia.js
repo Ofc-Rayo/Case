@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-// Variable global para controlar el estado del autoresponder
+const prefix = '.'
 let autoresponderActivo = true
 
 const contextInfo = {
@@ -11,64 +11,64 @@ const contextInfo = {
     previewType: 0,
     mediaUrl: 'https://zenitsu.bot',
     sourceUrl: 'https://zenitsu.bot',
-    thumbnailUrl: 'https://qu.ax/MvYPM.jpg' // Miniatura chida
+    thumbnailUrl: 'https://qu.ax/MvYPM.jpg'
   }
 }
 
 async function handler(m, { conn }) {
   try {
-    const query = m.text?.trim()
-    if (!query) return
+    const text = m.text?.trim()
+    if (!text) return
 
-    // Comandos para activar/desactivar el autoresponder
-    if (query.toLowerCase() === 'on autoresponder') {
-      autoresponderActivo = true
-      return await conn.sendMessage(m.chat, { text: '✅ Autoresponder activado.' }, { quoted: m })
-    }
-    if (query.toLowerCase() === 'off autoresponder') {
-      autoresponderActivo = false
-      return await conn.sendMessage(m.chat, { text: '❌ Autoresponder desactivado.' }, { quoted: m })
-    }
+    if (!text.startsWith(prefix)) {
+      if (!autoresponderActivo) return
 
-    // Si el autoresponder está desactivado, no responder
-    if (!autoresponderActivo) return
+      await conn.sendMessage(
+        m.chat,
+        {
+          text: '⚡ Estoy temblando... ¡Ya casi te respondo! 😳',
+          contextInfo
+        },
+        { quoted: m }
+      )
 
-    // Mensaje estilo "Zenitsu" mientras procesa
-    await conn.sendMessage(
-      m.chat,
-      {
-        text: '⚡ Estoy temblando... ¡Ya casi te respondo! 😳',
-        contextInfo
-      },
-      { quoted: m }
-    )
+      const url = `https://gokublack.xyz/ai/bard?text=${encodeURIComponent(text)}`
+      const res = await axios.get(url)
+      const replyRaw = res?.data?.result?.response || 'No entendí eso...'
 
-    // Llamar a la API de GokuBlack
-    const url = `https://gokublack.xyz/ai/bard?text=${encodeURIComponent(query)}`
-    const res = await axios.get(url)
-
-    const replyRaw = res?.data?.result?.response || 'No entendí eso...'
-
-    // Agregar estilo Zenitsu (puedes modificar esto a tu gusto)
-    const replyText = `
+      const replyText = `
 ⚡✨ *Zenitsu-Bot responde* ✨⚡
 
-😳> *Pregunta:* ${query}
+😳> *Pregunta:* ${text}
 
 🎭> *Respuesta:* ${replyRaw}
 
 😤 ¡Estoy exhausto pero lo logré! ⚡⚡
-`.trim()
+      `.trim()
 
-    // Enviar la respuesta con contexto y citando el mensaje original
-    await conn.sendMessage(
-      m.chat,
-      {
-        text: replyText,
-        contextInfo
-      },
-      { quoted: m }
-    )
+      await conn.sendMessage(
+        m.chat,
+        {
+          text: replyText,
+          contextInfo
+        },
+        { quoted: m }
+      )
+      return
+    }
+
+    const args = text.slice(prefix.length).trim().split(/ +/)
+    const command = args.shift().toLowerCase()
+
+    if (command === 'on' && args[0] === 'autoresponder') {
+      autoresponderActivo = true
+      return await conn.sendMessage(m.chat, { text: '✅ Autoresponder activado.' }, { quoted: m })
+    }
+    if (command === 'off' && args[0] === 'autoresponder') {
+      autoresponderActivo = false
+      return await conn.sendMessage(m.chat, { text: '❌ Autoresponder desactivado.' }, { quoted: m })
+    }
+
   } catch (error) {
     console.error('❌ Error al obtener respuesta de la API:', error)
     await conn.sendMessage(
