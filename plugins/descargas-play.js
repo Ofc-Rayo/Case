@@ -45,42 +45,28 @@ async function handler(conn, { message, args }) {
 
     const result = searchRes.data?.result;
 
-    if (!result?.status || !result.download?.url) {
+    if (!searchRes.data.status || !result?.download) {
       throw new Error("No se pudo obtener el audio.");
     }
 
-    const { metadata } = result;
-    const ytUrl = metadata.url;
-
-    // test
-    const newApi = `https://myapiadonix.vercel.app/download/yt?url=${encodeURIComponent(ytUrl)}&format=mp3`;
-
-    const dlRes = await axios.get(newApi);
-
-    if (!dlRes.data?.url) {
-      throw new Error("La nueva API no devolvió un enlace válido.");
-    }
-
-    const downloadUrl = dlRes.data.url;
+    const { title, thumbnail, download } = result;
 
     const caption = `
 ╭─「 🎶 *REPRODUCIENDO* 」─╮
-│ 📌 *Título:* ${metadata.title}
-│ 🎤 *Autor:* ${metadata.author.name}
-│ ⏱️ *Duración:* ${metadata.duration.timestamp}
-│ 🔗 *YouTube:* ${metadata.url}
+│ 📌 *Título:* ${title}
+│ 🔗 *YouTube:* https://youtube.com
 ╰──────────────────────╯`.trim();
 
     await conn.sendMessage(message.key.remoteJid, {
-      image: { url: metadata.thumbnail },
+      image: { url: thumbnail },
       caption,
       contextInfo
     }, { quoted: message });
 
     await conn.sendMessage(message.key.remoteJid, {
-      audio: { url: downloadUrl },
-      fileName: `${metadata.title}.mp3`,
-      mimetype: "audio/mp4",
+      audio: { url: download },
+      fileName: `${title}.mp3`,
+      mimetype: "audio/mpeg",
       ptt: false,
       contextInfo: forwardedContextInfo
     }, { quoted: message });
