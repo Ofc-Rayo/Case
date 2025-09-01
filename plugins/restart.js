@@ -5,12 +5,12 @@ module.exports = {
 
     try {
       await conn.sendMessage(from, {
-        text: '「🔁」 Reiniciando El Bot....',
+        text: 'Reiniciando el bot...',
       }, { quoted: message });
 
       setTimeout(() => {
         process.exit(0);
-      }, 3000); 
+      }, 3000);
     } catch (error) {
       console.error(error);
       await conn.sendMessage(from, {
