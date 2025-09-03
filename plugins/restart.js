@@ -1,5 +1,5 @@
 module.exports = {
-  command: 'restart',
+  command: 'resting',
   handler: async (conn, { message }) => {
     const from = message.key.remoteJid;
 
