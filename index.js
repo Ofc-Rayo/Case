@@ -15,7 +15,7 @@ const question = (text) => new Promise((resolve) => rl.question(text, resolve));
 
 async function startBot() {
     console.clear();
-    figlet('Bot', (err, data) => {
+    figlet('Simple-Bot', (err, data) => {
         if (err) {
             console.log(chalk.red('Error al generar el banner.'));
             console.log(err);
@@ -54,7 +54,7 @@ async function startBot() {
     });
 
     if (opcion === '2') {
-        let phoneNumber = await question('Introduce tu número de teléfono (Ej: +123456789): ');
+        let phoneNumber = await question('Introduce tu número de teléfono (Ej: +595972xxxxx): ');
         phoneNumber = phoneNumber.replace(/\D/g, '');
         const pairingCode = await socket.requestPairingCode(phoneNumber);
         console.log(chalk.cyanBright(`Código de emparejamiento:\n${chalk.bold(pairingCode)}`));
