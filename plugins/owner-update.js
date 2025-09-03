@@ -1,6 +1,7 @@
 const { exec } = require('child_process');
 const path = require('path');
-const { allOwners } = require('../settings');
+
+require('../settings'); // Carga las variables globales
 
 module.exports = {
   command: 'update',
@@ -8,10 +9,19 @@ module.exports = {
     const from = message.key.remoteJid;
     const sender = message.key.participant || from;
 
+    // Normaliza sender y owners para evitar problemas de mayúsculas o espacios
+    const normalizedSender = sender.toLowerCase().trim();
+    const allOwners = [...global.ownerid, ...global.ownerlid].map(x => x.toLowerCase().trim());
+
+    // Debug en consola para ver qué valores llegan
+    console.log('Sender:', sender);
+    console.log('Normalized Sender:', normalizedSender);
+    console.log('Owners:', allOwners);
+
     // Validación de propietario
-    if (!allOwners.includes(sender)) {
+    if (!allOwners.includes(normalizedSender)) {
       return conn.sendMessage(from, {
-        text: '*⛔ Acceso denegado:*\nEste comando solo está disponible para los administradores.'
+        text: `*⛔ Acceso denegado:*\nTu ID (${sender}) no está autorizado.`
       }, { quoted: message });
     }
 
