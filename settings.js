@@ -4,7 +4,7 @@ const chalk = require('chalk');
 
 global.owner = "595972157130";
 global.botname = "Simple-Bot";
-global.place = 'America/Managua';
+global.place = 'America/Asuncion';
 global.prefix = ['.'];
 
 // IDs tal como los definiste
