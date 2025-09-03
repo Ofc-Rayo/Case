@@ -1,7 +1,7 @@
 const { exec } = require('child_process');
 const path = require('path');
 
-require('../settings'); // Carga las variables globales
+require('../settings');
 
 module.exports = {
   command: 'update',
