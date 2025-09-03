@@ -1,3 +1,5 @@
+/* BOT EN DESARROLLO PROXIMAMENTE EN LANZAMIENTO CREDITOS A Carlos*/
+
 const fs = require('fs');
 const { prefix } = require('./settings.js');
 const path = './database.json';
