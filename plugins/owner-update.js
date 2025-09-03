@@ -1,3 +1,7 @@
+const { exec }    = require('child_process');
+const path        = require('path');
+const { allOwners } = require('../settings');
+
 module.exports = {
   command: 'update',
   handler: async (conn, { message }) => {
