@@ -1,25 +1,35 @@
+const axios = require('axios');
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
 const sharp = require('sharp');
 
-const contextInfo = {
-  forwardingScore: 999,
-  isForwarded: true,
-  forwardedNewsletterMessageInfo: {
-    newsletterJid: '120363276986902836@newsletter',
-    newsletterName: 'Toca aquí 👆🏻',
-    serverMessageId: 143
-  },
-  externalAdReply: {
-    title: 'Simple-Bot - Creador de Stickers',
-    body: '¡Convirtiendo tu imagen en sticker!',
-    mediaType: 1,
-    previewType: 0
-  }
-};
+async function getImageBufferFromUrl(url) {
+  const response = await axios.get(url, { responseType: 'arraybuffer' });
+  return Buffer.from(response.data, 'binary');
+}
 
 async function handler(conn, { message, args }) {
   const jid = message.key.remoteJid;
   let imageBuffer = null;
+
+  const thumbnailUrl = 'https://files.catbox.moe/u9urqz.jpg';
+  const thumbnailBuffer = await getImageBufferFromUrl(thumbnailUrl);
+
+  const contextInfo = {
+    forwardingScore: 999,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid: '120363276986902836@newsletter',
+      newsletterName: 'Toca aquí 👆🏻',
+      serverMessageId: 143
+    },
+    externalAdReply: {
+      title: 'Simple-Bot - Creador de Stickers',
+      body: 'Convierte una imagen a sticker',
+      mediaType: 1,
+      previewType: 0,
+      thumbnail: thumbnailBuffer
+    }
+  };
 
   try {
     if (message.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage) {
