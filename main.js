@@ -69,8 +69,8 @@ function getNsfwStatus(groupId) {
 }
 
 const createDecoratedBox = (text) => {
-  const top = '╔══⚡😱⚡══╗';
-  const bottom = '╚══⚡😖⚡══╝';
+  const top = '╔══⚡══╗';
+  const bottom = '╚══⚡══╝';
   const lines = text.split('\n');
   const maxLen = Math.max(...lines.map((line) => line.length));
 
@@ -117,7 +117,7 @@ const sendMedia = async (conn, to, media, caption = '', type = 'image') => {
   } else if (type === 'video') {
     await sendVideo(conn, to, media, caption);
   } else {
-    await sendText(conn, to, '😖💦 ¡No sé qué es eso! Me da miedo, no puedo enviarlo 💛');
+    await sendText(conn, to, 'No sé qué es eso no puedo enviarlo');
   }
 };
 
@@ -146,7 +146,7 @@ async function logEvent(
   conn,
   m,
   type,
-  user = '¡Un humano aterrador! 😱',
+  user = 'Eres un humano aterrador masivo',
   groupName = '',
   groupLink = ''
 ) {
@@ -166,7 +166,7 @@ ${chalk.green('│╭───────────────···')}
 ${chalk.green('││')}👤 ${chalk.cyan('Usuario/Grupo:')} ${usedBy}
 ${chalk.green('││')}⏱️ ${chalk.cyan('Hora:')} ${chalk.black(chalk.bgGreen(now))}
 ${chalk.green('││')}📑 ${chalk.cyan('Evento:')} ${chalk.magenta(type)}
-${chalk.green('││')}🔓 ${chalk.cyan('Modo:')} ${chalk.yellowBright(conn.public ? 'Público ⚡' : 'Privado 😭')}
+${chalk.green('││')}🔓 ${chalk.cyan('Modo:')} ${chalk.yellowBright(conn.public ? 'Público ⚡' : 'Privado ✨')}
 ${isGroup ? `${chalk.green('││')}🔗 ${chalk.cyan('Link:')} ${chalk.blueBright(groupLink)}` : ''}
 ${chalk.green('│╰────────────────···')}
 ${chalk.green('╰────────────═┅═────────────')}`);
@@ -190,7 +190,7 @@ async function handleMessage(conn, message) {
       const inviteCode = await conn.groupInviteCode(from);
       groupLink = `https://chat.whatsapp.com/${inviteCode}`;
     } catch {
-      groupLink = '😭⚡ No pude conseguir el link... lo siento mucho.';
+      gpoupLink = 'No pude conseguir el link lo siento mucho.';
     }
   }
 
