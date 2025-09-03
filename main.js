@@ -148,8 +148,8 @@ async function logEvent(
   groupName = '',
   groupLink = ''
 ) {
-  const now = new Date().toLocaleString('es-ES', {
-    timeZone: 'America/Paraguay/Asuncion',
+  const now = new Date().toLocaleString('es-Py', {
+    timeZone: 'America/Asuncion',
   });
 
   const isGroup = m.key.remoteJid.endsWith('@g.us');
