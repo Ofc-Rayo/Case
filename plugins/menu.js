@@ -4,8 +4,7 @@ const path = require('path');
 async function handler(conn, { message }) {
   const userName = message.pushName || 'Simple Bot';
 
-  const caption = `
-✧ Hola, *${userName}*
+  const caption = `✧ Hola, *${userName}*
 ✧ Muy pronto el menú estará disponible...
 ✧ 🌱 El bot sigue en desarrollo.
 ✧ 👨‍💻 Developed by: *Rayo-ofc*
