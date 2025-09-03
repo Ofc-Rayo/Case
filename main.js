@@ -4,7 +4,7 @@ const path = './database.json';
 const chalk = require('chalk');
 const pathPlugins = './plugins';
 
-const { processMessage } = require('./plugins/autoresponder'); // <--- IMPORTA AQUÍ
+const { processMessage } = require('./plugins/autoresponder');
 
 let plugins = {};
 
@@ -46,7 +46,6 @@ const incrementUsers = () => {
   writeDB(db);
 };
 
-
 const welcomeStatus = {};
 
 function setWelcomeStatus(groupId, status) {
@@ -57,7 +56,6 @@ function getWelcomeStatus(groupId) {
   return welcomeStatus[groupId] || 'on';
 }
 
-
 const nsfwStatus = {};
 
 function setNsfwStatus(groupId, status) {
@@ -67,7 +65,6 @@ function setNsfwStatus(groupId, status) {
 function getNsfwStatus(groupId) {
   return nsfwStatus[groupId] || 'off';
 }
-
 
 const createDecoratedBox = (text) => {
   const top = '╔══⚡😱⚡══╗';
@@ -151,28 +148,26 @@ async function logEvent(
   groupName = '',
   groupLink = ''
 ) {
-  console.log(
-    chalk.bold.yellow(
-      '━━━━━━━━━━ Zenitsu Bot ⚡: ¡Ay Dios mío, pasó algo! ━━━━━━━━━━'
-    ) +
-      '\n' +
-      chalk.blue('│⏰ Hora: ') +
-      chalk.green(
-        new Date().toLocaleString('es-ES', {
-          timeZone: 'America/Argentina/Buenos_Aires',
-        })
-      ) +
-      '\n' +
-      chalk.yellow('️│😖 Estado: ') +
-      chalk.magenta([`${conn.public ? 'Público ⚡' : 'Privado 😭'}`]) +
-      '\n' +
-      chalk.cyan('│📑 Evento: ') +
-      chalk.white(type) +
-      (m.key.remoteJid.endsWith('@g.us')
-        ? `\n${chalk.bgGreen('│😨 Grupo:')} ${chalk.greenBright(groupName)} ➜ ${chalk.green(m.key.remoteJid)}` +
-          `\n${chalk.bgBlue('│🔗 Link:')} ${chalk.blueBright(groupLink)}`
-        : `\n${chalk.bgMagenta('│💛 Usuario:')} ${chalk.magentaBright(user)}`)
-  );
+  const now = new Date().toLocaleString('es-ES', {
+    timeZone: 'America/Paraguay/Asuncion',
+  });
+
+  const isGroup = m.key.remoteJid.endsWith('@g.us');
+  const id = m.key.remoteJid;
+
+  const usedBy = isGroup
+    ? `${chalk.greenBright(groupName)} ${chalk.gray(`[${id}]`)}`
+    : chalk.magentaBright(user);
+
+  console.log(`${chalk.green('╭────═[ Simple-Bot ⚡ ]═─────⋆')}
+${chalk.green('│╭───────────────···')}
+${chalk.green('││')}👤 ${chalk.cyan('Usuario/Grupo:')} ${usedBy}
+${chalk.green('││')}⏱️ ${chalk.cyan('Hora:')} ${chalk.black(chalk.bgGreen(now))}
+${chalk.green('││')}📑 ${chalk.cyan('Evento:')} ${chalk.magenta(type)}
+${chalk.green('││')}🔓 ${chalk.cyan('Modo:')} ${chalk.yellowBright(conn.public ? 'Público ⚡' : 'Privado 😭')}
+${isGroup ? `${chalk.green('││')}🔗 ${chalk.cyan('Link:')} ${chalk.blueBright(groupLink)}` : ''}
+${chalk.green('│╰────────────────···')}
+${chalk.green('╰────────────═┅═────────────')}`);
 }
 
 async function handleMessage(conn, message) {
@@ -182,13 +177,9 @@ async function handleMessage(conn, message) {
   const sender = key.participant || from;
 
   const normalizedSender = sender.replace(/@lid$/, '@s.whatsapp.net');
-  const altNormalizedSender = sender.replace(
-    /@s\.whatsapp\.net$/,
-    '@lid'
-  );
+  const altNormalizedSender = sender.replace(/@s\.whatsapp\.net$/, '@lid');
 
-  let groupName = '',
-    groupLink = '';
+  let groupName = '', groupLink = '';
 
   if (isGroup) {
     try {
@@ -213,7 +204,6 @@ async function handleMessage(conn, message) {
     const commandName = args.shift().toLowerCase();
 
     if (plugins[commandName]) {
-      // Verificar estado NSFW antes de ejecutar comandos NSFW
       if (plugins[commandName].nsfw && !getNsfwStatus(from)) {
         await sendText(conn, from, '🚫 Este comando está desactivado para este grupo 😖');
         return;
@@ -236,7 +226,7 @@ async function handleMessage(conn, message) {
         await logEvent(
           conn,
           message,
-         `Comando: ${commandName}`,
+          `Comando: ${commandName}`,
           sender,
           groupName,
           groupLink
@@ -263,14 +253,12 @@ async function handleGroupEvents(conn, update) {
       const username = participant.split('@')[0];
       const memberCount = metadata.participants.length;
 
-
       const ppUrl = await conn.profilePictureUrl(participant, 'image').catch(
         () => 'https://cdn.discordapp.com/embed/avatars/0.png'
       );
 
       if (action === 'add') {
-
-        const welcomeCardUrl = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
+        const welcomeCardUrl `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
           username
         )}&text2=Bienvenid@+a+${encodeURIComponent(
           groupName
