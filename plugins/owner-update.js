@@ -19,7 +19,7 @@ module.exports = {
     }
 
     await conn.sendMessage(from, {
-      text: '🛠️ Actualizando Simple-Bot...'
+      text: 'Me estoy Actualizando ✨'
     }, { quoted: message });
 
     const botDirectory = path.join(__dirname, '..');
