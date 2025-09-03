@@ -258,11 +258,11 @@ async function handleGroupEvents(conn, update) {
       );
 
       if (action === 'add') {
-        const welcomeCardUrl `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
-          username
-        )}&text2=Bienvenid@+a+${encodeURIComponent(
-          groupName
-        )}&text3=Miembro+${memberCount}&avatar=${encodeURIComponent(ppUrl)}`;
+        const welcomeCardUrl = `https://api.popcat.xyz/v2/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
+  username
+)}&text2=Bienvenid@+a+${encodeURIComponent(
+  groupName
+)}&text3=Miembro+${memberCount}&avatar=${encodeURIComponent(ppUrl)}`;
 
         const caption = `😖 Aaaahh @${username}, ¡entraste al grupo *${groupName}*! 😱⚡\nPor favor no me asustes y pásala bien 💛`;
 
