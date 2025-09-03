@@ -13,9 +13,6 @@ global.ownerlid = ["174560573964411@lid"];
 
 // 🚀 Genera un array unificado que incluya todas las formas
 global.allOwners = Array.from(new Set([
-  // los definidos originalmente
-  ...global.ownerid,
-  ...global.ownerlid,
   // más sus normalizaciones cruzadas
   ...global.ownerid.map(id => id.replace(/@s\.whatsapp\.net$/, '@lid')),
   ...global.ownerlid.map(id => id.replace(/@lid$/, '@s.whatsapp.net')),
