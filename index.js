@@ -64,13 +64,13 @@ async function startBot() {
         const { connection, qr } = update;
 
         if (connection === 'open') {
-            figlet('Bot', (err, data) => {
+            figlet('Simple-Bot Conectado', (err, data) => {
                 if (err) {
                     console.log(chalk.red('Error al mostrar el banner.'));
                     return;
                 }
                 console.log(chalk.magentaBright(data));
-                console.log(chalk.greenBright(`Conectado como ${socket.user.id}`));
+                console.log(chalk.greenBright(`Me conecte al usuario: ${socket.user.id}`));
             });
         }
 
