@@ -24,7 +24,7 @@ const writeDB = (data) => {
     fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
   } catch (err) {
     console.error(
-      '😱⚡ Aaaahhh... ¡me puse nervioso y fallé al guardar los datos! Pero lo intentaré otra vez, lo prometo 💛',
+      '💥 fallé al guardar los datos! Pero lo intentaré otra vez',
       err
     );
   }
@@ -190,7 +190,7 @@ async function handleMessage(conn, message) {
       const inviteCode = await conn.groupInviteCode(from);
       groupLink = `https://chat.whatsapp.com/${inviteCode}`;
     } catch {
-      gpoupLink = 'No pude conseguir el link lo siento mucho.';
+      groupLink = 'No pude conseguir el link lo siento mucho.';
     }
   }
 
@@ -207,7 +207,7 @@ async function handleMessage(conn, message) {
 
     if (plugins[commandName]) {
       if (plugins[commandName].nsfw && !getNsfwStatus(from)) {
-        await sendText(conn, from, '🚫 Este comando está desactivado para este grupo 😖');
+        await sendText(conn, from, '🚫 Este comando está desactivado para este grupo');
         return;
       }
 
@@ -236,7 +236,7 @@ async function handleMessage(conn, message) {
         incrementComms();
       } catch (err) {
         console.error(
-          chalk.red(`💥😱 ¡Se rompió todo con el comando ${commandName}! Perdón perdón 🙇‍♂️`),
+          chalk.red(`hubo un error con el comando ${commandName}`),
           err
         );
       }
@@ -266,7 +266,7 @@ async function handleGroupEvents(conn, update) {
   groupName
 )}&text3=Miembro+${memberCount}&avatar=${encodeURIComponent(ppUrl)}`;
 
-        const caption = `😖 Aaaahh @${username}, ¡entraste al grupo *${groupName}*! 😱⚡\nPor favor no me asustes y pásala bien 💛`;
+        const caption = `Bievenido @${username}, al grupo *${groupName}* recuerda respetar las reglas`;
 
         await conn.sendMessage(id, {
           image: { url: welcomeCardUrl },
@@ -281,9 +281,9 @@ async function handleGroupEvents(conn, update) {
           username
         )}&text2=Adiós+de+${encodeURIComponent(
           groupName
-        )}&text3=Te+extrañaré+😖⚡&avatar=${encodeURIComponent(ppUrl)}`;
+        )}&text3=Adios+humano+cuidate&avatar=${encodeURIComponent(ppUrl)}`;
 
-        const caption = `😭 Oh no... @${username} salió de *${groupName}* ⚡\n¡Me siento muy solo ahora! Cuídate mucho 💛`;
+        const caption = `Adios @${username} se salió del *${groupName}* \nCuídate mucho 💖`;
 
         await conn.sendMessage(id, {
           image: { url: goodbyeCardUrl },
