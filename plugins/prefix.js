@@ -1,21 +1,12 @@
-async function handler(m, { conn, text, command }) {
-  if (!text) throw `No se encontró ningún prefijo, por favor escribe un prefijo.\n> Ejemplo: ${command} !`;
-  
-  global.prefix = new RegExp(
-    '^[' +
-      (text || global.opts['prefix'] || '‎xzXZ/i!#$%+£¢€¥^°=¶∆×÷π√✓©®:;?&.\\-').replace(
-        /[|\\{}()[\]^$+*?.\-\^]/g,
-        '\\$&'
-      ) +
-      ']'
-  );
-  
-  // await m.reply(`✅ Prefijo actualizado con éxito, prefijo actual: ${text}`);
-  conn.fakeReply(m.chat, `✅ Prefijo actualizado con éxito, prefijo actual: ${text}`, '0@s.whatsapp.net', '✨ PREFIJO NUEVO ✨');
-}
-
 module.exports = {
-  command: 'prefix',
-  handler,
-  rowner: true
+  command: 'setprefix',
+  handler: async (m, { conn, text, usedPrefix, command }) => {
+    if (!text) throw `Ingrese el prefijo que quieres\n\nej: ${usedPrefix + command} #`;
+
+    let escapedPrefix = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    global.prefix = new RegExp('^' + escapedPrefix);
+
+    await m.reply(`*Se actualizó el prefijo:* [ ${text} ]`);
+  },
 };
