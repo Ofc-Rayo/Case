@@ -23,7 +23,7 @@ async function execute(conn, { message, text, usedPrefix, command }) {
 }
 
 module.exports = {
-  command: /^setprefix$/i,
+  command: 'setprefix'
   async handler(conn, data) {
     await execute(conn, data);
   }
