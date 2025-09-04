@@ -1,15 +1,16 @@
-const fs = require('fs')
+const fs = require('fs');
 
 async function handler(conn, { message, text, usedPrefix, command }) {
   const jid = message.key.remoteJid;
 
   if (!text) {
-    throw `Ingrese el prefijo que quieres\n\nEjemplo: ${usedPrefix + command} #`;
+    await conn.sendMessage(jid, {
+      text: `Ingrese el prefijo que quieres\n\nEjemplo: ${usedPrefix + command} #`
+    }, { quoted: message });
+    return;
   }
 
-  // rayo
   let escapedPrefix = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
   global.prefix = new RegExp('^' + escapedPrefix);
 
   const confirmMessage = `
@@ -18,16 +19,10 @@ async function handler(conn, { message, text, usedPrefix, command }) {
 │ 📌 Ejemplo de uso: *${text}menu*
 ╰────────────────────────────╯`.trim();
 
-  await conn.sendMessage(
-    jid,
-    {
-      text: confirmMessage
-    },
-    { quoted: message }
-  );
+  await conn.sendMessage(jid, { text: confirmMessage }, { quoted: message });
 }
 
 module.exports = {
-  command: 'setprefix',
+  command: /^setprefix$/i,
   handler
 };
