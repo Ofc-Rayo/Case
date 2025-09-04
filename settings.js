@@ -5,7 +5,7 @@ const chalk = require('chalk');
 global.owner = "595972157130";
 global.botname = "Simple-Bot";
 global.place = 'America/Asuncion';
-global.prefix = ['.'];
+global.prefix = ['-'];
 
 // IDs tal como los definiste
 global.ownerid  = ["595972157130@s.whatsapp.net"];
