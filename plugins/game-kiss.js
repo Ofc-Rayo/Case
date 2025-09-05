@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const handler = async (m, { conn }) => {
-  let who = m.mentionedJid.length > 0
+  let who = (m.mentionedJid && m.mentionedJid.length > 0)
     ? m.mentionedJid[0]
     : (m.quoted ? m.quoted.sender : m.sender);
 
