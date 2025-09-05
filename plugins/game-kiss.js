@@ -1,7 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
+// Función para obtener el nombre de un contacto de forma segura
 async function getContactName(conn, jid) {
+  if (!jid || typeof jid !== 'string') return 'Desconocido';
+
   jid = jid.includes('@s.whatsapp.net') ? jid : jid + '@s.whatsapp.net';
   const contact = conn.contacts?.[jid] || {};
   return contact.name || contact.notify || jid.split('@')[0];
@@ -10,7 +13,7 @@ async function getContactName(conn, jid) {
 const handler = async (m, { conn }) => {
   let who = (m.mentionedJid && m.mentionedJid.length > 0)
     ? m.mentionedJid[0]
-    : (m.quoted ? m.quoted.sender : m.sender);
+    : (m.quoted?.sender || m.sender || '');
 
   let name = await getContactName(conn, who);
   let name2 = await getContactName(conn, m.sender);
@@ -55,6 +58,8 @@ const handler = async (m, { conn }) => {
       },
       { quoted: m }
     );
+  } else {
+    await m.reply(str); // Para chats privados
   }
 };
 
