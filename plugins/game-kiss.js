@@ -19,7 +19,11 @@ const videos = [
 const handler = async (m, { conn, args, command, participants }) => {
   const mentionedJid = m.mentionedJid && m.mentionedJid[0];
   if (!mentionedJid) {
-    return m.reply(m.chat, 'Debes mencionar a alguien para darle un beso. Ejemplo: *.kiss @usuario*', m);
+    return conn.sendMessage(
+      m.chat,
+      { text: 'Debes mencionar a alguien para darle un beso. Ejemplo: *.kiss @usuario*' },
+      { quoted: m }
+    );
   }
 
   const senderName = await conn.getName(m.sender);
