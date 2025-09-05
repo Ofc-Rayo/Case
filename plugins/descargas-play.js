@@ -75,7 +75,7 @@ async function handler(conn, { message, args }) {
     }, { quoted: message });
 
     await conn.sendMessage(message.key.remoteJid, {
-      react: { text: "👍", key: message.key }
+      react: { text: "🖕🏻", key: message.key }
     });
 
     await conn.sendMessage(message.key.remoteJid, {
