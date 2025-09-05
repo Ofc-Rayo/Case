@@ -1,5 +1,4 @@
 const { exec } = require('child_process');
-
 require('../settings');
 
 module.exports = {
@@ -16,14 +15,12 @@ module.exports = {
       }, { quoted: message });
     }
 
-    // Obtener el texto del mensaje completo
     const textMessage =
       message.message?.conversation ||
       message.message?.extendedTextMessage?.text ||
       '';
 
-    // Eliminar el comando "$" del principio
-    const commandToExecute = textMessage.trim().slice(1).trim(); // quita "$" y espacios
+    const commandToExecute = textMessage.trim().replace(/^[$\s]+/, '');
 
     if (!commandToExecute) {
       return conn.sendMessage(from, {
@@ -31,12 +28,10 @@ module.exports = {
       }, { quoted: message });
     }
 
-    // Enviando mensaje de espera
     await conn.sendMessage(from, {
       text: '⏳ Ejecutando comando...'
     }, { quoted: message });
 
-    // Ejecutar comando
     exec(commandToExecute, (error, stdout, stderr) => {
       if (error) {
         return conn.sendMessage(from, {
