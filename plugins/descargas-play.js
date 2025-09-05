@@ -60,12 +60,12 @@ async function handler(conn, { message, args }) {
 
     const caption = `
 ╭─「 SIMPLE - BOT 」─╮
-│ 🎬 *Título:* ${result.title}
-│ 👤 *Canal:* ${result.channel}
-│ ⏱️ *Duración:* ${parseInt(result.duration / 60)}:${String(result.duration % 60).padStart(2, '0')} min
-│ 👁️ *Vistas:* ${parseInt(result.views).toLocaleString()}
-│ 🔗 *Enlace YouTube:* ${result.url}
-╰────────────────────────────╯
+│ ☆ *Título:* ${result.title}
+│ ☆ *Canal:* ${result.channel}
+│ ☆ *Duración:* ${parseInt(result.duration / 60)}:${String(result.duration % 60).padStart(2, '0')} min
+│ ☆ *Vistas:* ${parseInt(result.views).toLocaleString()}
+│ ☆*PayPal:*https://paypal.me/black374673
+╰────────────────────╯
 `.trim();
 
     await conn.sendMessage(message.key.remoteJid, {
@@ -75,7 +75,7 @@ async function handler(conn, { message, args }) {
     }, { quoted: message });
 
     await conn.sendMessage(message.key.remoteJid, {
-      react: { text: "🖕🏻", key: message.key }
+      react: { text: "🍁", key: message.key }
     });
 
     await conn.sendMessage(message.key.remoteJid, {
