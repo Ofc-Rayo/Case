@@ -1,13 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 
+async function getContactName(conn, jid) {
+  jid = jid.includes('@s.whatsapp.net') ? jid : jid + '@s.whatsapp.net';
+  const contact = conn.contacts?.[jid] || {};
+  return contact.name || contact.notify || jid.split('@')[0];
+}
+
 const handler = async (m, { conn }) => {
   let who = (m.mentionedJid && m.mentionedJid.length > 0)
     ? m.mentionedJid[0]
     : (m.quoted ? m.quoted.sender : m.sender);
 
-  let name = await conn.getName(who);
-  let name2 = await conn.getName(m.sender);
+  let name = await getContactName(conn, who);
+  let name2 = await getContactName(conn, m.sender);
 
   let str =
     who === m.sender
