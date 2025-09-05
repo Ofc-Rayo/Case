@@ -15,61 +15,58 @@ const contextInfo = {
   forwardingScore: 999,
   isForwarded: true,
   forwardedNewsletterMessageInfo: {
-    newsletterJid:
-'120363276986902836@newsletter',
+    newsletterJid: '120363276986902836@newsletter',
     newsletterName: 'Toca aquí 👆🏻',
     serverMessageId: 143
   }
 };
 
 async function handler(conn, { message, args }) {
-  const query = args.join(' ');
-  if (!query) {
+  const url = args.join(' ');
+  if (!url || !url.includes('youtube.com') && !url.includes('youtu.be')) {
     return conn.sendMessage(message.key.remoteJid, {
-      text: '⚡ *Lo uso mal*\n\n> Ejemplo de uso: `play Vamos albirroja`',
+      text: '⚡ *Lo usaste mal*\n\n> Debes ingresar un enlace de YouTube\n> Ej: `play https://youtu.be/P9iy6wjbOiQ`',
       contextInfo
     }, { quoted: message });
   }
 
   await conn.sendMessage(message.key.remoteJid, {
-    text: `*Buscando su audio en YouTube...*`,
+    text: `🎶 *Procesando tu enlace...*`,
     contextInfo
   }, { quoted: message });
 
   try {
-    const apiUrl = `https://api.vreden.my.id/api/ytplaymp3?query=${encodeURIComponent(query)}`;
+    const apiUrl = `https://api.ryuu-dev.offc.my.id/download/ytplay?url=${encodeURIComponent(url)}`;
     const res = await axios.get(apiUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
-    const result = res.data?.result;
 
-    if (!result?.status || !result.download?.status) {
+    const result = res.data?.output;
+
+    if (!res.data.status || !result?.audioUrl) {
       return conn.sendMessage(message.key.remoteJid, {
-        text: `*Se produjo un error en la descarga intentalo mas tarde*`,
+        text: `❌ *No se pudo obtener el audio. Inténtalo más tarde.*`,
         contextInfo
       }, { quoted: message });
     }
 
-    const { metadata, download } = result;
-
     const caption = `
 ╭─「 SIMPLE - BOT 」─╮
-│ 🎬 *Título:* ${metadata.title}
-│ 👤 *Autor:* ${metadata.author.name}
-│ ⏱️ *Duración:* ${metadata.duration.timestamp}
-│ 👁️ *Vistas:* ${metadata.views.toLocaleString()}
-│ 🔗 *YouTube:* ${metadata.url}
-│ 📋 Nota: *apóyame con el proyecto vía PayPal* https://paypal.me/black374673
+│ 🎬 *Título:* ${result.title}
+│ 👤 *Canal:* ${result.channel}
+│ ⏱️ *Duración:* ${parseInt(result.duration / 60)}:${String(result.duration % 60).padStart(2, '0')} min
+│ 👁️ *Vistas:* ${parseInt(result.views).toLocaleString()}
+│ 🔗 *Enlace YouTube:* ${url}
 ╰────────────────────────────╯
 `.trim();
 
     await conn.sendMessage(message.key.remoteJid, {
-      image: { url: metadata.thumbnail },
+      image: { url: result.thumbnail },
       caption,
       contextInfo
     }, { quoted: message });
 
     await conn.sendMessage(message.key.remoteJid, {
-      audio: { url: download.url },
-      fileName: download.filename,
+      audio: { url: result.audioUrl },
+      fileName: `${result.title}.mp3`,
       mimetype: "audio/mp4",
       ptt: false,
       contextInfo
@@ -78,7 +75,7 @@ async function handler(conn, { message, args }) {
   } catch (err) {
     console.error("⚠️ Error en el comando play:", err.message);
     await conn.sendMessage(message.key.remoteJid, {
-      text: `*Error inesperado en la reproducción.*\n\n ${err.message}\n⚡ simple bot está revisando los cables del universo...`,
+      text: `❌ *Error inesperado al reproducir el audio.*\n\n${err.message}`,
       contextInfo
     }, { quoted: message });
   }
