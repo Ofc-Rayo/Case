@@ -16,32 +16,41 @@ const videos = [
   'https://raw.githubusercontent.com/The-King-Destroy/Adiciones/main/Contenido/1745784914086.mp4'
 ];
 
-const handler = async (m, { conn, args, command, participants }) => {
-  const mentionedJid = m.mentionedJid && m.mentionedJid[0];
-  if (!mentionedJid) {
-    return conn.sendMessage(
+const handler = async (m, { conn }) => {
+  try {
+    const mentionedJid = m.mentionedJid && m.mentionedJid[0];
+
+    if (!mentionedJid) {
+      const message = `@${m.sender.split('@')[0]} se besó así mismo 💋`;
+      return conn.sendMessage(
+        m.chat,
+        {
+          text: message,
+          mentions: [m.sender],
+        },
+        { quoted: m }
+      );
+    }
+
+    const videoUrl = videos[Math.floor(Math.random() * videos.length)];
+    const message = `@${m.sender.split('@')[0]} le dio un beso a @${mentionedJid.split('@')[0]} 💋`;
+
+    await conn.sendMessage(
       m.chat,
-      { text: 'Debes mencionar a alguien para darle un beso. Ejemplo: *.kiss @usuario*' },
+      {
+        video: { url: videoUrl },
+        caption: message,
+        mentions: [m.sender, mentionedJid],
+      }
+    );
+  } catch (error) {
+    console.error(error);
+    await conn.sendMessage(
+      m.chat,
+      { text: 'Ocurrió un error al ejecutar el comando.' },
       { quoted: m }
     );
   }
-
-  const senderName = await conn.getName(m.sender);
-  const targetName = await conn.getName(mentionedJid);
-
-  const videoUrl = videos[Math.floor(Math.random() * videos.length)];
-
-  const message = `@${m.sender.split('@')[0]} le dio un beso a @${mentionedJid.split('@')[0]} 💋`;
-
-  await conn.sendMessage(
-    m.chat,
-    {
-      video: { url: videoUrl },
-      caption: message,
-      mentions: [m.sender, mentionedJid],
-    },
-    { quoted: m }
-  );
 };
 
 module.exports = {
