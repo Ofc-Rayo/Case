@@ -1,42 +1,66 @@
-const cp = require('child_process');
-const { promisify } = require('util');
-const exec = promisify(cp.exec);
+const { exec } = require('child_process');
+
+require('../settings');
 
 module.exports = {
   command: '$',
-  handler: async (conn, { message, args }) => {
+  handler: async (conn, { message }) => {
     const from = message.key.remoteJid;
     const sender = message.key.participant || from;
     const normalizedSender = sender.toLowerCase().trim();
     const allOwners = [...global.ownerid, ...global.ownerlid].map(x => x.toLowerCase().trim());
 
     if (!allOwners.includes(normalizedSender)) {
-      return conn.sendMessage(from, { text: '❌ No tienes permisos para usar este comando.' }, { quoted: message });
+      return conn.sendMessage(from, {
+        text: '❌ No tienes permisos para usar este comando.'
+      }, { quoted: message });
     }
 
-    const commandToExecute = args.join(' ').trim();
+    // Obtener el texto del mensaje completo
+    const textMessage =
+      message.message?.conversation ||
+      message.message?.extendedTextMessage?.text ||
+      '';
+
+    // Eliminar el comando "$" del principio
+    const commandToExecute = textMessage.trim().slice(1).trim(); // quita "$" y espacios
+
     if (!commandToExecute) {
-      return conn.sendMessage(from, { text: '❗ Por favor, proporciona un comando para ejecutar después del $.' }, { quoted: message });
+      return conn.sendMessage(from, {
+        text: '❗ Por favor, proporciona un comando para ejecutar después del $.'
+      }, { quoted: message });
     }
 
-    await conn.sendMessage(from, { text: '⏳ Ejecutando comando...' }, { quoted: message });
+    // Enviando mensaje de espera
+    await conn.sendMessage(from, {
+      text: '⏳ Ejecutando comando...'
+    }, { quoted: message });
 
-    try {
-      const { stdout, stderr } = await exec(commandToExecute);
+    // Ejecutar comando
+    exec(commandToExecute, (error, stdout, stderr) => {
+      if (error) {
+        return conn.sendMessage(from, {
+          text: `❌ Error al ejecutar el comando:\n${error.message}`
+        }, { quoted: message });
+      }
 
       if (stdout.trim()) {
-        await conn.sendMessage(from, { text: `✅ Resultado:\n${stdout}` }, { quoted: message });
+        conn.sendMessage(from, {
+          text: `✅ Resultado:\n${stdout}`
+        }, { quoted: message });
       }
 
       if (stderr.trim()) {
-        await conn.sendMessage(from, { text: `⚠️ Error:\n${stderr}` }, { quoted: message });
+        conn.sendMessage(from, {
+          text: `⚠️ Error:\n${stderr}`
+        }, { quoted: message });
       }
 
       if (!stdout.trim() && !stderr.trim()) {
-        await conn.sendMessage(from, { text: '⚠️ Comando ejecutado pero no produjo salida.' }, { quoted: message });
+        conn.sendMessage(from, {
+          text: '⚠️ Comando ejecutado pero no produjo salida.'
+        }, { quoted: message });
       }
-    } catch (error) {
-      await conn.sendMessage(from, { text: `❌ Error al ejecutar el comando:\n${error.message}` }, { quoted: message });
-    }
+    });
   }
 };
