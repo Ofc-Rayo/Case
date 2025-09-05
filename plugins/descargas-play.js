@@ -22,21 +22,21 @@ const contextInfo = {
 };
 
 async function handler(conn, { message, args }) {
-  const url = args.join(' ');
-  if (!url || !url.includes('youtube.com') && !url.includes('youtu.be')) {
+  const query = args.join(' ');
+  if (!query) {
     return conn.sendMessage(message.key.remoteJid, {
-      text: '⚡ *Lo usaste mal*\n\n> Debes ingresar un enlace de YouTube\n> Ej: `play https://youtu.be/P9iy6wjbOiQ`',
+      text: '⚡ *Lo usaste mal*\n\n> Debes ingresar el nombre o enlace de YouTube\n> Ej: `play vaicocota` o `play https://youtu.be/P9iy6wjbOiQ`',
       contextInfo
     }, { quoted: message });
   }
 
   await conn.sendMessage(message.key.remoteJid, {
-    text: `🎶 *Procesando tu enlace...*`,
+    text: `🎶 *Buscando tu canción...*`,
     contextInfo
   }, { quoted: message });
 
   try {
-    const apiUrl = `https://api.ryuu-dev.offc.my.id/download/ytplay?url=${encodeURIComponent(url)}`;
+    const apiUrl = `https://api.ryuu-dev.offc.my.id/download/ytplay?url=${encodeURIComponent(query)}`;
     const res = await axios.get(apiUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
 
     const result = res.data?.output;
@@ -54,7 +54,7 @@ async function handler(conn, { message, args }) {
 │ 👤 *Canal:* ${result.channel}
 │ ⏱️ *Duración:* ${parseInt(result.duration / 60)}:${String(result.duration % 60).padStart(2, '0')} min
 │ 👁️ *Vistas:* ${parseInt(result.views).toLocaleString()}
-│ 🔗 *Enlace YouTube:* ${url}
+│ 🔗 *Enlace YouTube:* ${result.url}
 ╰────────────────────────────╯
 `.trim();
 
