@@ -1,4 +1,5 @@
 const axios = require('axios');
+const yts = require('yt-search');
 
 const thumbnailUrl = 'https://qu.ax/QuwNu.jpg';
 
@@ -36,7 +37,16 @@ async function handler(conn, { message, args }) {
   }, { quoted: message });
 
   try {
-    const apiUrl = `https://api.ryuu-dev.offc.my.id/download/ytplay?url=${encodeURIComponent(query)}`;
+    let youtubeUrl = query;
+
+    if (!query.startsWith('http')) {
+      const search = await yts(query);
+      const video = search.videos[0];
+      if (!video) throw new Error("No se encontraron resultados en YouTube.");
+      youtubeUrl = video.url;
+    }
+
+    const apiUrl = `https://api.ryuu-dev.offc.my.id/download/ytplay?url=${encodeURIComponent(youtubeUrl)}`;
     const res = await axios.get(apiUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
 
     const result = res.data?.output;
@@ -63,6 +73,10 @@ async function handler(conn, { message, args }) {
       caption,
       contextInfo
     }, { quoted: message });
+
+    await conn.sendMessage(message.key.remoteJid, {
+      react: { text: "👍", key: message.key }
+    });
 
     await conn.sendMessage(message.key.remoteJid, {
       audio: { url: result.audioUrl },
