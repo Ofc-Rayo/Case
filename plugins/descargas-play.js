@@ -64,8 +64,8 @@ async function handler(conn, { message, args }) {
 │ ☆ *Canal:* ${result.channel}
 │ ☆ *Duración:* ${parseInt(result.duration / 60)}:${String(result.duration % 60).padStart(2, '0')} min
 │ ☆ *Vistas:* ${parseInt(result.views).toLocaleString()}
-│ ☆ *PayPal:*https://paypal.me/black374673
-╰────────────────────╯
+│ ☆ *PayPal:* https://paypal.me/black374673
+╰─────────────────╯
 `.trim();
 
     await conn.sendMessage(message.key.remoteJid, {
