@@ -1,7 +1,6 @@
 const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const P = require('pino');
 const { Boom } = require('@hapi/boom');
-
 const { handleMessage, handleGroupEvents } = require('./handler');
 
 const authFile = './auth_info.json';
