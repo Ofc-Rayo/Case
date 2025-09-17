@@ -1,88 +1,37 @@
-const fetch = require('node-fetch');
-const thumbnailUrl = 'https://qu.ax/MvYPM.jpg'; // Miniatura evocadora
+async function before(m, { groupMetadata, prefix, db, conn, owner, plugins }) {
+  if (!m.text || !prefix.test(m.text)) return;
 
-const contextInfo = {
-    externalAdReply: {
-        title: '🔮 Zenitsu Habla',
-        body: 'Convierte palabras en vibraciones rituales',
-        mediaType: 1,
-        previewType: 0,
-        sourceUrl: 'https://myapiadonix.vercel.app/api/adonixvoz',
-        thumbnailUrl
+  const usedPrefix = prefix.exec(m.text)[0];
+  const command = m.text.slice(usedPrefix.length).trim().split(' ')[0].toLowerCase();
+
+  const validCommand = (command, plugins) => {
+    for (let plugin of Object.values(plugins)) {
+      const cmds = Array.isArray(plugin.command) ? plugin.command : [plugin.command];
+      if (cmds.includes(command)) return true;
     }
-};
+    return false;
+  };
 
-async function handler(conn, { message, args, command }) {
-    const phrase = args.join(' ');
-    const from = message.key.remoteJid;
+  const chat = db.data.chats[m.chat];
+  const id = conn.user.jid;
+  const settings = db.data.settings[id];
+  const isOwner = owner
+    .map(([number]) => number.replace(/[^0-9]/g, "") + "@s.whatsapp.net")
+    .includes(m.sender);
 
-    if (!phrase) {
-        return conn.sendMessage(from, {
-            text: `🗣️ *Invoca una frase...*\n\n> Escribe un mensaje para canalizarlo como voz ceremonial.\n\n📌 Ejemplo:\n.voz Te extraño, Mitsuri.`,
-            contextInfo
-        }, { quoted: message });
-    }
+  if (chat.adminonly) return;
+  if (settings.self) return;
+  if (!command) return;
+  if (command === 'mute') return;
+  if (chat.bannedGrupo && !isOwner) return;
 
-    await conn.sendMessage(from, {
-        text: '🎙️ *Zenitsu está canalizando la voz...*',
-        contextInfo
-    }, { quoted: message });
-
-    try {
-        const api = `https://myapiadonix.vercel.app/api/adonixvoz?q=${encodeURIComponent(phrase)}`;
-        const res = await fetch(api);
-        const audioBuffer = await res.buffer();
-
-        const caption = `
-╭─「 🔊 𝙑𝙊𝙕 𝘾𝘼𝙉𝘼𝙇𝙄𝙕𝘼𝘿𝘼 」─╮
-│ 📝 *Frase:* ${phrase}
-│ 🎧 *Estilo:* Zenitsu Bot 
-╰────────────────────╯
-
-Zenitsu escuchó la frase... y la convirtió en vibración emocional. ✨🔮
-`.trim();
-
-        await conn.sendMessage(from, {
-            audio: audioBuffer,
-            mimetype: 'audio/mp4',
-            ptt: true,
-            caption,
-            contextInfo: {
-                externalAdReply: {
-                    title: '🔊 Voz invocada',
-                    body: `Frase: "${phrase}"`,
-                    thumbnailUrl,
-                    sourceUrl: api
-                }
-            }
-        }, { quoted: message });
-
-    } catch (error) {
-        console.error('❌ Error al canalizar la voz:', error.message);
-        return conn.sendMessage(from, {
-            text: `
-🚫 *Algo falló al invocar la voz...*
-
-╭─「 ⚠️ 𝙀𝙍𝙍𝙊𝙍 」─╮
-│ 📄 *Detalles:* ${error.message}
-│ 🔁 *Sugerencia:* Intenta más tarde o cambia la frase.
-╰─────────────────╯
-
-Zenitsu se quedó sin palabras... pero volverá con más vibración. 🎧⚡
-`.trim(),
-            contextInfo: {
-                externalAdReply: {
-                    title: 'Error en la voz',
-                    body: 'No se pudo acceder al canal',
-                    thumbnailUrl,
-                    sourceUrl: 'https://myapiadonix.vercel.app/api/adonixvoz'
-                }
-            }
-        }, { quoted: message });
-    }
+  if (validCommand(command, plugins)) {
+    return;
+  } else {
+    await m.reply(`🕸 El comando *${command}* no existe.\n> Usa *${usedPrefix}help* para ver la lista de comandos disponibles.`);
+  }
 }
 
 module.exports = {
-    command: 'voz',
-    handler,
+  before
 };
