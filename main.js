@@ -1,7 +1,6 @@
 const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const P = require('pino');
 const { Boom } = require('@hapi/boom');
-const fs = require('fs');
 
 const { handleMessage, handleGroupEvents } = require('./handler');
 
@@ -20,7 +19,7 @@ const startBot = () => {
 
   conn.ev.on('messages.upsert', async (msg) => {
     const m = msg.messages[0];
-    if (!m || m.key.fromMe) return;
+    if (!m || m.key.fromMe || !m.message) return;
     try {
       await handleMessage(conn, m);
     } catch (err) {
@@ -40,9 +39,10 @@ const startBot = () => {
     const { connection, lastDisconnect } = update;
 
     if (connection === 'close') {
-      const shouldReconnect = (lastDisconnect?.error instanceof Boom)
-        ? lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
-        : true;
+      const shouldReconnect =
+        (lastDisconnect?.error instanceof Boom)
+          ? lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
+          : true;
 
       console.log('❌ Conexión cerrada. Reconectando...', shouldReconnect);
 
