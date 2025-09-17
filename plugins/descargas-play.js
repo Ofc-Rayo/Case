@@ -46,12 +46,11 @@ async function handler(conn, { message, args }) {
       youtubeUrl = video.url;
     }
 
-    const apiUrl = `https://api.ryuu-dev.offc.my.id/download/ytplay?url=${encodeURIComponent(youtubeUrl)}`;
+    const apiUrl = `https://gokublack.xyz/download/ytmp3?url=${encodeURIComponent(youtubeUrl)}`;
     const res = await axios.get(apiUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+    const result = res.data?.data;
 
-    const result = res.data?.output;
-
-    if (!res.data.status || !result?.audioUrl) {
+    if (!res.data.status || !result?.downloadURL) {
       return conn.sendMessage(message.key.remoteJid, {
         text: `❌ *No se pudo obtener el audio. Inténtalo más tarde.*`,
         contextInfo
@@ -61,15 +60,13 @@ async function handler(conn, { message, args }) {
     const caption = `
 ╭─「 SIMPLE - BOT 」─╮
 │ ☆ *Título:* ${result.title}
-│ ☆ *Canal:* ${result.channel}
-│ ☆ *Duración:* ${parseInt(result.duration / 60)}:${String(result.duration % 60).padStart(2, '0')} min
-│ ☆ *Vistas:* ${parseInt(result.views).toLocaleString()}
+│ ☆ *Formato:* ${result.format}
 │ ☆ *PayPal:* https://paypal.me/black374673
 ╰─────────────────╯
 `.trim();
 
     await conn.sendMessage(message.key.remoteJid, {
-      image: { url: result.thumbnail },
+      image: { url: thumbnailUrl },
       caption,
       contextInfo
     }, { quoted: message });
@@ -79,7 +76,7 @@ async function handler(conn, { message, args }) {
     });
 
     await conn.sendMessage(message.key.remoteJid, {
-      audio: { url: result.audioUrl },
+      audio: { url: result.downloadURL },
       fileName: `${result.title}.mp3`,
       mimetype: "audio/mp4",
       ptt: false,
