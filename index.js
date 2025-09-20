@@ -21,8 +21,8 @@ async function startBot() {
             console.log(err);
             return;
         }
-        console.log(chalk.yellowBright(data));
-        console.log(chalk.magentaBright('\nIniciando...'));
+        console.log(chalk.redBright(data));
+        console.log(chalk.redBright('\nIniciando...'));
     });
 
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -36,13 +36,13 @@ async function startBot() {
         do {
             const lineM = '━━━━━━━━━━━━━━━━━━━━';
             opcion = await question(`╔${lineM}╗
-❘ ${chalk.bgYellow('        MÉTODO DE CONEXIÓN        ')}
-❘ ${chalk.bgMagenta('➥')} ${chalk.bold.cyan('1. Conexión por QR')}
-❘ ${chalk.bgMagenta('➥')} ${chalk.green.bold('2. Conexión por número')}
-╚${lineM}╝\n${chalk.bold.yellow('➥ ')}${chalk.bold.green('➜ ')}`);
+❘ ${chalk.bgRed('        MÉTODO DE CONEXIÓN        ')}
+❘ ${chalk.bgRed('➥')} ${chalk.redBright.bold('1. Conexión por QR')}
+❘ ${chalk.bgRed('➥')} ${chalk.redBright.bold('2. Conexión por número')}
+╚${lineM}╝\n${chalk.redBright.bold('➥ ')}${chalk.redBright.bold('➜ ')}`);
 
             if (!/^[1-2]$/.test(opcion)) {
-                console.log(chalk.bold.redBright(`Opción inválida. Solo puedes elegir 1 o 2.`));
+                console.log(chalk.redBright.bold(`Opción inválida. Solo puedes elegir 1 o 2.`));
             }
         } while (opcion !== '1' && opcion !== '2' || fs.existsSync('./sessions/creds.json'));
     }
@@ -54,10 +54,10 @@ async function startBot() {
     });
 
     if (opcion === '2') {
-        let phoneNumber = await question('Introduce tu número de teléfono (Ej: +595972xxxxx): ');
+        let phoneNumber = await question(chalk.red('Introduce tu número de teléfono (Ej: +595972xxxxx): '));
         phoneNumber = phoneNumber.replace(/\D/g, '');
         const pairingCode = await socket.requestPairingCode(phoneNumber);
-        console.log(chalk.cyanBright(`Código de emparejamiento:\n${chalk.bold(pairingCode)}`));
+        console.log(chalk.redBright(`Código de emparejamiento:\n${chalk.bold.red(pairingCode)}`));
     }
 
     socket.ev.on('connection.update', (update) => {
@@ -69,19 +69,19 @@ async function startBot() {
                     console.log(chalk.red('Error al mostrar el banner.'));
                     return;
                 }
-                console.log(chalk.magentaBright(data));
-                console.log(chalk.greenBright(`Me conecte al usuario: ${socket.user.id}`));
+                console.log(chalk.redBright(data));
+                console.log(chalk.redBright(`Me conecté al usuario: ${socket.user.id}`));
             });
         }
 
         if (connection === 'close') {
             console.log(chalk.redBright('\nDesconectado.'));
-            console.log(chalk.yellowBright('Intentando reconectar...'));
+            console.log(chalk.red('Intentando reconectar...'));
             startBot();
         }
 
         if (qr) {
-            console.log(chalk.cyanBright('\nEscanea este código QR para conectar:'));
+            console.log(chalk.redBright('\nEscanea este código QR para conectar:'));
             qrcode.generate(qr, { small: true });
         }
     });
